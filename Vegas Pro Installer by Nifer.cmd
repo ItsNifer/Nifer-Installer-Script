@@ -113,6 +113,7 @@ GOTO check-auto-up
 
 :: 1=yes, 0=default, 2=no
 :check-auto-up
+echo.
 echo Checking for auto updates.
 if not exist ".\Installer-files\Installer-Scripts\auto-update*.txt" break>".\Installer-files\Installer-Scripts\auto-update-0.txt"
 if exist ".\Installer-files\Installer-Scripts\auto-update-1.txt" GOTO check-auto-1
@@ -120,12 +121,10 @@ if exist ".\Installer-files\Installer-Scripts\auto-update-0.txt" GOTO check-auto
 if exist ".\Installer-files\Installer-Scripts\auto-update-2.txt" GOTO Main
 :check-auto-1
 color 0C
-echo.
 echo Auto Updates are enabled.
 GOTO auto-update-fin
 :check-auto-0
 color 0C
-echo.
 echo Auto Updates are not enabled.
 GOTO prompt-auto-up1
 
@@ -155,8 +154,17 @@ GOTO git-installed1
 :errorNoGit
 color 0C
 echo Git is not installed
-echo Launching the installer for Git 2.41
+echo Downloading the installer for Git 2.41
+:: download git with gdown
+gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
+cls
+color 0C
+echo Download is finished
+timeout /T 3 /nobreak >nul
+echo Launching the installer for Git
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
+echo Cleaning up extra files...
+del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
 GOTO git-installed1
 
 :git-installed1
@@ -174,13 +182,36 @@ GOTO auto-update-fin
 :auto-update-fin
 echo Checking for updates
 :: stashes local changes, pulls updates from github, pushes local changes after it pulls.
+:: waits in between each git command. If error, it will continue to Main Menu, and ignore the update. This way, the script will still be functional.
 git stash
-timeout /T 3 /nobreak >nul
-git pull --force
-timeout /T 3 /nobreak >nul
-git checkout stash -- .
-timeout /T 3 /nobreak >nul
-GOTO Main
+if %ERRORLEVEL% == 0 GOTO git-stash-cont
+if %ERRORLEVEL% == 1 GOTO git-stash-error
+:git-stash-cont
+    GOTO git-pull-1
+:git-stash-error
+    echo Auto update failed...
+	timeout /T 3 /nobreak >nul
+	GOTO Main
+:git-pull-1
+git pull
+if %ERRORLEVEL% == 0 GOTO git-pull-cont
+if %ERRORLEVEL% == 1 GOTO git-pull-error
+:git-pull-cont
+    GOTO git-stash-2
+:git-pull-error
+    echo Auto update failed...
+	timeout /T 3 /nobreak >nul
+	GOTO Main
+:git-stash-2
+git stash pop
+if %ERRORLEVEL% == 0 GOTO git-stash2-cont
+if %ERRORLEVEL% == 1 GOTO git-stash2-error
+:git-stash2-cont
+    GOTO Main
+:git-stash2-error
+    echo Auto update failed...
+	timeout /T 3 /nobreak >nul
+	GOTO Main
 
 :auto-update-no
 echo.
@@ -196,6 +227,7 @@ GOTO Main
 :Main
 @Title Vegas Pro Installer by Nifer
 cls
+color 0C
 Echo.                                                        
 echo		 MAGIX Vegas Pro 20 Installer
 echo		  Patch and Script by Nifer
