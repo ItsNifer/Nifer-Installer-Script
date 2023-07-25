@@ -189,7 +189,7 @@ if %ERRORLEVEL% == 1 GOTO git-stash-error
 :git-stash-cont
     GOTO git-pull-1
 :git-stash-error
-    echo Auto update failed...
+    echo No local changes were made.
 	timeout /T 3 /nobreak >nul
 	GOTO Main
 :git-pull-1
@@ -209,7 +209,7 @@ if %ERRORLEVEL% == 1 GOTO git-stash2-error
 :git-stash2-cont
     GOTO Main
 :git-stash2-error
-    echo Auto update failed...
+    echo No local changes found
 	timeout /T 3 /nobreak >nul
 	GOTO Main
 
