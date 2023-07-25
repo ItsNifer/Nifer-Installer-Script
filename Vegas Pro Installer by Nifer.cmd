@@ -98,7 +98,7 @@ color 0C
 echo WinRAR is Installed.
 :: Wait 3 seconds, arbitrary... but just enough time for user to read the instructions
 timeout /T 3 /nobreak >nul
-GOTO Main
+GOTO check-auto-up
 :WRAR-Install1
 color 0C
 echo WinRAR is not installed
@@ -108,7 +108,90 @@ echo It is a silent Installation, so no window will pop up.
 ".\Installer-files\Installer-Scripts\winrar-installer.exe" /S
 :: Wait 10 seconds, arbitrary... but just enough time for user to read the instructions
 timeout /T 10 /nobreak >nul
+GOTO check-auto-up
+
+
+:: 1=yes, 0=default, 2=no
+:check-auto-up
+echo Checking for auto updates.
+if not exist ".\Installer-files\Installer-Scripts\auto-update*.txt" break>".\Installer-files\Installer-Scripts\auto-update-0.txt"
+if exist ".\Installer-files\Installer-Scripts\auto-update-1.txt" GOTO check-auto-1
+if exist ".\Installer-files\Installer-Scripts\auto-update-0.txt" GOTO check-auto-0
+if exist ".\Installer-files\Installer-Scripts\auto-update-2.txt" GOTO Main
+:check-auto-1
+color 0C
+echo.
+echo Auto Updates are enabled.
+GOTO auto-update-fin
+:check-auto-0
+color 0C
+echo.
+echo Auto Updates are not enabled.
+GOTO prompt-auto-up1
+
+:prompt-auto-up1
+echo.
+echo Do you want to enable Auto Updates for this Installer Script?
+echo This will install Git, if you do not have it already.
+echo 1 = Yes
+echo 2 = No
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO auto-update-no
+IF ERRORLEVEL 1  GOTO git-install
+echo.
+
+:git-install
+cls
+color 0C
+echo.
+echo Checking for Git
+git --version 2>NUL
+if errorlevel 1 GOTO errorNoGit
+GOTO git-installed1
+
+:errorNoGit
+color 0C
+echo Git is not installed
+echo Launching the installer for Git 2.41
+start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
+GOTO git-installed1
+
+:git-installed1
+color 0C
+echo Git is installed
+echo.
+REN ".\Installer-files\Installer-Scripts\auto-update-0.txt" "auto-update-1.txt" 2>nul
+:: Creates local git repo
+git init
+git config --global --add safe.directory "*"
+git pull https://github.com/ItsNifer/VP-20-Nifer.git
+echo Auto updates are now enabled.
+timeout /T 3 /nobreak >nul
+GOTO auto-update-fin
+:auto-update-fin
+echo Checking for updates
+:: stashes local changes, pulls updates from github, pushes local changes after it pulls.
+git stash
+timeout /T 3 /nobreak >nul
+git pull --force
+timeout /T 3 /nobreak >nul
+git checkout stash -- .
+timeout /T 3 /nobreak >nul
 GOTO Main
+
+:auto-update-no
+echo.
+echo Disabling auto Updates
+REN ".\Installer-files\Installer-Scripts\auto-update-0.txt" "auto-update-2.txt" 2>nul
+echo The Installer will no longer ask you for auto updates.
+timeout /T 3 /nobreak >nul
+GOTO Main
+
+
+
 ::------------------------------------------
 :Main
 @Title Vegas Pro Installer by Nifer
