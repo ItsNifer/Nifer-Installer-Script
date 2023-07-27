@@ -2,31 +2,23 @@ Vegas Pro Installer by Nifer
 
 Hello!
 I've worked pretty hard on this installer, if you could please follow on twitter @NiferEdits
-This script automatically checks & installs these requirements:
+This script automatically checks & installs these requirements (if u are missing them):
 	- Python 3.x
-	- GDown
-	- WinRAR
-	- Git (Optional for Auto-updating)
+	- GDown (Google Drive downloader)
+	- WinRAR (7zip will not work)
+	- Git 4.x (Optional for Auto-updating)
 
 ***YOU NEED to have the folder "Installer-files" in the same directory as "Vegas Pro Installer by Nifer.cmd"*** 
+Once you've done that, simply run "Vegas Pro Installer by Nifer"
 
 
 
 All downloaded files will be placed in their own folders under the "Installer-files" folder.
 After downloading any 3rd party plugin, open the Installer-files folder > Plugins folder > (Plugin)
-and manually install the plugins. All the instructions are in there.
-	- I would've made a script to install each plugin, but that would be WAY to much work.
-	- Some plugins already have scripts that I've made to auto install them.
-
-This installer is linked to my Google Drive Storage and downloads the needed files from my Drive.
-This means that this script does not need any updating.
-You can use this same exact script to Download, Install, Patch Vegas Pro 20 and Plugins.
-All I would need to do is update the files in my Google Drive, that the script reads off of.
-This includes all future updates for Vegas Pro 20 and Plugins.
 
 
 
-
+___________________________________________________________________
 Troubleshooting:
 My Installer is giving errors during launch, and instantly closes.
 	- Try Restarting the Installer to check for the required software. Otherwise, delete entire Installer and all of it's folders. Then redownload or re-extract the files into a new folder, and try again.
@@ -37,14 +29,26 @@ I turned auto-updating off, but now I want to turn it on.
 When I go to install Vegas Pro, it says it's already installed, it launches the un-installer but gives an error.
 	- Manually un-install Vegas Pro through your control panel. Try my installer afterwards.
 
+When I go to install Plugins, the auto installer doesn't patch it correctly and I still have the trial version.
+	- Manually patch the plugin yourself, follow the instructions for each plugin.
+
+___________________________________________________________________
 
 
 
 
 
+___________________________________________________________________
+Extra Information (for those that are curious):
 
+This installer is linked to my Google Drive Storage and downloads the needed files from my Drive.
+This means that this script does not need any updating.
+You can use this same exact script to Download, Install, Patch Vegas Pro 20 and Plugins.
+All I would need to do is update the files in my Google Drive, that the script reads off of.
+This includes all future updates for Vegas Pro 20 and Plugins.
 
-
+Although, I've allowed a feature to auto update the installer script, in case I add any new features into the installer
+in the future. This would require Git to be installed, as it is pulling my github repository to check for updates.
 
 This script utilizes Python, and a open source PyPi project called GDown.
 GDown is a Google Drive downloading tool, and as you can guess... It downloads files from google drive.
@@ -52,9 +56,7 @@ You will also need WinRAR to extract the files (7zip will not work for the purpo
 This script will automatically detect if you have Python installed (any 3.x version), Gdown, and WinRAR installed.
 If you don't have them installed, this script will automatically install them for you.
 
-tldr; You need some programs installed for this script to work, but this script installs it for you, so don't worry.
 
 
-
-Github Repository:
+My Github Repository:
 https://github.com/ItsNifer/VP-20-Nifer

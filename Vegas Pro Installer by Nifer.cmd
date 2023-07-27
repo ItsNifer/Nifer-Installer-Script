@@ -183,17 +183,19 @@ GOTO auto-update-fin
 echo Checking for updates
 :: stashes local changes, pulls updates from github, pushes local changes after it pulls.
 :: waits in between each git command. If error, it will continue to Main Menu, and ignore the update. This way, the script will still be functional.
-git stash
+:::::::::::::::::::::::::::::::::::::::::::::
+git stash >nul
 if %ERRORLEVEL% == 0 GOTO git-stash-cont
 if %ERRORLEVEL% == 1 GOTO git-stash-error
 :git-stash-cont
     GOTO git-pull-1
 :git-stash-error
-    echo No local changes were made.
+    echo Scanning for local changes.
 	timeout /T 3 /nobreak >nul
 	GOTO Main
 :git-pull-1
-git pull
+:::::::::::::::::::::::::::::::::::::::::::::
+git pull >nul
 if %ERRORLEVEL% == 0 GOTO git-pull-cont
 if %ERRORLEVEL% == 1 GOTO git-pull-error
 :git-pull-cont
@@ -203,16 +205,20 @@ if %ERRORLEVEL% == 1 GOTO git-pull-error
 	timeout /T 3 /nobreak >nul
 	GOTO Main
 :git-stash-2
-git stash pop
+:::::::::::::::::::::::::::::::::::::::::::::
+git stash pop >nul
 if %ERRORLEVEL% == 0 GOTO git-stash2-cont
 if %ERRORLEVEL% == 1 GOTO git-stash2-error
 :git-stash2-cont
     GOTO Main
 :git-stash2-error
-    echo No local changes found
+    echo Pushed any known local changes to directory.
+	echo.
+	echo.
+	echo Finished checking for updates.
 	timeout /T 3 /nobreak >nul
 	GOTO Main
-
+:::::::::::::::::::::::::::::::::::::::::::::
 :auto-update-no
 echo.
 echo Disabling auto Updates
@@ -220,6 +226,7 @@ REN ".\Installer-files\Installer-Scripts\auto-update-0.txt" "auto-update-2.txt" 
 echo The Installer will no longer ask you for auto updates.
 timeout /T 3 /nobreak >nul
 GOTO Main
+:::::::::::::::::::::::::::::::::::::::::::::
 
 
 
@@ -255,6 +262,7 @@ echo.
 GOTO SelectVegas
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
+Echo ***		Current Build: Vegas Pro 20 Build 411			  ***
 Echo ****************************************************************
 echo.
 :SelectVegas
@@ -266,6 +274,7 @@ cls
 color 0C
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
+Echo ***		Current Build: Vegas Pro 20 Build 411			  ***
 Echo ****************************************************************
 Echo.
 echo		 Select what to Download and Install
@@ -694,18 +703,18 @@ if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%NFX-TotalFX%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
-GOTO LOOP22
+GOTO LOOP21
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP22
+:LOOP21
 tasklist | find /i "WinRAR" >nul 2>&1
 IF ERRORLEVEL 1 (
-  GOTO CONTINUE22
+  GOTO CONTINUE21
 ) ELSE (
   ECHO WinRAR is still running
   Timeout /T 5 /Nobreak >nul
-  GOTO LOOP22
+  GOTO LOOP21
 )
-:CONTINUE22
+:CONTINUE21
 del ".\Installer-files\%BFX-Sapphire%"
 del ".\Installer-files\%BFX-Continuum%"
 del ".\Installer-files\%BFX-Mocha%"
@@ -719,6 +728,284 @@ del ".\Installer-files\%RFX-Effections%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
+GOTO auto-21
+
+:auto-21
+cls
+echo How do you want to install the plugins?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-21
+IF ERRORLEVEL 1  GOTO autoinst-21
+echo.
+:manual-21
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-21
+cls
+:: 1st auto install
+echo Launching auto install script for Boris FX Continuum Complete
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-1
+echo.
+:no-auto-1
+echo There is no auto install script for Boris FX Continuum Complete.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-1
+cls
+color 0C
+:: 2nd auto install
+echo Launching auto install script for Boris FX Mocha Pro
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-2
+echo.
+:no-auto-2
+echo There is no auto install script for Boris FX Mocha Pro.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-2
+cls
+color 0C
+:: 3rd auto install
+echo Launching auto install script for Boris FX Sapphire
+for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
+for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-3
+echo.
+:no-auto-3
+echo There is no auto install script for Boris FX Sapphire.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-3
+cls
+color 0C
+:: 4th auto install
+echo Launching auto install script for Boris FX Silhouette
+for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-4
+for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-4
+echo.
+:no-auto-4
+echo There is no auto install script for Boris FX Silhouette.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-4
+cls
+color 0C
+:: 5th auto install
+echo Launching auto install script for FXHOME Ignite Pro
+for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-5
+for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-5
+echo.
+:no-auto-5
+echo There is no auto install script for FXHOME Ignite Pro.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-5
+cls
+color 0C
+:: 6th auto install
+echo Launching auto install script for MAXON Red Giant Magic Bullet Suite
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-6
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-6
+echo.
+:no-auto-6
+echo There is no auto install script for MAXON Red Giant Magic Bullet Suite.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-6
+cls
+color 0C
+:: 7th auto install
+echo Launching auto install script for MAXON Red Giant Universe
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-7
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-7
+echo.
+:no-auto-7
+echo There is no auto install script for MAXON Red Giant Universe.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-7
+cls
+color 0C
+:: 8th auto install
+echo Launching auto install script for NewBlueFX Titler Pro 7 Ultimate
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-8
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-8
+echo.
+:no-auto-8
+echo There is no auto install script for NewBlueFX Titler Pro 7 Ultimate.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-8
+cls
+color 0C
+:: 9th auto install
+echo Launching auto install script for NewBlueFX TotalFX 7
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-9
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel Auto Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-9
+echo.
+:no-auto-9
+echo There is no auto install script for NewBlueFX TotalFX 7.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-9
+cls
+color 0C
+:: 10th auto install
+echo Launching auto install script for REVisionFX Effections
+for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-10
+for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:no-auto-10
+echo There is no auto install script for REVisionFX Effections.
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
 
 
@@ -787,6 +1074,34 @@ IF ERRORLEVEL 1 (
 del ".\Installer-files\%BFX-Sapphire%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
+Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if exist "%%~I\INSTALL.cmd" GOTO auto-22
+GOTO SelectPlugins
+
+:auto-22
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-22
+IF ERRORLEVEL 1  GOTO autoinst-22
+echo.
+:manual-22
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-22
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do start "" cmd /c "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
@@ -857,6 +1172,34 @@ del ".\Installer-files\%BFX-Continuum%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if exist "%%~I\INSTALL.cmd" GOTO auto-23
+GOTO SelectPlugins
+
+:auto-23
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-23
+IF ERRORLEVEL 1  GOTO autoinst-23
+echo.
+:manual-23
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-23
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
 
@@ -925,6 +1268,34 @@ IF ERRORLEVEL 1 (
 del ".\Installer-files\%BFX-Mocha%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
+Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if exist "%%~I\INSTALL.cmd" GOTO auto-24
+GOTO SelectPlugins
+
+:auto-24
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-24
+IF ERRORLEVEL 1  GOTO autoinst-24
+echo.
+:manual-24
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-24
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do start "" cmd /c "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
@@ -995,6 +1366,34 @@ del ".\Installer-files\%BFX-Silhouette%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if exist "%%~I\INSTALL.cmd" GOTO auto-25
+GOTO SelectPlugins
+
+:auto-25
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-25
+IF ERRORLEVEL 1  GOTO autoinst-25
+echo.
+:manual-25
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-25
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
 
@@ -1063,6 +1462,34 @@ IF ERRORLEVEL 1 (
 del ".\Installer-files\%FXH-Ignite%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
+Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if exist "%%~I\INSTALL.cmd" GOTO auto-26
+GOTO SelectPlugins
+
+:auto-26
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-26
+IF ERRORLEVEL 1  GOTO autoinst-26
+echo.
+:manual-26
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-26
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do start "" cmd /c "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
@@ -1133,6 +1560,34 @@ del ".\Installer-files\%MXN-MBL%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if exist "%%~I\INSTALL.cmd" GOTO auto-27
+GOTO SelectPlugins
+
+:auto-27
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-27
+IF ERRORLEVEL 1  GOTO autoinst-27
+echo.
+:manual-27
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-27
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
 
@@ -1201,6 +1656,34 @@ IF ERRORLEVEL 1 (
 del ".\Installer-files\%MXN-Universe%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
+Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if exist "%%~I\INSTALL.cmd" GOTO auto-221
+GOTO SelectPlugins2
+
+:auto-221
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-221
+IF ERRORLEVEL 1  GOTO autoinst-221
+echo.
+:manual-221
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins2
+:autoinst-221
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" cmd /c "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins2
 
@@ -1271,6 +1754,34 @@ del ".\Installer-files\%NFX-Titler%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if exist "%%~I\INSTALL.cmd" GOTO auto-222
+GOTO SelectPlugins2
+
+:auto-222
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-222
+IF ERRORLEVEL 1  GOTO autoinst-222
+echo.
+:manual-222
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins2
+:autoinst-222
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins2
 
 
@@ -1339,6 +1850,34 @@ IF ERRORLEVEL 1 (
 del ".\Installer-files\%NFX-TotalFX%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
+Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if exist "%%~I\INSTALL.cmd" GOTO auto-223
+GOTO SelectPlugins2
+
+:auto-223
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-223
+IF ERRORLEVEL 1  GOTO autoinst-223
+echo.
+:manual-223
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins2
+:autoinst-223
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do start "" cmd /c "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins2
 
@@ -1409,8 +1948,35 @@ del ".\Installer-files\%RFX-Effections%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if exist "%%~I\INSTALL.cmd" GOTO auto-224
 GOTO SelectPlugins2
 
+:auto-224
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-224
+IF ERRORLEVEL 1  GOTO autoinst-224
+echo.
+:manual-224
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins2
+:autoinst-224
+cls
+echo Launching auto install script...
+for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins2
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
