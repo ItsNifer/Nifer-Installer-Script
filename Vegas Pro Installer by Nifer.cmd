@@ -196,7 +196,7 @@ if %ERRORLEVEL% == 1 GOTO git-stash-error
 	GOTO Main
 :git-pull-1
 :::::::::::::::::::::::::::::::::::::::::::::
-git pull >nul
+git pull https://github.com/ItsNifer/VP-20-Nifer.git >nul
 if %ERRORLEVEL% == 0 GOTO git-pull-cont
 if %ERRORLEVEL% == 1 GOTO git-pull-error
 :git-pull-cont
