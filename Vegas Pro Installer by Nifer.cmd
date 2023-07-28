@@ -59,11 +59,12 @@ echo.
 :errorNoPython2
 cls
 echo Installing Python 3.11.4 to PATH
-echo Please allow Admin Rights
+echo This is a silent install, this means you won't see anything popup on your screen.
+echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
 timeout /T 3 /nobreak >nul
 echo Python 3.11.4 has installed successfully
-GOTO InstallGDown1
+GOTO Python-check
 
 
 :InstallGDown1
@@ -103,8 +104,8 @@ GOTO check-auto-up
 color 0C
 echo WinRAR is not installed
 echo Launching the installer for WinRAR 64bit v622
-echo Please allow Admin rights on the WinRAR Installer,
-echo It is a silent Installation, so no window will pop up.
+echo This is a silent install, this means you won't see anything popup on your screen.
+echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\winrar-installer.exe" /S
 :: Wait 10 seconds, arbitrary... but just enough time for user to read the instructions
 timeout /T 10 /nobreak >nul
@@ -238,7 +239,7 @@ color 0C
 Echo.                                                        
 echo		 MAGIX Vegas Pro 20 Installer
 echo		  Patch and Script by Nifer
-echo               Version - 1.14
+echo               Version - 1.15
 echo		    Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
@@ -352,12 +353,6 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" 
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK*" /I /Q /Y /F
-echo Created "onnxruntime.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK*" /I /Q /Y /F
-echo Created "Release-x64.fio2007-config.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK*" /I /Q /Y /F
-echo Created "FileIOProxyStubx86.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
@@ -432,12 +427,6 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" 
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK*" /I /Q /Y /F
-echo Created "onnxruntime.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK*" /I /Q /Y /F
-echo Created "Release-x64.fio2007-config.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK*" /I /Q /Y /F
-echo Created "FileIOProxyStubx86.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
@@ -549,12 +538,6 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" 
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK*" /I /Q /Y /F
-echo Created "onnxruntime.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK*" /I /Q /Y /F
-echo Created "Release-x64.fio2007-config.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK*" /I /Q /Y /F
-echo Created "FileIOProxyStubx86.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
@@ -681,13 +664,61 @@ C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
 IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-21
+IF ERRORLEVEL 1  GOTO checkdown-21
+echo.
+:: Check if all plugins are already downloaded
+:checkdown-21
+echo Checking if all plugins are already downloaded
+if exist ".\Installer-files\Plugins\Boris FX Sapph*" GOTO alrDown21-22
+GOTO down-21
+:alrDown21-22
+if exist ".\Installer-files\Plugins\Boris FX Cont*" GOTO alrDown21-23
+GOTO down-21
+:alrDown21-23
+if exist ".\Installer-files\Plugins\Boris FX Mocha*" GOTO alrDown21-24
+GOTO down-21
+:alrDown21-24
+if exist ".\Installer-files\Plugins\Boris FX Silho*" GOTO alrDown21-25
+GOTO down-21
+:alrDown21-25
+if exist ".\Installer-files\Plugins\FXHOME Ign*" GOTO alrDown21-26
+GOTO down-21
+:alrDown21-26
+if exist ".\Installer-files\Plugins\MAXON Red Giant Magic Bull*" GOTO alrDown21-27
+GOTO down-21
+:alrDown21-27
+if exist ".\Installer-files\Plugins\MAXON Red Giant Uni*" GOTO alrDown21-221
+GOTO down-21
+:alrDown21-221
+if exist ".\Installer-files\Plugins\NewBlueFX Titler*" GOTO alrDown21-222
+GOTO down-21
+:alrDown21-222
+if exist ".\Installer-files\Plugins\NewBlueFX Total*" GOTO alrDown21-223
+GOTO down-21
+:alrDown21-223
+if exist ".\Installer-files\Plugins\REVisionFX Eff*" GOTO prompt-allplug-down
+GOTO down-21
+:prompt-allplug-down
+echo.
+echo You already have all plugins downloaded
+echo What do you want to do?
+echo 1 = Re-download them all
+echo 2 = Continue to installing
+echo 3 = Back to Main Menu
+echo.
+C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 3  GOTO SelectPlugins
+IF ERRORLEVEL 2  GOTO auto-21
+IF ERRORLEVEL 1  GOTO checkdown-21
 echo.
 :down-21
 cls
 echo Initializing Download...
 :: gdown command
 gdown --folder 1BW9hUpvQ-DBZnweh2b_ZkHBvfl73dKgF -O ".\Installer-files"
+cls
 color 0C
 echo Download Finished!
 echo Renaming rar files
@@ -772,7 +803,7 @@ cls
 :: 1st auto install
 echo Launching auto install script for Boris FX Continuum Complete
 for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
-for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -799,7 +830,7 @@ color 0C
 :: 2nd auto install
 echo Launching auto install script for Boris FX Mocha Pro
 for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -826,7 +857,7 @@ color 0C
 :: 3rd auto install
 echo Launching auto install script for Boris FX Sapphire
 for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
-for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -853,7 +884,7 @@ color 0C
 :: 4th auto install
 echo Launching auto install script for Boris FX Silhouette
 for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-4
-for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -880,7 +911,7 @@ color 0C
 :: 5th auto install
 echo Launching auto install script for FXHOME Ignite Pro
 for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-5
-for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -907,7 +938,7 @@ color 0C
 :: 6th auto install
 echo Launching auto install script for MAXON Red Giant Magic Bullet Suite
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-6
-for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -934,7 +965,7 @@ color 0C
 :: 7th auto install
 echo Launching auto install script for MAXON Red Giant Universe
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-7
-for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -961,7 +992,7 @@ color 0C
 :: 8th auto install
 echo Launching auto install script for NewBlueFX Titler Pro 7 Ultimate
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-8
-for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -988,7 +1019,7 @@ color 0C
 :: 9th auto install
 echo Launching auto install script for NewBlueFX TotalFX 7
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-9
-for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -1015,7 +1046,7 @@ color 0C
 :: 10th auto install
 echo Launching auto install script for REVisionFX Effections
 for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-10
-for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do call "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 :no-auto-10
