@@ -180,8 +180,14 @@ git pull https://github.com/ItsNifer/VP-20-Nifer.git
 echo Auto updates are now enabled.
 timeout /T 3 /nobreak >nul
 GOTO auto-update-fin
+:init-Git
+git init
+git config --global --add safe.directory "*"
+git pull https://github.com/ItsNifer/VP-20-Nifer.git
+GOTO auto-update-fin
 :auto-update-fin
 echo Checking for updates
+if not exist ".\.git" GOTO init-Git
 :: stashes local changes, pulls updates from github, pushes local changes after it pulls.
 :: waits in between each git command. If error, it will continue to Main Menu, and ignore the update. This way, the script will still be functional.
 :::::::::::::::::::::::::::::::::::::::::::::
@@ -239,7 +245,7 @@ color 0C
 Echo.                                                        
 echo		 MAGIX Vegas Pro 20 Installer
 echo		  Patch and Script by Nifer
-echo               Version - 1.15
+echo               Version - 1.16
 echo		    Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
