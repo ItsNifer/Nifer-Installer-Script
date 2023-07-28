@@ -352,7 +352,13 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" 
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-timeout /T 3 /nobreak >nul
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK*" /I /Q /Y /F
+echo Created "onnxruntime.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK*" /I /Q /Y /F
+echo Created "Release-x64.fio2007-config.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK*" /I /Q /Y /F
+echo Created "FileIOProxyStubx86.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86"
+timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
 echo Vegas Pro is now installed and patched
@@ -426,7 +432,13 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" 
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-timeout /T 3 /nobreak >nul
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK*" /I /Q /Y /F
+echo Created "onnxruntime.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK*" /I /Q /Y /F
+echo Created "Release-x64.fio2007-config.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK*" /I /Q /Y /F
+echo Created "FileIOProxyStubx86.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86"
+timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
 echo Vegas Pro is now installed and patched
@@ -537,7 +549,13 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" 
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-timeout /T 3 /nobreak >nul
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\onnxruntime.dll.BAK*" /I /Q /Y /F
+echo Created "onnxruntime.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\Release-x64.fio2007-config.BAK*" /I /Q /Y /F
+echo Created "Release-x64.fio2007-config.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86\FileIOProxyStubx86.dll.BAK*" /I /Q /Y /F
+echo Created "FileIOProxyStubx86.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0\x86"
+timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
 echo Vegas Pro is now patched
