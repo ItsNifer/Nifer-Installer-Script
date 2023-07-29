@@ -195,33 +195,44 @@ git stash >nul
 if %ERRORLEVEL% == 0 GOTO git-stash-cont
 if %ERRORLEVEL% == 1 GOTO git-stash-error
 :git-stash-cont
+	git reset --hard
     GOTO git-pull-1
 :git-stash-error
-    echo Scanning for local changes.
+    echo no local changes
+	git reset --hard
 	timeout /T 3 /nobreak >nul
-	GOTO Main
+	GOTO git-pull-1
 :git-pull-1
 :::::::::::::::::::::::::::::::::::::::::::::
 git pull https://github.com/ItsNifer/VP-20-Nifer.git >nul
 if %ERRORLEVEL% == 0 GOTO git-pull-cont
 if %ERRORLEVEL% == 1 GOTO git-pull-error
 :git-pull-cont
+    echo Auto update finished...
+	timeout /T 3 /nobreak >nul
     GOTO git-stash-2
 :git-pull-error
     echo Auto update failed...
 	timeout /T 3 /nobreak >nul
-	GOTO Main
+	GOTO git-stash-2
 :git-stash-2
 :::::::::::::::::::::::::::::::::::::::::::::
 git stash pop >nul
 if %ERRORLEVEL% == 0 GOTO git-stash2-cont
 if %ERRORLEVEL% == 1 GOTO git-stash2-error
 :git-stash2-cont
-    GOTO Main
-:git-stash2-error
     echo Pushed any known local changes to directory.
 	echo.
 	echo.
+	git checkout HEAD^ "Vegas Pro Installer by Nifer.cmd"
+	echo Finished checking for updates.
+	timeout /T 3 /nobreak >nul
+    GOTO Main
+:git-stash2-error
+    echo no local changes
+	echo.
+	echo.
+	git checkout HEAD^ "Vegas Pro Installer by Nifer.cmd"
 	echo Finished checking for updates.
 	timeout /T 3 /nobreak >nul
 	GOTO Main
@@ -245,7 +256,7 @@ color 0C
 Echo.                                                        
 echo		 MAGIX Vegas Pro 20 Installer
 echo		  Patch and Script by Nifer
-echo               Version - 1.20
+echo               Version - 1.18
 echo		    Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
@@ -810,7 +821,7 @@ cls
 echo Launching auto install script for Boris FX Continuum Complete
 for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Cont*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -826,7 +837,7 @@ echo.
 :no-auto-1
 echo There is no auto install script for Boris FX Continuum Complete.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -837,7 +848,7 @@ color 0C
 echo Launching auto install script for Boris FX Mocha Pro
 for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -853,7 +864,7 @@ echo.
 :no-auto-2
 echo There is no auto install script for Boris FX Mocha Pro.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -864,7 +875,7 @@ color 0C
 echo Launching auto install script for Boris FX Sapphire
 for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Sapph*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -880,7 +891,7 @@ echo.
 :no-auto-3
 echo There is no auto install script for Boris FX Sapphire.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -891,7 +902,7 @@ color 0C
 echo Launching auto install script for Boris FX Silhouette
 for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-4
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Silho*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -907,7 +918,7 @@ echo.
 :no-auto-4
 echo There is no auto install script for Boris FX Silhouette.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -918,7 +929,7 @@ color 0C
 echo Launching auto install script for FXHOME Ignite Pro
 for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-5
 for /D %%I in ("%~dp0\Installer-files\Plugins\FXHOME Ign*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -934,7 +945,7 @@ echo.
 :no-auto-5
 echo There is no auto install script for FXHOME Ignite Pro.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -945,7 +956,7 @@ color 0C
 echo Launching auto install script for MAXON Red Giant Magic Bullet Suite
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-6
 for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -961,7 +972,7 @@ echo.
 :no-auto-6
 echo There is no auto install script for MAXON Red Giant Magic Bullet Suite.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -972,7 +983,7 @@ color 0C
 echo Launching auto install script for MAXON Red Giant Universe
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-7
 for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -988,7 +999,7 @@ echo.
 :no-auto-7
 echo There is no auto install script for MAXON Red Giant Universe.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -999,7 +1010,7 @@ color 0C
 echo Launching auto install script for NewBlueFX Titler Pro 7 Ultimate
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-8
 for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Titler*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -1015,7 +1026,7 @@ echo.
 :no-auto-8
 echo There is no auto install script for NewBlueFX Titler Pro 7 Ultimate.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -1026,7 +1037,7 @@ color 0C
 echo Launching auto install script for NewBlueFX TotalFX 7
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-9
 for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Total*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
@@ -1042,7 +1053,7 @@ echo.
 :no-auto-9
 echo There is no auto install script for NewBlueFX TotalFX 7.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
@@ -1053,12 +1064,12 @@ color 0C
 echo Launching auto install script for REVisionFX Effections
 for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-10
 for /D %%I in ("%~dp0\Installer-files\Plugins\REVisionFX Eff*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+Timeout /T 2 /Nobreak >nul
 GOTO SelectPlugins
 :no-auto-10
 echo There is no auto install script for REVisionFX Effections.
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 10 /Nobreak >nul
 GOTO SelectPlugins
