@@ -809,7 +809,7 @@ cls
 :: 1st auto install
 echo Launching auto install script for Boris FX Continuum Complete
 for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
-for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -836,7 +836,7 @@ color 0C
 :: 2nd auto install
 echo Launching auto install script for Boris FX Mocha Pro
 for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -863,7 +863,7 @@ color 0C
 :: 3rd auto install
 echo Launching auto install script for Boris FX Sapphire
 for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
-for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -890,7 +890,7 @@ color 0C
 :: 4th auto install
 echo Launching auto install script for Boris FX Silhouette
 for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-4
-for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -917,7 +917,7 @@ color 0C
 :: 5th auto install
 echo Launching auto install script for FXHOME Ignite Pro
 for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-5
-for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -944,7 +944,7 @@ color 0C
 :: 6th auto install
 echo Launching auto install script for MAXON Red Giant Magic Bullet Suite
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-6
-for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -971,7 +971,7 @@ color 0C
 :: 7th auto install
 echo Launching auto install script for MAXON Red Giant Universe
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-7
-for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -998,7 +998,7 @@ color 0C
 :: 8th auto install
 echo Launching auto install script for NewBlueFX Titler Pro 7 Ultimate
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-8
-for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -1025,7 +1025,7 @@ color 0C
 :: 9th auto install
 echo Launching auto install script for NewBlueFX TotalFX 7
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-9
-for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
@@ -1052,7 +1052,7 @@ color 0C
 :: 10th auto install
 echo Launching auto install script for REVisionFX Effections
 for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-10
-for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do call "%%~I\INSTALL.cmd"
+for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 :no-auto-10
