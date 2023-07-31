@@ -29,7 +29,7 @@ GOTO Python-check
 :Python-check
 :: Check for Python Installation
 echo Checking Python
-python --version 3>NUL
+python --version 2>NUL
 if errorlevel 1 GOTO errorNoPython
 GOTO InstallGDown1
 
@@ -41,10 +41,10 @@ GOTO req-Install
 cls
 echo Required software for this installer is not detected.
 echo Do you want to install the Required software?
-echo This will install:
+echo This will install (if you don't already have):
 echo - Python 3.11.4
 echo - GDown (Google Drive Downloader)
-echo - WinRAR
+echo - WinRAR, 7Zip, or WinZip
 echo.
 echo 1 = Yes
 echo 2 = No
@@ -62,7 +62,7 @@ echo Installing Python 3.11.4 to PATH
 echo This is a silent install, this means you won't see anything popup on your screen.
 echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
-timeout /T 3 /nobreak >nul
+timeout /T 20 /nobreak >nul
 echo Python 3.11.4 has installed successfully
 GOTO Python-check
 
@@ -72,32 +72,86 @@ color 0C
 echo.
 echo Checking GDown
 :: Check for GDown Installation
-gdown --version 4>NUL
+gdown --version 2>NUL
 if errorlevel 1 goto errorNoGDown1
 echo GDown is installed
-GOTO InstallWRAR1
+GOTO check-extract
 
 
 :errorNoGDown1
 color 0C
 echo GDown is not installed
+python --version >NUL
+if errorlevel 1 GOTO errorNoPython2
 echo Installing GDown
 timeout /T 3 /nobreak >nul
 pip install gdown
 timeout /T 7 /nobreak >nul
-GOTO InstallWRAR1
+cls
+GOTO check-extract
 
 
-:InstallWRAR1
+:check-extract
+::Variable for Extration method
+set winrar="C:\Program Files\WinRAR\WinRAR.exe"
+set szip="C:\Program Files\7-Zip\7z.exe"
 color 0C
 echo.
-echo Checking WinRAR
+echo Checking Archiving Method
+IF NOT EXIST ".\Installer-files\Installer-Scripts\Settings" mkdir ".\Installer-files\Installer-Scripts\Settings"
+IF EXIST "C:\Program Files\WinRAR\WinRAR.exe" IF EXIST "C:\Program Files\7-Zip\7z.exe" GOTO Choose-Archive
 IF EXIST "C:\Program Files\WinRAR\WinRAR.exe" GOTO WRAR-Installed1
-IF NOT EXIST "C:\Program Files\WinRAR\WinRAR.exe" GOTO WRAR-Install1
+IF EXIST "C:\Program Files\7-Zip\7z.exe" GOTO SZip-Installed1
+GOTO Prompt-Archiver
+:Prompt-Archiver
+cls
+echo File Archiver is not detected
+echo Select which archiver that you'd prefer to install:
+echo 1 - WinRAR
+echo 2 - 7Zip
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SZip-Install1
+IF ERRORLEVEL 1  GOTO WRAR-Install1
+echo.
+:Choose-Archive
+cls
+echo Multiple File Archivers were detected
+echo Select which archiver that you'd prefer to use for the Installer Script:
+echo 1 - WinRAR
+echo 2 - 7Zip
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SZip-Installed1
+IF ERRORLEVEL 1  GOTO WRAR-Installed1
+echo.
+:SZip-Installed1
+color 0C
+echo 7Zip is Installed.
+:: Wait 3 seconds, arbitrary... but just enough time for user to read the instructions
+if not exist ".\Installer-files\Installer-Scripts\Settings\archive*.txt" break>".\Installer-files\Installer-Scripts\Settings\archive-szip.txt"
+timeout /T 3 /nobreak >nul
+GOTO check-auto-up
+:SZip-Install1
+color 0C
+echo 7Zip is not installed
+echo Launching the installer for 7Zip 64bit v23.01
+echo This is a silent install, this means you won't see anything popup on your screen.
+echo Please wait patiently until the script continues.
+".\Installer-files\Installer-Scripts\7z-Installer.exe" /S
+if not exist ".\Installer-files\Installer-Scripts\Settings\archive*.txt" break>".\Installer-files\Installer-Scripts\Settings\archive-szip.txt"
+:: Wait 10 seconds, arbitrary... but just enough time for user to read the instructions
+timeout /T 10 /nobreak >nul
+GOTO check-auto-up
 :WRAR-Installed1
 color 0C
 echo WinRAR is Installed.
 :: Wait 3 seconds, arbitrary... but just enough time for user to read the instructions
+if not exist ".\Installer-files\Installer-Scripts\Settings\archive*.txt" break>".\Installer-files\Installer-Scripts\Settings\archive-win.txt"
 timeout /T 3 /nobreak >nul
 GOTO check-auto-up
 :WRAR-Install1
@@ -107,6 +161,7 @@ echo Launching the installer for WinRAR 64bit v622
 echo This is a silent install, this means you won't see anything popup on your screen.
 echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\winrar-installer.exe" /S
+if not exist ".\Installer-files\Installer-Scripts\Settings\archive*.txt" break>".\Installer-files\Installer-Scripts\Settings\archive-win.txt"
 :: Wait 10 seconds, arbitrary... but just enough time for user to read the instructions
 timeout /T 10 /nobreak >nul
 GOTO check-auto-up
@@ -116,10 +171,10 @@ GOTO check-auto-up
 :check-auto-up
 echo.
 echo Checking for auto updates.
-if not exist ".\Installer-files\Installer-Scripts\auto-update*.txt" break>".\Installer-files\Installer-Scripts\auto-update-0.txt"
-if exist ".\Installer-files\Installer-Scripts\auto-update-1.txt" GOTO check-auto-1
-if exist ".\Installer-files\Installer-Scripts\auto-update-0.txt" GOTO check-auto-0
-if exist ".\Installer-files\Installer-Scripts\auto-update-2.txt" GOTO Main
+if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" break>".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt"
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO check-auto-1
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" GOTO check-auto-0
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO Main
 :check-auto-1
 color 0C
 echo Auto Updates are enabled.
@@ -132,6 +187,7 @@ GOTO prompt-auto-up1
 :prompt-auto-up1
 echo.
 echo Do you want to enable Auto Updates for this Installer Script?
+echo This will only check for updates when you launch the Installer Script.
 echo This will install Git, if you do not have it already.
 echo 1 = Yes
 echo 2 = No
@@ -172,7 +228,9 @@ GOTO git-installed1
 color 0C
 echo Git is installed
 echo.
-REN ".\Installer-files\Installer-Scripts\auto-update-0.txt" "auto-update-1.txt" 2>nul
+REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-1.txt" 2>nul
+git --version 2>NUL
+if errorlevel 1 GOTO errorNoGit
 :: Creates local git repo
 git init
 git config --global --add safe.directory "*"
@@ -240,7 +298,7 @@ if %ERRORLEVEL% == 1 GOTO git-stash2-error
 :auto-update-no
 echo.
 echo Disabling auto Updates
-REN ".\Installer-files\Installer-Scripts\auto-update-0.txt" "auto-update-2.txt" 2>nul
+REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-2.txt" 2>nul
 echo The Installer will no longer ask you for auto updates.
 timeout /T 3 /nobreak >nul
 GOTO Main
@@ -256,7 +314,7 @@ color 0C
 Echo.                                                        
 echo		 MAGIX Vegas Pro 20 Installer
 echo		  Patch and Script by Nifer
-echo               Version - 1.18
+echo               Version - 1.19
 echo		    Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
@@ -285,8 +343,6 @@ Echo ****************************************************************
 echo.
 :SelectVegas
 color 0C
-::Variable for WinRAR
-set winrar="C:\Program Files\WinRAR\WinRAR.exe"
 cls
 @ECHO OFF
 color 0C
@@ -756,8 +812,11 @@ echo Closing all instances of WinRAR
 taskkill /f /im WinRAR.exe 2>nul
 color 0C
 echo Extracting files
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-21-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-21-szip
+:down-21-win
 %winrar% x -o- ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
@@ -770,6 +829,21 @@ if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP21
+:down-21-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aos "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%MXN-Universe%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%NFX-Titler%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE21
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP21
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1121,11 +1195,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-22-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-22-szip
+:down-22-win
 %winrar% x -o+ ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP22
+:down-22-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE22
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP22
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1218,11 +1301,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-23-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-23-szip
+:down-23-win
 %winrar% x -o+ ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP23
+:down-23-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE23
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP23
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1315,11 +1407,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-24-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-24-szip
+:down-24-win
 %winrar% x -o+ ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP24
+:down-24-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE24
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP24
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1412,11 +1513,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-25-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-25-szip
+:down-25-win
 %winrar% x -o+ ".\Installer-files\%BFX-Silhouette%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP25
+:down-25-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE25
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP25
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1509,11 +1619,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-26-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-26-szip
+:down-26-win
 %winrar% x -o+ ".\Installer-files\%FXH-Ignite%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP26
+:down-26-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE26
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP26
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1606,11 +1725,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-27-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-27-szip
+:down-27-win
 %winrar% x -o+ ".\Installer-files\%MXN-MBL%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP27
+:down-27-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE27
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP27
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1703,11 +1831,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-221-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-221-szip
+:down-221-win
 %winrar% x -o+ ".\Installer-files\%MXN-Universe%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP221
+:down-221-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%MXN-Universe%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE221
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP221
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1800,11 +1937,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-222-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-222-szip
+:down-222-win
 %winrar% x -o+ ".\Installer-files\%NFX-Titler%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP222
+:down-222-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%NFX-Titler%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE222
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP222
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1897,11 +2043,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-223-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-223-szip
+:down-223-win
 %winrar% x -o+ ".\Installer-files\%NFX-TotalFX%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP223
+:down-223-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE223
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP223
 tasklist | find /i "WinRAR" >nul 2>&1
@@ -1993,12 +2148,20 @@ echo Closing all instances of WinRAR
 @echo OFF
 taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
-:: Creates directory for Plugins, if not already made
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-echo Initializing extraction
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-224-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-224-szip
+:down-224-win
 %winrar% x -o+ ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP224
+:down-224-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE224
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
 :LOOP224
 tasklist | find /i "WinRAR" >nul 2>&1

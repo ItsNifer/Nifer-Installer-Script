@@ -5,7 +5,7 @@ I've worked pretty hard on this installer, if you could please follow on twitter
 This script automatically checks & installs these requirements (if u are missing them):
 	- Python 3.x
 	- GDown (Google Drive downloader)
-	- WinRAR (7zip will not work)
+	- WinRAR or 7Zip
 	- Git 4.x (Optional for Auto-updating)
 
 ***YOU NEED to have the folder "Installer-files" in the same directory as "Vegas Pro Installer by Nifer.cmd"*** 
@@ -20,11 +20,14 @@ After downloading any 3rd party plugin, open the Installer-files folder > Plugin
 
 ___________________________________________________________________
 Troubleshooting:
+I turned auto-updating off, but now I want to turn it on.
+	- Go into Installer-files > Installer-Scripts > Settings. Delete the auto-update.txt file, re-run the installer
+
+I have both 7zip and WinRAR installed, but I want to use the other archiver for the installer.
+	- Go into Installer-files > Installer-Scripts > Settings. Delete the archive-*.txt file, re-run the installer
+
 My Installer is giving errors during launch, and instantly closes.
 	- Try Restarting the Installer to check for the required software. Otherwise, delete entire Installer and all of it's folders. Then redownload or re-extract the files into a new folder, and try again.
-
-I turned auto-updating off, but now I want to turn it on.
-	- Go into Installer-files > Installer-Scripts. Delete the auto-update.txt file, re-run the installer
 
 When I go to install Vegas Pro, it says it's already installed, it launches the un-installer but gives an error.
 	- Manually un-install Vegas Pro through your control panel. Try my installer afterwards.
