@@ -229,15 +229,27 @@ color 0C
 echo Git is installed
 echo.
 REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-1.txt" 2>nul
-git --version 2>NUL
+git --version 2>1 1>NUL
 if errorlevel 1 GOTO errorNoGit
 :: Creates local git repo
 git init
 git config --global --add safe.directory "*"
 git pull https://github.com/ItsNifer/VP-20-Nifer.git
+IF ERRORLEVEL 1 GOTO git-update-error
+IF ERRORLEVEL 0 GOTO git-installed-cont
+:git-installed-cont
 echo Auto updates are now enabled.
 timeout /T 3 /nobreak >nul
 GOTO auto-update-fin
+:git-update-error
+cls
+echo Downloading Auto Update Script
+gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
+echo.
+echo Initializing Auto Update Script
+start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
+timeout /T 5 /nobreak >nul
+@Quit
 :init-Git
 git init
 git config --global --add safe.directory "*"
