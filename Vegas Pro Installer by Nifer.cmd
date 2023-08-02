@@ -243,6 +243,7 @@ IF ERRORLEVEL 0 GOTO git-installed-cont
 echo Auto updates finished.
 timeout /T 3 /nobreak >nul
 GOTO Main
+:: Runs update script if git pull fails
 :git-update-error
 cls
 echo Downloading Auto Update Script
@@ -251,7 +252,7 @@ echo.
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
 timeout /T 5 /nobreak >nul
-@Quit
+@Exit
 :init-Git
 git init
 git config --global --add safe.directory "*"
@@ -285,6 +286,7 @@ if %ERRORLEVEL% == 1 GOTO git-pull-error
 	timeout /T 3 /nobreak >nul
     GOTO git-stash-2
 :git-pull-error
+:: copy/paste of git-update-error
     echo Auto update failed...
 cls
 echo Downloading Auto Update Script
@@ -293,7 +295,7 @@ echo.
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
 timeout /T 5 /nobreak >nul
-@Quit
+@Exit
 :git-stash-2
 :::::::::::::::::::::::::::::::::::::::::::::
 git stash pop >nul
@@ -335,7 +337,7 @@ color 0C
 Echo.                                                        
 echo		 MAGIX Vegas Pro 20 Installer
 echo		  Patch and Script by Nifer
-echo               Version - 1.19
+echo              Version - 1.19.2
 echo		    Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
