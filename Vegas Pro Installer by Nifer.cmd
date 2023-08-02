@@ -98,6 +98,8 @@ set szip="C:\Program Files\7-Zip\7z.exe"
 color 0C
 echo.
 echo Checking Archiving Method
+if EXIST ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO WRAR-Installed1
+if EXIST ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO SZip-Installed1
 IF NOT EXIST ".\Installer-files\Installer-Scripts\Settings" mkdir ".\Installer-files\Installer-Scripts\Settings"
 IF EXIST "C:\Program Files\WinRAR\WinRAR.exe" IF EXIST "C:\Program Files\7-Zip\7z.exe" GOTO Choose-Archive
 IF EXIST "C:\Program Files\WinRAR\WinRAR.exe" GOTO WRAR-Installed1
@@ -238,9 +240,9 @@ git pull https://github.com/ItsNifer/VP-20-Nifer.git
 IF ERRORLEVEL 1 GOTO git-update-error
 IF ERRORLEVEL 0 GOTO git-installed-cont
 :git-installed-cont
-echo Auto updates are now enabled.
+echo Auto updates finished.
 timeout /T 3 /nobreak >nul
-GOTO auto-update-fin
+GOTO Main
 :git-update-error
 cls
 echo Downloading Auto Update Script
@@ -254,6 +256,7 @@ timeout /T 5 /nobreak >nul
 git init
 git config --global --add safe.directory "*"
 git pull https://github.com/ItsNifer/VP-20-Nifer.git
+IF ERRORLEVEL 1 GOTO git-update-error
 GOTO auto-update-fin
 :auto-update-fin
 echo Checking for updates
@@ -283,8 +286,14 @@ if %ERRORLEVEL% == 1 GOTO git-pull-error
     GOTO git-stash-2
 :git-pull-error
     echo Auto update failed...
-	timeout /T 3 /nobreak >nul
-	GOTO git-stash-2
+cls
+echo Downloading Auto Update Script
+gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
+echo.
+echo Initializing Auto Update Script
+start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
+timeout /T 5 /nobreak >nul
+@Quit
 :git-stash-2
 :::::::::::::::::::::::::::::::::::::::::::::
 git stash pop >nul
