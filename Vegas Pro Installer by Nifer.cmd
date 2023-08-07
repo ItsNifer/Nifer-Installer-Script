@@ -961,7 +961,7 @@ echo.
 :manual-21
 cls
 echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
+echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
