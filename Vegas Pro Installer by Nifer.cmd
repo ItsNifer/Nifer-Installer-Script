@@ -337,7 +337,7 @@ color 0C
 Echo.                                                        
 echo		   MAGIX Vegas Pro Installer
 echo		   Patch and Script by Nifer
-echo                Version - 1.20
+echo                Version - 2.0
 echo		     Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
