@@ -337,7 +337,7 @@ color 0C
 Echo.                                                        
 echo		   MAGIX Vegas Pro Installer
 echo		   Patch and Script by Nifer
-echo                Version - 2.0
+echo               Version - 2.0.1
 echo		     Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
@@ -812,59 +812,62 @@ echo.
 :down-21
 cls
 echo Initializing Download...
+:: Different colored lines - Calls upon colorEcho
+@Echo Off
+SETLOCAL EnableDelayedExpansion
+for /F "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1) do     rem"') do (
+  set "DEL=%%a"
+)
+:colorEcho
+echo off
+<nul set /p ".=%DEL%" > "%~2"
+findstr /v /a:%1 /R "^$" "%~2" nul
+del "%~2" > nul 2>&1i
+@pause
 :: gdown commands
 :: Boris FX Continuum
-color 0A
-echo 1 of 10
+call :colorEcho 0A "1 of 10"
 color 0C
 gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
 :: Boris FX Mocha Pro
-color 0A
-echo 2 of 10
+call :colorEcho 0A "2 of 10"
 color 0C
 gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
 :: Boris FX Sapphire
-color 0A
-echo 3 of 10
+call :colorEcho 0A "3 of 10"
 color 0C
 gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
 :: Boris FX Silhouette
-color 0A
-echo 4 of 10
+call :colorEcho 0A "4 of 10"
 color 0C
 gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
 :: FXHome Ignite Pro
-color 0A
-echo 5 of 10
+call :colorEcho 0A "5 of 10"
 color 0C
 gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
 :: Maxon Red Giant Magic Bullet Suite
-color 0A
-echo 6 of 10
+call :colorEcho 0A "6 of 10"
 color 0C
 gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
 :: Maxon Red Giant Universe
-color 0A
-echo 7 of 10
+call :colorEcho 0A "7 of 10"
 color 0C
 gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
 :: NewBlue FX Titler Pro
-color 0A
-echo 8 of 10
+call :colorEcho 0A "8 of 10"
 color 0C
 gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
 :: NewBlue FX TotalFX
-color 0A
-echo 9 of 10
+call :colorEcho 0A "9 of 10"
 color 0C
 gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
 :: REVision FX Effections
-color 0A
-echo 10 of 10
+call :colorEcho 0A "10 of 10"
 color 0C
 gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
 cls
 color 0C
+endlocal
 echo Download Finished!
 echo Renaming rar files
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%"
