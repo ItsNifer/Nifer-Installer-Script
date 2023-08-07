@@ -930,16 +930,17 @@ IF ERRORLEVEL 1 (
   GOTO LOOP21
 )
 :CONTINUE21
-del ".\Installer-files\%BFX-Sapphire%"
-del ".\Installer-files\%BFX-Continuum%"
-del ".\Installer-files\%BFX-Mocha%"
-del ".\Installer-files\%BFX-Silhouette%"
-del ".\Installer-files\%FXH-Ignite%"
-del ".\Installer-files\%MXN-MBL%"
-del ".\Installer-files\%MXN-Universe%"
-del ".\Installer-files\%NFX-Titler%"
-del ".\Installer-files\%NFX-TotalFX%"
-del ".\Installer-files\%RFX-Effections%"
+del ".\Installer-files\%BFX-Sapphire%" 2>nul
+del ".\Installer-files\%BFX-Continuum%" 2>nul
+del ".\Installer-files\%BFX-Mocha%" 2>nul
+del ".\Installer-files\%BFX-Silhouette%" 2>nul
+del ".\Installer-files\%FXH-Ignite%" 2>nul
+del ".\Installer-files\%MXN-MBL%" 2>nul
+del ".\Installer-files\%MXN-Universe%" 2>nul
+del ".\Installer-files\%NFX-Titler%" 2>nul
+del ".\Installer-files\%NFX-TotalFX%" 2>nul
+del ".\Installer-files\%RFX-Effections%" 2>nul
+del ".\Installer-files\*.rar" 2>nul
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
