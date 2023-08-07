@@ -236,7 +236,7 @@ if errorlevel 1 GOTO errorNoGit
 :: Creates local git repo
 git init
 git config --global --add safe.directory "*"
-git pull https://github.com/ItsNifer/VP-20-Nifer.git
+git pull https://github.com/ItsNifer/Nifer-Installer-Script.git
 IF ERRORLEVEL 1 GOTO git-update-error
 IF ERRORLEVEL 0 GOTO git-installed-cont
 :git-installed-cont
@@ -256,7 +256,7 @@ timeout /T 5 /nobreak >nul
 :init-Git
 git init
 git config --global --add safe.directory "*"
-git pull https://github.com/ItsNifer/VP-20-Nifer.git
+git pull https://github.com/ItsNifer/Nifer-Installer-Script.git
 IF ERRORLEVEL 1 GOTO git-update-error
 GOTO auto-update-fin
 :auto-update-fin
@@ -278,7 +278,7 @@ if %ERRORLEVEL% == 1 GOTO git-stash-error
 	GOTO git-pull-1
 :git-pull-1
 :::::::::::::::::::::::::::::::::::::::::::::
-git pull https://github.com/ItsNifer/VP-20-Nifer.git >nul
+git pull https://github.com/ItsNifer/Nifer-Installer-Script.git >nul
 if %ERRORLEVEL% == 0 GOTO git-pull-cont
 if %ERRORLEVEL% == 1 GOTO git-pull-error
 :git-pull-cont
@@ -335,10 +335,10 @@ GOTO Main
 cls
 color 0C
 Echo.                                                        
-echo		 MAGIX Vegas Pro 20 Installer
-echo		  Patch and Script by Nifer
-echo              Version - 1.19.2
-echo		    Twitter - @NiferEdits
+echo		   MAGIX Vegas Pro Installer
+echo		   Patch and Script by Nifer
+echo                Version - 1.20
+echo		     Twitter - @NiferEdits
 echo.
 echo            1) Vegas Pro
 echo.
@@ -371,7 +371,7 @@ cls
 color 0C
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
-Echo ***		Current Build: Vegas Pro 20 Build 411			  ***
+Echo ***		Current Build: Vegas Pro 20 Build 411             ***
 Echo ****************************************************************
 Echo.
 echo		 Select what to Download and Install
@@ -812,8 +812,57 @@ echo.
 :down-21
 cls
 echo Initializing Download...
-:: gdown command
-gdown --folder 1BW9hUpvQ-DBZnweh2b_ZkHBvfl73dKgF -O ".\Installer-files"
+:: gdown commands
+:: Boris FX Continuum
+color 0A
+echo 1 of 10
+color 0C
+gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
+:: Boris FX Mocha Pro
+color 0A
+echo 2 of 10
+color 0C
+gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
+:: Boris FX Sapphire
+color 0A
+echo 3 of 10
+color 0C
+gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
+:: Boris FX Silhouette
+color 0A
+echo 4 of 10
+color 0C
+gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
+:: FXHome Ignite Pro
+color 0A
+echo 5 of 10
+color 0C
+gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
+:: Maxon Red Giant Magic Bullet Suite
+color 0A
+echo 6 of 10
+color 0C
+gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
+:: Maxon Red Giant Universe
+color 0A
+echo 7 of 10
+color 0C
+gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
+:: NewBlue FX Titler Pro
+color 0A
+echo 8 of 10
+color 0C
+gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
+:: NewBlue FX TotalFX
+color 0A
+echo 9 of 10
+color 0C
+gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
+:: REVision FX Effections
+color 0A
+echo 10 of 10
+color 0C
+gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
 cls
 color 0C
 echo Download Finished!
@@ -828,11 +877,6 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%"
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%"
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%"
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%"
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-color 0C
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 color 0C
 echo Extracting files
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
@@ -840,6 +884,11 @@ if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins"
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-21-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-21-szip
 :down-21-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+color 0C
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o- ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
@@ -1213,16 +1262,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-22-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-22-szip
 :down-22-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP22
@@ -1319,16 +1368,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-23-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-23-szip
 :down-23-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP23
@@ -1425,16 +1474,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-24-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-24-szip
 :down-24-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP24
@@ -1531,16 +1580,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-25-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-25-szip
 :down-25-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%BFX-Silhouette%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP25
@@ -1637,16 +1686,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-26-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-26-szip
 :down-26-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%FXH-Ignite%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP26
@@ -1743,16 +1792,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-27-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-27-szip
 :down-27-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%MXN-MBL%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP27
@@ -1849,16 +1898,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-221-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-221-szip
 :down-221-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%MXN-Universe%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP221
@@ -1955,16 +2004,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-222-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-222-szip
 :down-222-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%NFX-Titler%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP222
@@ -2061,16 +2110,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-223-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-223-szip
 :down-223-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%NFX-TotalFX%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP223
@@ -2166,16 +2215,16 @@ REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
 REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
 REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
 REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
 echo Extracting zipped File
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-224-win
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-224-szip
 :down-224-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o+ ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins"
 timeout /T 6 /nobreak >nul
 GOTO LOOP224
