@@ -784,7 +784,7 @@ Echo.
 :: Ask if user is sure they want to download all plugins
 echo Are you sure you want to install all plugins?
 %Print%{231;72;86}This entire process may or may not take
-%Print%{0;255;50} 15-30 minutes, 
+%Print%{0;255;50} 30-60 minutes, 
 %Print%{231;72;86}depending on internet connection and disk speed. \n
 %Print%{0;255;50}Approx. 7 GB
 echo.
