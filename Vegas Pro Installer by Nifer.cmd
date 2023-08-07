@@ -4,11 +4,36 @@ color 0C
 @C:\Windows\System32\chcp 28591 > nul
 @C:\Windows\System32\mode con cols=105 lines=35
 @Title Start as Admin 
-:: function to call colorText, for colored lines
-SETLOCAL EnableDelayedExpansion
-for /F "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1) do rem"') do (
-  set "DEL=%%a"
+:: function for colored lines using ascii
+@Echo Off & Setlocal DisableDelayedExpansion
+::: { Creates variable /AE = Ascii-27 escape code.
+::: - %/AE% can be used  with and without DelayedExpansion.
+    For /F %%a in ('echo prompt $E ^| cmd')do set "/AE=%%a"
+::: }
+
+(Set \n=^^^
+%=Newline DNR=%
 )
+::: / Color Print Macro -
+::: Usage: %Print%{RRR;GGG;BBB}text to output
+::: \n at the end of the string echo's a new line
+::: valid range for RGB values: 0 - 255
+  Set Print=For %%n in (1 2)Do If %%n==2 (%\n%
+    For /F "Delims=" %%G in ("!Args!")Do (%\n%
+      For /F "Tokens=1 Delims={}" %%i in ("%%G")Do Set "Output=%/AE%[0m%/AE%[38;2;%%im!Args:{%%~i}=!"%\n%
+      ^< Nul set /P "=!Output:\n=!%/AE%[0m"%\n%
+      If "!Output:~-2!"=="\n" (Echo/^&Endlocal)Else (Endlocal)%\n%
+    )%\n%
+  )Else Setlocal EnableDelayedExpansion ^& Set Args=
+::: / Erase Macro -
+::: Usage: %Erase%{string of the length to be erased}
+  Set Erase=For %%n in (1 2)Do If %%n==2 (%\n%
+    For /F "Tokens=1 Delims={}" %%G in ("!Args!")Do (%\n%
+      Set "Nul=!Args:{%%G}=%%G!"%\n%
+      For /L %%# in (0 1 100) Do (If Not "!Nul:~%%#,1!"=="" ^< Nul set /P "=%/AE%[D%/AE%[K")%\n%
+    )%\n%
+    Endlocal%\n%
+  )Else Setlocal EnableDelayedExpansion ^& Set Args=
 :: Checking for admin rights
 ::------------------------------------------
 REM --> Checking Permissions
@@ -340,18 +365,18 @@ GOTO Main
 cls
 color 0C
 Echo.                                                        
-echo		   MAGIX Vegas Pro Installer
-echo		   Patch and Script by Nifer
-echo               Version - 2.0.3
-echo		     Twitter - @NiferEdits
-echo.
-echo            1) Vegas Pro
-echo.
-echo            2) 3rd Party Plugins
-echo.
-echo            3) Clean up all installer files
-echo.
-echo            4) Quit
+%Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
+%Print%{231;72;86}		   Patch and Script by Nifer \n
+%Print%{255;0;80}                        Version - 2.1.0 \n
+%Print%{231;72;86}		     Twitter - @NiferEdits \n
+%Print%{231;72;86}\n
+%Print%{231;72;86}            1) Vegas Pro \n
+%Print%{231;72;86}\n
+%Print%{231;72;86}            2) 3rd Party Plugins \n
+%Print%{231;72;86}\n
+%Print%{231;72;86}            3) Clean up all installer files \n
+%Print%{231;72;86}\n
+%Print%{231;72;86}            4) Quit \n
 echo.
 C:\Windows\System32\CHOICE /C 1234 /M "Type the number (1-4) of what option you want." /N
 cls
@@ -754,13 +779,17 @@ echo.
 :: Download & Extract Option 1
 :21
 cls
+color 0C
 Echo.
 :: Ask if user is sure they want to download all plugins
 echo Are you sure you want to install all plugins?
-echo This entire process may or may not take 15-30 minutes, depending on internet connection and disk speed.
-echo Approx. 7 GB
-echo 1 = Yes
-echo 2 = No
+%Print%{231;72;86}This entire process may or may not take
+%Print%{0;255;50} 15-30 minutes, 
+%Print%{231;72;86}depending on internet connection and disk speed. \n
+%Print%{0;255;50}Approx. 7 GB
+echo.
+%Print%{231;72;86}1 = Yes \n
+%Print%{231;72;86}2 = No \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -770,6 +799,7 @@ IF ERRORLEVEL 1  GOTO checkdown-21
 echo.
 :: Check if all plugins are already downloaded
 :checkdown-21
+color 0C
 echo Checking if all plugins are already downloaded
 if exist ".\Installer-files\Plugins\Boris FX Sapph*" GOTO alrDown21-22
 GOTO down-21
@@ -802,6 +832,7 @@ if exist ".\Installer-files\Plugins\REVisionFX Eff*" GOTO prompt-allplug-down
 GOTO down-21
 :prompt-allplug-down
 echo.
+color 0C
 echo You already have all plugins downloaded
 echo What do you want to do?
 echo 1 = Re-download them all
@@ -817,38 +848,58 @@ IF ERRORLEVEL 1  GOTO checkdown-21
 echo.
 :down-21
 cls
+color 0C
 echo Initializing Download...
 :: Different colored lines - Calls upon colorText
 :: gdown commands
 :: Boris FX Continuum
-call :ColorText 0A "1 of 10"
+color 0C
+%Print%{0;255;50}1 of 10
 gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
 :: Boris FX Mocha Pro
-call :ColorText 0A "2 of 10"
+cls
+color 0C
+%Print%{0;255;50}2 of 10
 gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
 :: Boris FX Sapphire
-call :ColorText 0A "3 of 10"
+cls
+color 0C
+%Print%{0;255;50}3 of 10
 gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
 :: Boris FX Silhouette
-call :ColorText 0A "4 of 10"
+cls
+color 0C
+%Print%{0;255;50}4 of 10
 gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
 :: FXHome Ignite Pro
-call :ColorText 0A "5 of 10"
+cls
+color 0C
+%Print%{0;255;50}5 of 10
 gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
 :: Maxon Red Giant Magic Bullet Suite
-call :ColorText 0A "6 of 10"
+cls
+color 0C
+%Print%{0;255;50}6 of 10
 gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
 :: Maxon Red Giant Universe
-call :ColorText 0A "7 of 10"
+cls
+color 0C
+%Print%{0;255;50}7 of 10
 gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
 :: NewBlue FX Titler Pro
-call :ColorText 0A "8 of 10"
+cls
+color 0C
+%Print%{0;255;50}8 of 10
 gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
 :: NewBlue FX TotalFX
-call :ColorText 0A "9 of 10"
+cls
+color 0C
+%Print%{0;255;50}9 of 10
 gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
 :: REVision FX Effections
-call :ColorText 0A "10 of 10"
+cls
+color 0C
+%Print%{0;255;50}10 of 10
 gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
 cls
 color 0C
@@ -2295,15 +2346,6 @@ del ".\Installer-files\*.zip" 2>nul
 echo Finished cleaning up all installer Files
 timeout /T 3 /nobreak >nul
 GOTO Main
-
-:: Referenced and called upon for different colored echo lines
-:ColorText
-echo off
-echo %DEL% > "%~2"
-findstr /v /a:%1 /R "^$" "%~2" nul
-del "%~2" > nul 2>&1
-goto :eof
-
 
 :Quit
 cls
