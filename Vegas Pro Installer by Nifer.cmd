@@ -92,12 +92,12 @@ echo Installing Python 3.11.4 to PATH
 echo This is a silent install, this means you won't see anything popup on your screen.
 echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
-timeout /T 10 /nobreak >nul
 echo Python 3.11.4 has installed successfully
-start "" "%~dp0Vegas Pro Installer by Nifer.cmd"
+echo.
+%Print%{244;255;0} Please restart the installer script.
+%Print%{244;255;0} Close out of this CMD window, and re-run the installer script.
 timeout /T 3 /nobreak >nul
-@exit
-GOTO Python-check
+@pause
 
 
 :InstallGDown1
@@ -257,7 +257,11 @@ echo Launching the installer for Git
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 echo Cleaning up extra files...
 del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
-GOTO git-installed1
+echo.
+%Print%{244;255;0} Please restart the installer script.
+%Print%{244;255;0} Close out of this CMD window, and re-run the installer script.
+timeout /T 3 /nobreak >nul
+@pause
 
 :git-installed1
 color 0C
@@ -370,7 +374,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 2.1.1 \n
+%Print%{244;255;0}                        Version - 2.2.0 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
