@@ -94,10 +94,10 @@ echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
 echo Python 3.11.4 has installed successfully
 echo.
-%Print%{244;255;0} Please restart the installer script.
-%Print%{244;255;0} Close out of this CMD window, and re-run the installer script.
+%Print%{244;255;0} Please restart the installer script. \n
+%Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
 timeout /T 3 /nobreak >nul
-@pause
+@pause >nul
 
 
 :InstallGDown1
@@ -212,6 +212,8 @@ if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" GOTO c
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO Main
 :check-auto-1
 color 0C
+git --version 2>NUL
+if errorlevel 1 GOTO errorNoGit
 echo Auto Updates are enabled.
 GOTO auto-update-fin
 :check-auto-0
@@ -258,10 +260,10 @@ start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 echo Cleaning up extra files...
 del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
 echo.
-%Print%{244;255;0} Please restart the installer script.
-%Print%{244;255;0} Close out of this CMD window, and re-run the installer script.
+%Print%{244;255;0} Please restart the installer script. \n
+%Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
 timeout /T 3 /nobreak >nul
-@pause
+@pause >nul
 
 :git-installed1
 color 0C
@@ -374,7 +376,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 2.2.0 \n
+%Print%{244;255;0}                        Version - 2.2.1 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
