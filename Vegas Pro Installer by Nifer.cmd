@@ -92,8 +92,11 @@ echo Installing Python 3.11.4 to PATH
 echo This is a silent install, this means you won't see anything popup on your screen.
 echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
-timeout /T 20 /nobreak >nul
+timeout /T 10 /nobreak >nul
 echo Python 3.11.4 has installed successfully
+start "" "%~dp0Vegas Pro Installer by Nifer.cmd"
+timeout /T 3 /nobreak >nul
+@exit
 GOTO Python-check
 
 
@@ -367,7 +370,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{255;0;80}                        Version - 2.1.0 \n
+%Print%{244;255;0}                        Version - 2.1.1 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
@@ -401,20 +404,24 @@ cls
 color 0C
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
-Echo ***		Current Build: Vegas Pro 20 Build 411             ***
+Echo ***        Current Build: Vegas Pro 20 Build 411             ***
 Echo ****************************************************************
 Echo.
-echo		 Select what to Download and Install
+%Print%{255;255;255}		 Select what to Download and Install \n
 echo.
-echo            1) Vegas Pro + Deep Learning Modules + Patch (1.6 GB)
+%Print%{231;72;86}            1) Vegas Pro + Deep Learning Modules + Patch 
+%Print%{244;255;0}(1.6 GB) \n
 echo.
-echo            2) Vegas Pro + Patch Only (630 MB)
+%Print%{231;72;86}            2) Vegas Pro + Patch Only 
+%Print%{244;255;0}(630 MB) \n
 echo.
-echo            3) Deep Learning Modules Only (1 GB)
+%Print%{231;72;86}            3) Deep Learning Modules Only 
+%Print%{244;255;0}(1 GB) \n
 echo.
-echo            4) Patch Only (18 MB)
+%Print%{231;72;86}            4) Patch Only 
+%Print%{244;255;0}(18 MB) \n
 echo.
-echo            5) Main Menu
+%Print%{255;112;0}            5) Main Menu \n
 echo.
 C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what you want to Select." /N
 cls
@@ -707,25 +714,32 @@ Echo *****************************************************************
 Echo ***    (Option #2) Downloading 3rd Party Plugins for OFX      ***
 Echo *****************************************************************
 Echo.
-echo		 Select which plugins to Download
+%Print%{255;255;255}		 Select which plugins to Download \n
 echo.
-echo            1) All Plugins (6.8 GB)
+%Print%{231;72;86}            1) All Plugins 
+%Print%{244;255;0}(6.8 GB) \n
 echo.
-echo            2) BORIS FX - Sapphire (670 MB)
+%Print%{231;72;86}            2) BORIS FX - Sapphire 
+%Print%{244;255;0}(670 MB) \n
 echo.
-echo            3) BORIS FX - Continuum (510 MB)
+%Print%{231;72;86}            3) BORIS FX - Continuum 
+%Print%{244;255;0}(510 MB) \n
 echo.
-echo            4) BORIS FX - Mocha Pro (270 MB)
+%Print%{231;72;86}            4) BORIS FX - Mocha Pro 
+%Print%{244;255;0}(270 MB) \n
 echo.
-echo            5) BORIS FX - Silhouette (1.4 GB)
+%Print%{231;72;86}            5) BORIS FX - Silhouette 
+%Print%{244;255;0}(1.4 GB) \n
 echo.
-echo            6) FXHOME - Ignite Pro (430 MB)
+%Print%{231;72;86}            6) FXHOME - Ignite Pro 
+%Print%{244;255;0}(430 MB) \n
 echo.
-echo            7) MAXON - Red Giant Magic Bullet Suite (260 MB)
+%Print%{231;72;86}            7) MAXON - Red Giant Magic Bullet Suite 
+%Print%{244;255;0}(260 MB) \n
 echo.
-echo            8) Next Page
+%Print%{255;112;0}            8) Next Page \n
 echo.
-echo            9) Main Menu
+%Print%{255;112;0}            9) Main Menu \n
 echo.
 C:\Windows\System32\CHOICE /C 123456789 /M "Type the number (1-9) of what you want to Download." /N
 cls
@@ -749,19 +763,23 @@ Echo *****************************************************************
 Echo ***    (Option #2) Downloading 3rd Party Plugins for OFX      ***
 Echo *****************************************************************
 Echo.
-echo		 Select which plugins to Download
+%Print%{255;255;255}		 Select which plugins to Download \n
 echo.
-echo            1) MAXON - Red Giant Universe (1.8 GB)
+%Print%{231;72;86}            1) MAXON - Red Giant Universe 
+%Print%{244;255;0}(1.8 GB) \n
 echo.
-echo            2) NEWBLUEFX - Titler Pro 7 (630 MB)
+%Print%{231;72;86}            2) NEWBLUEFX - Titler Pro 7 
+%Print%{244;255;0}(630 MB) \n
 echo.
-echo            3) NEWBLUEFX - TotalFX 7 (790 MB)
+%Print%{231;72;86}            3) NEWBLUEFX - TotalFX 7 
+%Print%{244;255;0}(790 MB) \n
 echo.
-echo            4) REVISIONFX - Effections (50 MB)
+%Print%{231;72;86}            4) REVISIONFX - Effections 
+%Print%{244;255;0}(50 MB) \n
 echo.
-echo            5) Previous Page
+%Print%{255;112;0}            5) Previous Page \n
 echo.
-echo            6) Main Menu
+%Print%{255;112;0}            6) Main Menu \n
 echo.
 C:\Windows\System32\CHOICE /C 123456 /M "Type the number (1-6) of what you want to Download." /N
 cls
@@ -784,9 +802,9 @@ Echo.
 :: Ask if user is sure they want to download all plugins
 echo Are you sure you want to install all plugins?
 %Print%{231;72;86}This entire process may or may not take
-%Print%{0;255;50} 30-60 minutes, 
+%Print%{244;255;0} 30-60 minutes, 
 %Print%{231;72;86}depending on internet connection and disk speed. \n
-%Print%{0;255;50}Approx. 7 GB
+%Print%{244;255;0}Approx. 7 GB
 echo.
 %Print%{231;72;86}1 = Yes \n
 %Print%{231;72;86}2 = No \n
