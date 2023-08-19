@@ -27,7 +27,8 @@ I have both 7zip and WinRAR installed, but I want to use the other archiver for 
 	- Go into Installer-files > Installer-Scripts > Settings. Delete the archive-*.txt file, re-run the installer
 
 My Installer is giving errors during launch, and instantly closes.
-	- Try Restarting the Installer to check for the required software. Otherwise, delete entire Installer and all of it's folders. Then redownload or re-extract the files into a new folder, and try again.
+	- Try Restarting the Installer to check for the required software.
+	- Otherwise, delete entire Installer and all of it's folders. Then redownload or re-extract the files into a new folder, and try again.
 
 When I go to install Vegas Pro, it says it's already installed, it launches the un-installer but gives an error.
 	- Manually un-install Vegas Pro through your control panel. Try my installer afterwards.
@@ -46,9 +47,9 @@ Extra Information (for those that are curious):
 
 This installer is linked to my Google Drive Storage and downloads the needed files from my Drive.
 This means that this script does not need any updating.
-You can use this same exact script to Download, Install, Patch Vegas Pro 20 and Plugins.
+You can use this same exact script to Download, Install, Patch Vegas Pro and Plugins.
 All I would need to do is update the files in my Google Drive, that the script reads off of.
-This includes all future updates for Vegas Pro 20 and Plugins.
+This includes all future updates for Vegas Pro and Plugins.
 
 Although, I've allowed a feature to auto update the installer script, in case I add any new features into the installer
 in the future. This would require Git to be installed, as it is pulling my github repository to check for updates.
