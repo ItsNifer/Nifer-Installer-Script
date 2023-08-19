@@ -1043,6 +1043,7 @@ cd /d "%~dp0\Installer-files"
 %szip% x -aos "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 %szip% x -aos "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE21
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -1475,6 +1476,7 @@ GOTO LOOP22
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE22
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -1582,6 +1584,7 @@ GOTO LOOP23
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE23
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -1717,6 +1720,7 @@ GOTO LOOP24
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE24
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -1734,7 +1738,7 @@ del "%~dp0\Installer-files\%BFX-Mocha%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if exist "%%~I\INSTALL.cmd" GOTO auto-24
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Pro*") do if exist "%%~I\INSTALL.cmd" GOTO auto-24
 GOTO SelectPlugins
 
 :auto-24
@@ -1760,7 +1764,7 @@ GOTO SelectPlugins
 :autoinst-24
 cls
 echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha*") do start "" cmd /c "%%~I\INSTALL.cmd"
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Pro*") do start "" cmd /c "%%~I\INSTALL.cmd"
 Timeout /T 5 /Nobreak >nul
 GOTO SelectPlugins
 
@@ -1825,6 +1829,7 @@ GOTO LOOP24-2
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%BFX-Mocha-Vegas%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE24-2
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -1935,6 +1940,7 @@ GOTO LOOP25
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE25
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -2042,6 +2048,7 @@ GOTO LOOP26
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE26
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -2149,6 +2156,7 @@ GOTO LOOP27
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE27
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -2256,6 +2264,7 @@ GOTO LOOP221
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%MXN-Universe%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE221
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -2363,6 +2372,7 @@ GOTO LOOP222
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%NFX-Titler%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE222
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -2470,6 +2480,7 @@ GOTO LOOP223
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE223
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
@@ -2576,6 +2587,7 @@ GOTO LOOP224
 cd /d "%~dp0\Installer-files"
 %szip% x -aoa "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
+cd /d "%~dp0"
 cls
 GOTO CONTINUE224
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
