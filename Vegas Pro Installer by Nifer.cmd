@@ -1634,13 +1634,18 @@ GOTO SelectPlugins
 :: Prompts to ask which version of Mocha to Download
 :24-prompt
 cls
+color 0C
 echo There are two available verisons of Boris FX Mocha
 echo.
-echo 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. It has better integration, but may be outdated.
-echo 2 is the OFX version of Mocha by Boris FX. It works for ALL versions of Vegas Pro, and may be more updated.
 echo.
-echo 1 = Mocha Vegas
-echo 2 = Mocha Pro OFX
+%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. \n
+%Print%{244;255;0} It has better integration, but may be outdated. \n
+echo.
+%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX. \n
+%Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
+echo.
+%Print%{231;72;86} 1 = Mocha Vegas \n
+%Print%{231;72;86} 2 = Mocha Pro OFX \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
