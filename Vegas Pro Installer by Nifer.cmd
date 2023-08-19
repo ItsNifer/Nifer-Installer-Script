@@ -376,7 +376,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 2.2.1 \n
+%Print%{244;255;0}                        Version - 3.1.1 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
@@ -400,7 +400,7 @@ echo.
 GOTO SelectVegas
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
-Echo ***		Current Build: Vegas Pro 20 Build 411			  ***
+Echo ***		Current Build: Vegas Pro 21 Build 108			  ***
 Echo ****************************************************************
 echo.
 :SelectVegas
@@ -410,7 +410,7 @@ cls
 color 0C
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
-Echo ***        Current Build: Vegas Pro 20 Build 411             ***
+Echo ***        Current Build: Vegas Pro 21 Build 108             ***
 Echo ****************************************************************
 Echo.
 %Print%{255;255;255}		 Select what to Download and Install \n
@@ -486,25 +486,29 @@ for /r ".\Installer-files\Vegas Pro" %%a in (VEGAS_Deep*.exe) do "%%~fa" /wait
 echo Installation is finished
 timeout /T 3 /nobreak >nul
 echo Creating a backup of Vegas Pro
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe.BAK*" /I /Q /Y /F
-echo Created "vegas200.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
-echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
-echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
+echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
+echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
+echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
-for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
+for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
 echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
-del ".\Installer-files\Vegas Pro\vegas200.sfx.exe" 2>nul
+del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe" 2>nul
 GOTO Main
 
 :: If user chooses to install when VP20 is already installed, Script will uninstall VP20 + Deep Learning Modules and install again.
 :alrUninstall-11
 cls
 color 0C
-echo Uninstalling any known installation of Vegas Pro 20
+echo Uninstalling any known installation of Vegas Pro
 echo Please follow through with the un-install
 for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (*.exe) do start "" /wait "%%~fa"
 if exist ".\Installer-files\Vegas Pro\" GOTO removeVeg-11
@@ -522,7 +526,7 @@ cls
 Echo.
 :: Check if vegas is already installed
 echo Checking if Vegas Pro is already installed
-if exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\" GOTO alrDown-12
+if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\" GOTO alrDown-12
 echo Vegas Pro isn't installed, continuing to download
 GOTO down-12
 :alrDown-12
@@ -560,25 +564,29 @@ for /r ".\Installer-files\Vegas Pro" %%a in (VEGAS_Pro*.exe) do "%%~fa" /wait /s
 echo Installation is finished
 timeout /T 3 /nobreak >nul
 echo Creating a backup of Vegas Pro
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe.BAK*" /I /Q /Y /F
-echo Created "vegas200.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
-echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
-echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
+echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
+echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
+echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
-for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
+for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
 echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
-del ".\Installer-files\Vegas Pro\vegas200.sfx.exe"
+del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe"
 GOTO Main
 
 :: If user chooses to install when VP20 is already installed, Script will uninstall VP20 + Deep Learning Modules and install again.
 :alrUninstall-12
 cls
 color 0C
-echo Uninstalling any known installation of Vegas Pro 20
+echo Uninstalling any known installation of Vegas Pro
 echo Please follow through with the un-install
 for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (*.exe) do start "" /wait "%%~fa"
 if exist ".\Installer-files\Vegas Pro\" GOTO removeVeg-12
@@ -655,7 +663,7 @@ cls
 Echo.
 :: Check if vegas is already installed
 echo Checking if Vegas Pro is already installed
-if exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\" GOTO install-14
+if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\" GOTO install-14
 echo Vegas Pro isn't installed, please select the menu option to download Vegas Pro
 timeout /T 5 /nobreak >nul
 GOTO Main
@@ -671,18 +679,22 @@ cls
 color 0c
 echo Download is finished
 echo Creating a backup of Vegas Pro
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\vegas200.exe.BAK*" /I /Q /Y /F
-echo Created "vegas200.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
-echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 20.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
-echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 20.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
+echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
+echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
+echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
-for /r ".\Installer-files\Vegas Pro" %%a in (vegas200*.exe) do "%%~fa" /wait /s /v/qb
+for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
 echo Vegas Pro is now patched
 timeout /T 3 /nobreak >nul
-del ".\Installer-files\Vegas Pro\vegas200.sfx.exe"
+del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe"
 GOTO Main
 
 
@@ -704,6 +716,7 @@ set winrar="C:\Program Files\WinRAR\WinRAR.exe"
 set BFX-Sapphire=Boris FX Sapphire OFX by Nifer.rar
 set BFX-Continuum=Boris FX Continuum Complete OFX by Nifer.rar
 set BFX-Mocha=Boris FX Mocha Pro OFX by Nifer.rar
+set BFX-Mocha-Vegas= Boris FX Mocha Vegas by Nifer.rar
 set BFX-Silhouette=Boris FX Silhouette by Nifer.rar
 set FXH-Ignite=FXHOME Ignite Pro OFX by Nifer.rar
 set MXN-MBL=MAXON Red Giant Magic Bullet Suite by Team V.R.rar
@@ -731,7 +744,7 @@ echo.
 %Print%{231;72;86}            3) BORIS FX - Continuum 
 %Print%{244;255;0}(510 MB) \n
 echo.
-%Print%{231;72;86}            4) BORIS FX - Mocha Pro 
+%Print%{231;72;86}            4) BORIS FX - Mocha Pro
 %Print%{244;255;0}(270 MB) \n
 echo.
 %Print%{231;72;86}            5) BORIS FX - Silhouette 
@@ -755,7 +768,7 @@ IF ERRORLEVEL 8  GOTO SelectPlugins2
 IF ERRORLEVEL 7  GOTO 27
 IF ERRORLEVEL 6  GOTO 26
 IF ERRORLEVEL 5  GOTO 25
-IF ERRORLEVEL 4  GOTO 24
+IF ERRORLEVEL 4  GOTO 24-prompt
 IF ERRORLEVEL 3  GOTO 23
 IF ERRORLEVEL 2  GOTO 22
 IF ERRORLEVEL 1  GOTO 21
@@ -823,6 +836,8 @@ IF ERRORLEVEL 1  GOTO checkdown-21
 echo.
 :: Check if all plugins are already downloaded
 :checkdown-21
+:: Deletes any existing Mocha Pro Preference and prompts user to choose again
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" del ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" 2>1 1>nul
 color 0C
 echo Checking if all plugins are already downloaded
 if exist ".\Installer-files\Plugins\Boris FX Sapph*" GOTO alrDown21-22
@@ -853,7 +868,7 @@ if exist ".\Installer-files\Plugins\NewBlueFX Total*" GOTO alrDown21-223
 GOTO down-21
 :alrDown21-223
 if exist ".\Installer-files\Plugins\REVisionFX Eff*" GOTO prompt-allplug-down
-GOTO down-21
+GOTO down-21-prompt
 :prompt-allplug-down
 echo.
 color 0C
@@ -868,8 +883,37 @@ cls
 echo.
 IF ERRORLEVEL 3  GOTO SelectPlugins
 IF ERRORLEVEL 2  GOTO auto-21
-IF ERRORLEVEL 1  GOTO checkdown-21
+IF ERRORLEVEL 1  GOTO down-21-prompt
 echo.
+
+:::::::::::::::::::::::::::::::::::::::
+:: Prompts to ask which version of Mocha to Download
+:down-21-prompt
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO down-21
+cls
+echo Before continuing and downloading all plugins...
+echo There are two available verisons of Boris FX Mocha
+echo.
+echo 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. It has better integration, but may be outdated.
+echo 2 is the OFX version of Mocha by Boris FX. It works for ALL versions of Vegas Pro, and may be more updated.
+echo.
+echo 1 = Mocha Vegas
+echo 2 = Mocha Pro OFX
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO down-21-ofx
+IF ERRORLEVEL 1  GOTO down-21-veg
+echo.
+:down-21-veg
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt"
+GOTO down-21
+:down-21-ofx
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt"
+GOTO down-21
+
+
 :down-21
 cls
 color 0C
@@ -880,11 +924,24 @@ echo Initializing Download...
 color 0C
 %Print%{0;255;50}1 of 10
 gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
-:: Boris FX Mocha Pro
+:: Checking for Mocha Pro Preference
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO down-21-downofx
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO down-21-downveg
+:down-21-downofx
+:: Boris FX Mocha Pro OFX
 cls
 color 0C
 %Print%{0;255;50}2 of 10
 gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
+GOTO down-21-cont
+:down-21-downveg
+:: Boris FX Mocha Vegas
+cls
+color 0C
+%Print%{0;255;50}2 of 10
+gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
+GOTO down-21-cont
+:down-21-cont
 :: Boris FX Sapphire
 cls
 color 0C
@@ -931,7 +988,8 @@ echo Download Finished!
 echo Renaming rar files
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%"
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%"
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%"
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%"
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%"
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%"
@@ -954,6 +1012,7 @@ taskkill /f /im WinRAR.exe 2>nul
 %winrar% x -o- ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
+%winrar% x -o- ".\Installer-files\%BFX-Mocha-Vegas%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%BFX-Silhouette%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%FXH-Ignite%" ".\Installer-files\Plugins"
 %winrar% x -o- ".\Installer-files\%MXN-MBL%" ".\Installer-files\Plugins"
@@ -968,6 +1027,7 @@ cd /d "%~dp0\Installer-files"
 %szip% x -aos "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 %szip% x -aos "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 %szip% x -aos "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+%szip% x -aos "%BFX-Mocha-Vegas%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 %szip% x -aos "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 %szip% x -aos "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 %szip% x -aos "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
@@ -992,6 +1052,7 @@ IF ERRORLEVEL 1 (
 del ".\Installer-files\%BFX-Sapphire%" 2>nul
 del ".\Installer-files\%BFX-Continuum%" 2>nul
 del ".\Installer-files\%BFX-Mocha%" 2>nul
+del ".\Installer-files\%BFX-Mocha-Vegas%" 2>nul
 del ".\Installer-files\%BFX-Silhouette%" 2>nul
 del ".\Installer-files\%FXH-Ignite%" 2>nul
 del ".\Installer-files\%MXN-MBL%" 2>nul
@@ -1035,7 +1096,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1053,16 +1114,20 @@ GOTO SelectPlugins
 :autoscript-1
 cls
 color 0C
+:: Checking for Mocha Pro Preference
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO autoscript-1-1
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO autoscript-1-2
 :: 2nd auto install
-echo Launching auto install script for Boris FX Mocha Pro
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha*") do start "" /wait "%%~I\INSTALL.cmd"
+:autoscript-1-1
+echo Launching auto install script for Boris FX Mocha Pro OFX
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Pro*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Pro*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1071,7 +1136,31 @@ IF ERRORLEVEL 2  GOTO SelectPlugins
 IF ERRORLEVEL 1  GOTO autoscript-2
 echo.
 :no-auto-2
-echo There is no auto install script for Boris FX Mocha Pro.
+echo There is no auto install script for Boris FX Mocha Pro OFX.
+echo For manual installation, please open this directory
+echo "Installer-files > Plugins > (Plugin Name)"
+echo and follow the instructions in the text file.
+Timeout /T 10 /Nobreak >nul
+GOTO SelectPlugins
+:autoscript-1-2
+echo Launching auto install script for Boris FX Mocha Vegas
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Vegas*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2-2
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Vegas*") do start "" /wait "%%~I\INSTALL.cmd"
+Timeout /T 2 /Nobreak >nul
+echo.
+echo When the auto install script is finished, please press the Number #1
+echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo 1 = Continue Auto Install
+echo 2 = Cancel and Go back to Main Menu
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO autoscript-2
+echo.
+:no-auto-2-2
+echo There is no auto install script for Boris FX Mocha Vegas.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
@@ -1089,7 +1178,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1116,7 +1205,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1143,7 +1232,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1170,7 +1259,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1197,7 +1286,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1224,7 +1313,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1251,7 +1340,7 @@ echo.
 echo When the auto install script is finished, please press the Number #1
 echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
 echo 1 = Continue Auto Install
-echo 2 = Cancel Auto Install
+echo 2 = Cancel and Go back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1317,7 +1406,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -1423,7 +1513,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -1497,7 +1588,26 @@ GOTO SelectPlugins
 
 
 :::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 4
+:: Prompts to ask which version of Mocha to Download
+:24-prompt
+cls
+echo There are two available verisons of Boris FX Mocha
+echo.
+echo 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. It has better integration, but may be outdated.
+echo 2 is the OFX version of Mocha by Boris FX. It works for ALL versions of Vegas Pro, and may be more updated.
+echo.
+echo 1 = Mocha Vegas
+echo 2 = Mocha Pro OFX
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO 24
+IF ERRORLEVEL 1  GOTO 24-2
+echo.
+
+:::::::::::::::::::::::::::::::::::::::
+:: Download & Extract Option 4-1
 :24
 cls
 Echo.
@@ -1529,7 +1639,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -1603,6 +1714,116 @@ GOTO SelectPlugins
 
 
 :::::::::::::::::::::::::::::::::::::::
+:: Download & Extract Option 4-2
+:24-2
+cls
+Echo.
+:: Check if plugin is already downloaded
+echo Checking if plugin is already downloaded
+if exist ".\Installer-files\Plugins\Boris FX Mocha Vegas*" GOTO alrDown-24-2
+echo Plugin isn't downloaded, continuing to download
+GOTO down-24-2
+:alrDown-24-2
+cls
+echo Plugin is already downloaded
+echo Do you want to download it again?
+echo 1 = Yes
+echo 2 = No
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO SelectPlugins
+IF ERRORLEVEL 1  GOTO down-24-2
+echo.
+:down-24-2
+cls
+echo Initializing Download...
+:: gdown command
+gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
+color 0C
+echo Download Finished!
+echo Renaming rar file
+REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
+REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
+REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
+REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
+REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
+REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
+REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
+REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
+REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
+echo Extracting zipped File
+:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
+if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-24-2-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-24-2-szip
+:down-24-2-win
+:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
+echo Closing all instances of WinRAR
+@echo OFF
+taskkill /f /im WinRAR.exe 2>nul
+%winrar% x -o+ ".\Installer-files\%BFX-Mocha-Vegas%" ".\Installer-files\Plugins"
+timeout /T 6 /nobreak >nul
+GOTO LOOP24-2
+:down-24-2-szip
+cd /d "%~dp0\Installer-files"
+%szip% x -aoa "%BFX-Mocha-Vegas%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+timeout /T 6 /nobreak >nul
+cls
+GOTO CONTINUE24-2
+:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
+:LOOP24-2
+tasklist | find /i "WinRAR" >nul 2>&1
+IF ERRORLEVEL 1 (
+  GOTO CONTINUE24-2
+) ELSE (
+  ECHO WinRAR is still running
+  Timeout /T 5 /Nobreak >nul
+  GOTO LOOP24-2
+)
+:CONTINUE24-2
+del ".\Installer-files\%BFX-Mocha-Vegas%"
+echo.
+echo Finished, Extracted to "\Installer-files\Plugins"
+Timeout /T 5 /Nobreak >nul
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Vegas*") do if exist "%%~I\INSTALL.cmd" GOTO auto-24-2
+GOTO SelectPlugins
+
+:auto-24-2
+cls
+echo There is an auto installer script for this plugin.
+echo How do you want to install the plugin?
+echo 1 = Auto Install
+echo 2 = Manual Install
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO manual-24-2
+IF ERRORLEVEL 1  GOTO autoinst-24-2
+echo.
+:manual-24-2
+cls
+echo For manual installation, please open this directory
+echo Installer-files > Plugins > (Plugin Name)
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+:autoinst-24-2
+cls
+echo Launching auto install script...
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Vegas*") do start "" cmd /c "%%~I\INSTALL.cmd"
+Timeout /T 5 /Nobreak >nul
+GOTO SelectPlugins
+
+
+
+
+
+:::::::::::::::::::::::::::::::::::::::
 :: Download & Extract Option 5
 :25
 cls
@@ -1635,7 +1856,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -1741,7 +1963,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -1847,7 +2070,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -1953,7 +2177,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -2059,7 +2284,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -2165,7 +2391,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
@@ -2270,7 +2497,8 @@ echo Download Finished!
 echo Renaming rar file
 REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
 REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
+REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
 REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
 REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
 REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
