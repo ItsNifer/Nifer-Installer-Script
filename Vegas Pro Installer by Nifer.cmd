@@ -379,7 +379,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 3.1.6 \n
+%Print%{244;255;0}                        Version - 3.1.7 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
@@ -897,11 +897,14 @@ cls
 echo Before continuing and downloading all plugins...
 echo There are two available verisons of Boris FX Mocha
 echo.
-echo 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. It has better integration, but may be outdated.
-echo 2 is the OFX version of Mocha by Boris FX. It works for ALL versions of Vegas Pro, and may be more updated.
+%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above.
+%Print%{244;255;0} It has better integration, but may be outdated. \n
 echo.
-echo 1 = Mocha Vegas
-echo 2 = Mocha Pro OFX
+%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX.
+%Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
+echo.
+%Print%{231;72;86} 1 = Mocha Vegas \n
+%Print%{231;72;86} 2 = Mocha Pro OFX \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1128,11 +1131,14 @@ color 0C
 echo Before continuing and installing the rest of the plugins...
 echo There are two available verisons of Boris FX Mocha
 echo.
-echo 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. It has better integration, but may be outdated.
-echo 2 is the OFX version of Mocha by Boris FX. It works for ALL versions of Vegas Pro, has worse integration, but may be more updated.
+%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above.
+%Print%{244;255;0} It has better integration, but may be outdated. \n
 echo.
-echo 1 = Mocha Vegas
-echo 2 = Mocha Pro OFX
+%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX.
+%Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
+echo.
+%Print%{231;72;86} 1 = Mocha Vegas \n
+%Print%{231;72;86} 2 = Mocha Pro OFX \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
