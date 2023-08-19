@@ -379,7 +379,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 3.1.4 \n
+%Print%{244;255;0}                        Version - 3.1.5 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
@@ -925,7 +925,7 @@ echo Initializing Download...
 :: gdown commands
 :: Boris FX Continuum
 color 0C
-%Print%{0;255;50}1 of 10
+%Print%{0;255;50}1 of 10 \n
 gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
 :: Checking for Mocha Pro Preference
 if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO down-21-downofx
@@ -934,56 +934,56 @@ if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO 
 :: Boris FX Mocha Pro OFX
 cls
 color 0C
-%Print%{0;255;50}2 of 10
+%Print%{0;255;50}2 of 10 \n
 gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
 GOTO down-21-cont
 :down-21-downveg
 :: Boris FX Mocha Vegas
 cls
 color 0C
-%Print%{0;255;50}2 of 10
+%Print%{0;255;50}2 of 10 \n
 gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
 GOTO down-21-cont
 :down-21-cont
 :: Boris FX Sapphire
 cls
 color 0C
-%Print%{0;255;50}3 of 10
+%Print%{0;255;50}3 of 10 \n
 gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
 :: Boris FX Silhouette
 cls
 color 0C
-%Print%{0;255;50}4 of 10
+%Print%{0;255;50}4 of 10 \n
 gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
 :: FXHome Ignite Pro
 cls
 color 0C
-%Print%{0;255;50}5 of 10
+%Print%{0;255;50}5 of 10 \n
 gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
 :: Maxon Red Giant Magic Bullet Suite
 cls
 color 0C
-%Print%{0;255;50}6 of 10
+%Print%{0;255;50}6 of 10 \n
 gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
 :: Maxon Red Giant Universe
 cls
 color 0C
-%Print%{0;255;50}7 of 10
+%Print%{0;255;50}7 of 10 \n
 gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
 :: NewBlue FX Titler Pro
 cls
 color 0C
-%Print%{0;255;50}8 of 10
+%Print%{0;255;50}8 of 10 \n
 gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
 :: NewBlue FX TotalFX
 cls
 color 0C
-%Print%{0;255;50}9 of 10
+%Print%{0;255;50}9 of 10 \n
 gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
 :: REVision FX Effections
 cls
 color 0C
-%Print%{0;255;50}10 of 10
+%Print%{0;255;50}10 of 10 \n
 gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
 cls
 color 0C
