@@ -1056,18 +1056,18 @@ IF ERRORLEVEL 1 (
   GOTO LOOP21
 )
 :CONTINUE21
-del ".\Installer-files\%BFX-Sapphire%" 2>nul
-del ".\Installer-files\%BFX-Continuum%" 2>nul
-del ".\Installer-files\%BFX-Mocha%" 2>nul
-del ".\Installer-files\%BFX-Mocha-Vegas%" 2>nul
-del ".\Installer-files\%BFX-Silhouette%" 2>nul
-del ".\Installer-files\%FXH-Ignite%" 2>nul
-del ".\Installer-files\%MXN-MBL%" 2>nul
-del ".\Installer-files\%MXN-Universe%" 2>nul
-del ".\Installer-files\%NFX-Titler%" 2>nul
-del ".\Installer-files\%NFX-TotalFX%" 2>nul
-del ".\Installer-files\%RFX-Effections%" 2>nul
-del ".\Installer-files\*.rar" 2>nul
+del "%~dp0\Installer-files\%BFX-Sapphire%" 2>nul
+del "%~dp0\Installer-files\%BFX-Continuum%" 2>nul
+del "%~dp0\Installer-files\%BFX-Mocha%" 2>nul
+del "%~dp0\Installer-files\%BFX-Mocha-Vegas%" 2>nul
+del "%~dp0\Installer-files\%BFX-Silhouette%" 2>nul
+del "%~dp0\Installer-files\%FXH-Ignite%" 2>nul
+del "%~dp0\Installer-files\%MXN-MBL%" 2>nul
+del "%~dp0\Installer-files\%MXN-Universe%" 2>nul
+del "%~dp0\Installer-files\%NFX-Titler%" 2>nul
+del "%~dp0\Installer-files\%NFX-TotalFX%" 2>nul
+del "%~dp0\Installer-files\%RFX-Effections%" 2>nul
+del "%~dp0\Installer-files\*.rar" 2>nul
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -1488,7 +1488,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP22
 )
 :CONTINUE22
-del ".\Installer-files\%BFX-Sapphire%"
+del "%~dp0\Installer-files\%BFX-Sapphire%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -1595,7 +1595,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP23
 )
 :CONTINUE23
-del ".\Installer-files\%BFX-Continuum%"
+del "%~dp0\Installer-files\%BFX-Continuum%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -1730,7 +1730,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP24
 )
 :CONTINUE24
-del ".\Installer-files\%BFX-Mocha%"
+del "%~dp0\Installer-files\%BFX-Mocha%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -1838,7 +1838,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP24-2
 )
 :CONTINUE24-2
-del ".\Installer-files\%BFX-Mocha-Vegas%"
+del "%~dp0\Installer-files\%BFX-Mocha-Vegas%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -1948,7 +1948,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP25
 )
 :CONTINUE25
-del ".\Installer-files\%BFX-Silhouette%"
+del "%~dp0\Installer-files\%BFX-Silhouette%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -2055,7 +2055,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP26
 )
 :CONTINUE26
-del ".\Installer-files\%FXH-Ignite%"
+del "%~dp0\Installer-files\%FXH-Ignite%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -2162,7 +2162,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP27
 )
 :CONTINUE27
-del ".\Installer-files\%MXN-MBL%"
+del "%~dp0\Installer-files\%MXN-MBL%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -2269,7 +2269,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP221
 )
 :CONTINUE221
-del ".\Installer-files\%MXN-Universe%"
+del "%~dp0\Installer-files\%MXN-Universe%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -2376,7 +2376,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP222
 )
 :CONTINUE222
-del ".\Installer-files\%NFX-Titler%"
+del "%~dp0\Installer-files\%NFX-Titler%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -2483,7 +2483,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP223
 )
 :CONTINUE223
-del ".\Installer-files\%NFX-TotalFX%"
+del "%~dp0\Installer-files\%NFX-TotalFX%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
@@ -2589,7 +2589,7 @@ IF ERRORLEVEL 1 (
   GOTO LOOP224
 )
 :CONTINUE224
-del ".\Installer-files\%RFX-Effections%"
+del "%~dp0\Installer-files\%RFX-Effections%"
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
 Timeout /T 5 /Nobreak >nul
