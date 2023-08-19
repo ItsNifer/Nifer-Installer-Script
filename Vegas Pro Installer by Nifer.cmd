@@ -379,7 +379,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 3.1.5 \n
+%Print%{244;255;0}                        Version - 3.1.6 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
@@ -844,31 +844,31 @@ if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" del ".\I
 color 0C
 echo Checking if all plugins are already downloaded
 if exist ".\Installer-files\Plugins\Boris FX Sapph*" GOTO alrDown21-22
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-22
 if exist ".\Installer-files\Plugins\Boris FX Cont*" GOTO alrDown21-23
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-23
 if exist ".\Installer-files\Plugins\Boris FX Mocha*" GOTO alrDown21-24
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-24
 if exist ".\Installer-files\Plugins\Boris FX Silho*" GOTO alrDown21-25
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-25
 if exist ".\Installer-files\Plugins\FXHOME Ign*" GOTO alrDown21-26
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-26
 if exist ".\Installer-files\Plugins\MAXON Red Giant Magic Bull*" GOTO alrDown21-27
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-27
 if exist ".\Installer-files\Plugins\MAXON Red Giant Uni*" GOTO alrDown21-221
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-221
 if exist ".\Installer-files\Plugins\NewBlueFX Titler*" GOTO alrDown21-222
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-222
 if exist ".\Installer-files\Plugins\NewBlueFX Total*" GOTO alrDown21-223
-GOTO down-21
+GOTO down-21-prompt
 :alrDown21-223
 if exist ".\Installer-files\Plugins\REVisionFX Eff*" GOTO prompt-allplug-down
 GOTO down-21-prompt
@@ -918,6 +918,7 @@ GOTO down-21
 
 
 :down-21
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO down-21-prompt
 cls
 color 0C
 echo Initializing Download...
