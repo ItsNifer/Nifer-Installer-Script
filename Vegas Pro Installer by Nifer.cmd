@@ -376,7 +376,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 3.1.1 \n
+%Print%{244;255;0}                        Version - 3.1.3 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
@@ -1115,8 +1115,41 @@ GOTO SelectPlugins
 cls
 color 0C
 :: Checking for Mocha Pro Preference
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO autoscript-1-prompt
 if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO autoscript-1-1
 if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO autoscript-1-2
+:autoscript-1-prompt
+cls
+color 0C
+echo Before continuing and installing the rest of the plugins...
+echo There are two available verisons of Boris FX Mocha
+echo.
+echo 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. It has better integration, but may be outdated.
+echo 2 is the OFX version of Mocha by Boris FX. It works for ALL versions of Vegas Pro, has worse integration, but may be more updated.
+echo.
+echo 1 = Mocha Vegas
+echo 2 = Mocha Pro OFX
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO autoscript-1-prompt-ofx
+IF ERRORLEVEL 1  GOTO autoscript-1-prompt-veg
+echo.
+autoscript-1-prompt-veg
+cls
+color 0C
+echo.
+echo Saving Mocha Pro preference
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt"
+GOTO autoscript-1
+:autoscript-1-prompt-ofx
+cls
+color 0C
+echo.
+echo Saving Mocha Pro preference
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt"
+GOTO autoscript-1
 :: 2nd auto install
 :autoscript-1-1
 echo Launching auto install script for Boris FX Mocha Pro OFX
