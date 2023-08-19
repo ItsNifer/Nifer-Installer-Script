@@ -1146,7 +1146,7 @@ echo.
 IF ERRORLEVEL 2  GOTO autoscript-1-prompt-ofx
 IF ERRORLEVEL 1  GOTO autoscript-1-prompt-veg
 echo.
-autoscript-1-prompt-veg
+:autoscript-1-prompt-veg
 cls
 color 0C
 echo.
