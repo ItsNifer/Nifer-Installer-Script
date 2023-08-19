@@ -249,7 +249,10 @@ GOTO git-installed1
 color 0C
 echo Git is not installed
 echo Downloading the installer for Git 2.41
+%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
 :: download git with gdown
+color 0C
+echo.
 gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
 cls
 color 0C
@@ -376,7 +379,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 3.1.3 \n
+%Print%{244;255;0}                        Version - 3.1.4 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n

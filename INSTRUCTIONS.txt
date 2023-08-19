@@ -20,6 +20,9 @@ After downloading any 3rd party plugin, open the Installer-files folder > Plugin
 
 ___________________________________________________________________
 Troubleshooting:
+My Installer won't get passed installing the required software, It keeps asking to close and re-open but never continues
+	- Make sure you have extracted the zipped folder, you can extract the files anywhere on your computer.
+
 I turned auto-updating off, but now I want to turn it on.
 	- Go into Installer-files > Installer-Scripts > Settings. Delete the auto-update.txt file, re-run the installer
 
