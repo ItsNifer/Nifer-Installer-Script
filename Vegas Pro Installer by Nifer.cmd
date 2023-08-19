@@ -1634,6 +1634,9 @@ GOTO SelectPlugins
 :: Prompts to ask which version of Mocha to Download
 :24-prompt
 cls
+:: Checking for Mocha Pro Preference
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO 24
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO 24-2
 color 0C
 echo There are two available verisons of Boris FX Mocha
 echo.
@@ -1657,6 +1660,7 @@ echo.
 :::::::::::::::::::::::::::::::::::::::
 :: Download & Extract Option 4-1
 :24
+color 0C
 cls
 Echo.
 :: Check if plugin is already downloaded
@@ -1764,6 +1768,7 @@ GOTO SelectPlugins
 :::::::::::::::::::::::::::::::::::::::
 :: Download & Extract Option 4-2
 :24-2
+color 0C
 cls
 Echo.
 :: Check if plugin is already downloaded
