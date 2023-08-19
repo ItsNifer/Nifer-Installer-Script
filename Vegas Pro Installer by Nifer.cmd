@@ -897,10 +897,10 @@ cls
 echo Before continuing and downloading all plugins...
 echo There are two available verisons of Boris FX Mocha
 echo.
-%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above.
+%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. \n
 %Print%{244;255;0} It has better integration, but may be outdated. \n
 echo.
-%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX.
+%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX. \n
 %Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
 echo.
 %Print%{231;72;86} 1 = Mocha Vegas \n
@@ -1131,10 +1131,10 @@ color 0C
 echo Before continuing and installing the rest of the plugins...
 echo There are two available verisons of Boris FX Mocha
 echo.
-%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above.
+%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. \n
 %Print%{244;255;0} It has better integration, but may be outdated. \n
 echo.
-%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX.
+%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX. \n
 %Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
 echo.
 %Print%{231;72;86} 1 = Mocha Vegas \n
