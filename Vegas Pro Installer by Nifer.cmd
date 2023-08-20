@@ -371,6 +371,7 @@ GOTO Main
 
 
 
+
 ::------------------------------------------
 :Main
 @Title Vegas Pro Installer by Nifer
@@ -379,14 +380,14 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   MAGIX Vegas Pro Installer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 3.1.7 \n
+%Print%{244;255;0}                        Version - 3.2.5 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Vegas Pro \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            2) 3rd Party Plugins \n
 %Print%{231;72;86}\n
-%Print%{231;72;86}            3) Clean up all installer files \n
+%Print%{231;72;86}            3) Settings \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            4) Quit \n
 echo.
@@ -488,20 +489,22 @@ for /r ".\Installer-files\Vegas Pro" %%a in (VEGAS_Pro*.exe) do "%%~fa" /wait
 for /r ".\Installer-files\Vegas Pro" %%a in (VEGAS_Deep*.exe) do "%%~fa" /wait
 echo Installation is finished
 timeout /T 3 /nobreak >nul
-echo Creating a backup of Vegas Pro
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
+echo Creating a Backup of Vegas Pro
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
 echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
-echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
-echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
+:: Creates preference for VP Patch
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
 del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe" 2>nul
@@ -566,20 +569,22 @@ timeout /T 2 /nobreak >nul
 for /r ".\Installer-files\Vegas Pro" %%a in (VEGAS_Pro*.exe) do "%%~fa" /wait /s /v/qb
 echo Installation is finished
 timeout /T 3 /nobreak >nul
-echo Creating a backup of Vegas Pro
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
+echo Creating a Backup of Vegas Pro
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
 echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
-echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
-echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
+:: Creates preference for VP Patch
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
 del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe"
@@ -681,20 +686,22 @@ gdown --folder 1rv-kYFMmExwf_7h8dU9uaV3Oq6RXpPsG -O ".\Installer-files\Vegas Pro
 cls
 color 0c
 echo Download is finished
-echo Creating a backup of Vegas Pro
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
+echo Creating a Backup of Vegas Pro
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
 echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK*" /I /Q /Y /F
 echo Created "ScriptPortal.Vegas.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
-echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
-echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK*" /I /Q /Y /F
+echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS Pro 21.0"
+if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
 for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
+:: Creates preference for VP Patch
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now patched
 timeout /T 3 /nobreak >nul
 del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe"
@@ -879,7 +886,7 @@ echo You already have all plugins downloaded
 echo What do you want to do?
 echo 1 = Re-download them all
 echo 2 = Continue to installing
-echo 3 = Back to Main Menu
+echo 3 = back to Main Menu
 echo.
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
@@ -1101,8 +1108,8 @@ for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Cont*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1168,8 +1175,8 @@ for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Pro*") do if not exist 
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Pro*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1192,8 +1199,8 @@ for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Vegas*") do if not exis
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Vegas*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1219,8 +1226,8 @@ for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Sapph*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1246,8 +1253,8 @@ for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if not exist "%%~
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Silho*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1273,8 +1280,8 @@ for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if not exist "%%~I\IN
 for /D %%I in ("%~dp0\Installer-files\Plugins\FXHOME Ign*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1300,8 +1307,8 @@ for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if no
 for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1327,8 +1334,8 @@ for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if not exist
 for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1354,8 +1361,8 @@ for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if not exist "%
 for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Titler*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -1381,8 +1388,8 @@ for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if not exist "%%
 for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Total*") do start "" /wait "%%~I\INSTALL.cmd"
 Timeout /T 2 /Nobreak >nul
 echo.
-echo When the auto install script is finished, please press the Number #1
-echo If you want to cancel the auto install process and return to the main menu, please press the Number #2
+echo Select what to do next
+echo.
 echo 1 = Continue Auto Install
 echo 2 = Cancel and Go back to Main Menu
 echo.
@@ -2637,7 +2644,149 @@ GOTO SelectPlugins2
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+:3-Main-check
+:: Checks various preferences that are needed later in script, same as Main-check
+:: VP-patch-1
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 3-Main
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" & GOTO 3-Main
+if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul del ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" >nul & GOTO 3-Main
+if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 3-Main
+cls
+GOTO 3-Main
+
+
 :3
+GOTO 3-Main-check
+:3-Main
+color 0C
+cls
+@ECHO OFF
+color 0C
+Echo            ************************************
+Echo            ***    (Option #3) Settings      ***
+Echo            ************************************
+Echo.
+%Print%{255;255;255}		 Select what option you want. \n
+echo.
+%Print%{231;72;86}            1) Check Software Versions \n
+echo.
+%Print%{231;72;86}            2) Toggle Vegas Pro Patch:
+if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{0;255;50} [Enabled] \n
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{255;0;50} [Disabled] \n
+echo.
+%Print%{231;72;86}            3) Clean Installer Files \n
+echo.
+%Print%{231;72;86}            4) Preferences \n
+echo.
+%Print%{255;112;0}            5) Main Menu \n
+echo.
+C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what you want to Select." /N
+cls
+echo.
+IF ERRORLEVEL 5  GOTO Main
+IF ERRORLEVEL 4  GOTO 34
+IF ERRORLEVEL 3  GOTO 33
+IF ERRORLEVEL 2  GOTO 32
+IF ERRORLEVEL 1  GOTO 31
+echo.
+
+:::::::::::::::::::::::::::::::::::::::
+:31
+start "" https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/edit?usp=sharing
+GOTO 3-Main
+
+:::::::::::::::::::::::::::::::::::::::
+:32
+if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 32-enabled
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.UNBAK" >nul GOTO 32-disabled
+if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 32-disabled-prompt
+GOTO 3
+
+:32-enabled
+color 0C
+::Patch is enabled, proceeds to unpatch and save patched files for later
+::Regular=patched > .UNBAK=patched copy, .bak=unpatched > Regular=unpatched, .UNBAK=patched copy
+del "%~dp0\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+REN "vegas210.exe" "vegas210.exe.UNBAK" >nul 2>nul
+xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F
+del "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK"
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+REN "ScriptPortal.Vegas.dll" "ScriptPortal.Vegas.dll.UNBAK" >nul 2>nul
+xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul 2>nul
+del "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK"
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
+REN "Protein.4.2.dll" "Protein.4.2.dll.UNBAK" >nul 2>nul
+xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul 2>nul
+del "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK"
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
+REN "Protein_x64.4.2.dll" "Protein_x64.4.2.dll.UNBAK" >nul 2>nul
+xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul 2>nul
+del "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK"
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+REN "TransitionWPFLibrary.dll" "TransitionWPFLibrary.dll.UNBAK" >nul 2>nul
+xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul 2>nul
+del "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK"
+cd /d "%~dp0"
+GOTO 3
+
+:32-disabled
+color 0C
+::Patch is disable, proceeds to patch and save unpatched files for later
+::Regular=unpatched > .bak=unpatched, .UNBAK=patched > Regular=patched
+cd /d "%~dp0"
+break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" >nul
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+REN "vegas210.exe" "vegas210.exe.BAK" >nul 2>nul
+del "vegas210.exe" >nul 2>nul
+REN "vegas210.exe.UNBAK" "vegas210.exe" >nul 2>nul
+del "vegas210.exe.UNBAK" >nul 2>nul
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+REN "ScriptPortal.Vegas.dll" "ScriptPortal.Vegas.dll.BAK" >nul 2>nul
+del "ScriptPortal.Vegas.dll" >nul 2>nul
+REN "ScriptPortal.Vegas.dll.UNBAK" "ScriptPortal.Vegas.dll" >nul 2>nul
+del "ScriptPortal.Vegas.dll.UNBAK" >nul 2>nul
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
+REN "Protein.4.2.dll" "Protein.4.2.dll.BAK" >nul 2>nul
+del "Protein.4.2.dll" >nul 2>nul
+REN "Protein.4.2.dll.UNBAK" "Protein.4.2.dll" >nul 2>nul
+del "Protein.4.2.dll.UNBAK" >nul 2>nul
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
+REN "Protein_x64.4.2.dll" "Protein_x64.4.2.dll.BAK" >nul 2>nul
+del "Protein_x64.4.2.dll" >nul 2>nul
+REN "Protein_x64.4.2.dll.UNBAK" "Protein_x64.4.2.dll" >nul 2>nul
+del "Protein_x64.4.2.dll.UNBAK" >nul 2>nul
+
+cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
+REN "TransitionWPFLibrary.dll" "TransitionWPFLibrary.dll.BAK" >nul 2>nul
+del "TransitionWPFLibrary.dll" >nul 2>nul
+REN "TransitionWPFLibrary.dll.UNBAK" "TransitionWPFLibrary.dll" >nul 2>nul
+del "TransitionWPFLibrary.dll.UNBAK" >nul 2>nul
+
+cd /d "%~dp0"
+GOTO 3
+
+:32-disabled-prompt
+color 0C
+cls
+echo.
+echo No Backup patched files found.
+echo Please run the patch through the Main Menu under Vegas Pro
+timeout /T 6 /nobreak >nul
+GOTO 3-Main
+
+
+
+:::::::::::::::::::::::::::::::::::::::
+:33
 cls
 echo Are you sure you want to clean all files from the installer?
 echo This will remove all downloaded files, but will not uninstall Vegas Pro or any Plugin.
@@ -2648,9 +2797,9 @@ C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
 IF ERRORLEVEL 2  GOTO Main
-IF ERRORLEVEL 1  GOTO clean-14
+IF ERRORLEVEL 1  GOTO clean-33
 echo.
-:clean-14
+:clean-33
 cls
 color 0C
 echo Cleaning up Vegas Pro files
@@ -2662,8 +2811,99 @@ del ".\Installer-files\*.rar" 2>nul
 del ".\Installer-files\*.zip" 2>nul
 echo Finished cleaning up all installer Files
 timeout /T 3 /nobreak >nul
-GOTO Main
+GOTO 3
+:::::::::::::::::::::::::::::::::::::::
 
+:34
+olor 0C
+cls
+@ECHO OFF
+color 0C
+Echo            ***************************
+Echo            ***    Preferences      ***
+Echo            ***************************
+Echo.
+%Print%{255;255;255}		 Select what option you want. \n
+echo.
+%Print%{231;72;86}            1) Toggle Auto Updating:
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" %Print%{0;255;50} [Enabled] \n
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{255;0;50} [Disabled] \n
+if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" %Print%{255;0;50} [N/A] \n
+echo.
+%Print%{231;72;86}            2) Toggle Archiving Method:
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" %Print%{0;255;50} [WinRAR] \n
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" %Print%{0;255;50} [7Zip] \n
+if not exist ".\Installer-files\Installer-Scripts\Settings\archive*.txt" %Print%{255;0;50} [N/A] \n
+echo.
+%Print%{231;72;86}            3) Reset All Preferences \n
+echo.
+%Print%{255;112;0}            4) Back \n
+echo.
+%Print%{255;112;0}            5) Main Menu \n
+echo.
+%Print%{244;255;0}Please restart the installer script after toggling any preferences to apply changes. \n
+C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-4) of what you want to Select." /N
+cls
+echo.
+IF ERRORLEVEL 5  GOTO Main
+IF ERRORLEVEL 4  GOTO 3
+IF ERRORLEVEL 3  GOTO 333
+IF ERRORLEVEL 2  GOTO 332
+IF ERRORLEVEL 1  GOTO 331
+echo.
+:::::::::::::::::::::::::::::::::::::::
+
+:331
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO 331-enabled-toggle
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO 331-disabled-toggle
+:331-enabled-toggle
+REN ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" "auto-update-2.txt" 2>nul
+GOTO 34
+:331-disabled-toggle
+REN ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" "auto-update-1.txt" 2>nul
+GOTO 34
+:::::::::::::::::::::::::::::::::::::::
+
+:332
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO 332-win-toggle
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO 332-szip-toggle
+:332-win-toggle
+REN ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" "archive-szip.txt" 2>nul
+GOTO 34
+:332-szip-toggle
+REN ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" "archive-win.txt" 2>nul
+GOTO 34
+:::::::::::::::::::::::::::::::::::::::
+
+:333
+cls
+color 0C
+Echo.
+%Print%{231;72;86}Are you sure you want to delete
+%Print%{244;255;0} ALL
+%Print%{231;72;86} preferences? \n
+%Print%{231;72;86}The script will ask you for these preferences when opened again. \n
+echo.
+%Print%{231;72;86}1 = Yes \n
+%Print%{231;72;86}2 = No \n
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO 34
+IF ERRORLEVEL 1  GOTO 333-cont
+echo.
+:333-cont
+color 0C
+echo.
+echo Deleting all user-made preferences
+del ".\Installer-files\Installer-Scripts\Settings\*.txt" 2>nul
+echo Finished.
+timeout /T 3 /nobreak >nul
+GOTO 34
+
+
+:::::::::::::::::::::::::::::::::::::::
 :Quit
 cls
 echo Quitting Nifer's Vegas Pro Install Script
