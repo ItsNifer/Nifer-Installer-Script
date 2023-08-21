@@ -1,4 +1,4 @@
-Vegas Pro Installer by Nifer
+Installer Script by Nifer
 
 Hello!
 I've worked pretty hard on this installer, if you could please follow on twitter @NiferEdits
@@ -8,8 +8,8 @@ This script automatically checks & installs these requirements (if u are missing
 	- WinRAR or 7Zip
 	- Git 4.x (Optional for Auto-updating)
 
-***YOU NEED to have the folder "Installer-files" in the same directory as "Vegas Pro Installer by Nifer.cmd"*** 
-Once you've done that, simply run "Vegas Pro Installer by Nifer"
+***YOU NEED to have the folder "Installer-files" in the same directory as "Installer Script by Nifer.cmd"*** 
+Once you've done that, simply run "Installer Script by Nifer"
 
 
 
@@ -24,14 +24,14 @@ My Installer won't get passed installing the required software, It keeps asking 
 	- Make sure you have extracted the zipped folder, you can extract the files anywhere on your computer.
 
 I turned auto-updating off, but now I want to turn it on.
-	- Go into Installer-files > Installer-Scripts > Settings. Delete the auto-update.txt file, re-run the installer
+	- Open the Installer Script and go to Settings > Preferences. Toggle the auto-updating preference.
 
 I have both 7zip and WinRAR installed, but I want to use the other archiver for the installer.
-	- Go into Installer-files > Installer-Scripts > Settings. Delete the archive-*.txt file, re-run the installer
+	- Open the Installer Script and go to Settings > Preferences. Toggle the Archiving Method preference.
 
 My Installer is giving errors during launch, and instantly closes.
 	- Try Restarting the Installer to check for the required software.
-	- Otherwise, delete entire Installer and all of it's folders. Then redownload or re-extract the files into a new folder, and try again.
+	- Otherwise, delete entire Installer and all of it's folders. Then re-download or re-extract the files into a new folder, and try again.
 
 When I go to install Vegas Pro, it says it's already installed, it launches the un-installer but gives an error.
 	- Manually un-install Vegas Pro through your control panel. Try my installer afterwards.
@@ -66,4 +66,4 @@ If you don't have them installed, this script will automatically install them fo
 
 
 My Github Repository:
-https://github.com/ItsNifer/VP-20-Nifer
+https://github.com/ItsNifer/Nifer-Installer-Script
