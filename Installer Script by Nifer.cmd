@@ -382,7 +382,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 4.1.0 \n
+%Print%{244;255;0}                        Version - 4.1.3 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -391,12 +391,15 @@ Echo.
 %Print%{231;72;86}\n
 %Print%{231;72;86}            3) Settings \n
 %Print%{231;72;86}\n
-%Print%{231;72;86}            4) Quit \n
+%Print%{0;185;255}            4) Donate to support (Paypal) \n
+%Print%{231;72;86}\n
+%Print%{255;112;0}            5) Quit \n
 echo.
-C:\Windows\System32\CHOICE /C 1234 /M "Type the number (1-4) of what option you want." /N
+C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what option you want." /N
 cls
 echo.
-IF ERRORLEVEL 4  GOTO Quit
+IF ERRORLEVEL 5  GOTO Quit
+IF ERRORLEVEL 4  GOTO Donate
 IF ERRORLEVEL 3  GOTO 3
 IF ERRORLEVEL 2  GOTO 2
 IF ERRORLEVEL 1  GOTO 1
@@ -566,23 +569,73 @@ echo.
 :: Download & Extract Option 1
 :11
 cls
+color 0C
 Echo.
 :: Check if vegas is already installed
-echo Checking if Vegas Pro is already installed
-if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO alrDown-11
+echo Checking for other installations...
+if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO VP-Install-Check-11
 echo Vegas Pro isn't installed, continuing to download
 GOTO down-11
+
+:::::::::::::::::::::::::::::::::::::::
+:: Creates a Log File for scanning any Vegas Pro Installations
+@ECHO OFF
+:LogVPVers
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Pro"^
+') do (
+    if "%%J"=="DisplayName" (
+        set vpver=%%L
+	echo !vpver! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+exit /b
+
+:VP-Install-Check-11
+@ECHO OFF
+setlocal ENABLEDELAYEDEXPANSION
+SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
+call :LogVPVers > %LOGFILE%
+timeout /T 2 /nobreak >nul
+GOTO alrDown-11
+
 :alrDown-11
-cls
-echo Vegas Pro is already installed
-echo Do you want to install it again?
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+timeout /T 2 /nobreak >nul
 cls
 echo.
-IF ERRORLEVEL 2  GOTO SelectVegas
+color 0C
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+type nul>VP-Installations-found-output.txt
+for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
+  findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
+)
+cls
+echo Found installations of the following:
+echo.
+setLocal
+for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
+	set tempvar11=%%T
+   ::echo.%%T
+   echo !tempvar11:---------- =! 2>nul | findstr /v Voukoder 2>nul
+)
+endlocal
+cd /d "%~dp0"
+echo.
+%Print%{255;255;255} What do you want to do? \n
+%Print%{231;72;86} 1 = Uninstall everything and Install the latest version \n
+%Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
+%Print%{231;72;86} 3 = Cancel and return to Main Menu \n
+echo.
+echo.
+%Print%{244;255;0}(Optional) It is recommended to manually un-install any unwanted versions. \n
+C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 3  GOTO SelectVegas
+IF ERRORLEVEL 2  GOTO install-11
 IF ERRORLEVEL 1  GOTO down-11
 echo.
 :down-11
@@ -647,23 +700,56 @@ GOTO install-11
 :: Download & Extract Option 2
 :12
 cls
+color 0C
 Echo.
 :: Check if vegas is already installed
-echo Checking if Vegas Pro is already installed
-if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\" GOTO alrDown-12
+echo Checking for other installations...
+for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (VEGAS_Pro*.exe) do if exist "%%~fa" GOTO VP-Install-Check-12
 echo Vegas Pro isn't installed, continuing to download
 GOTO down-12
+
+:VP-Install-Check-12
+@ECHO OFF
+setlocal ENABLEDELAYEDEXPANSION
+SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
+call :LogVPVers > %LOGFILE%
+timeout /T 2 /nobreak >nul
+GOTO alrDown-12
+
 :alrDown-12
-cls
-echo Vegas Pro is already installed
-echo Do you want to install it again?
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+timeout /T 2 /nobreak >nul
 cls
 echo.
-IF ERRORLEVEL 2  GOTO SelectVegas
+color 0C
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+type nul>VP-Installations-found-output.txt
+for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
+  findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
+)
+cls
+echo Found installations of the following:
+echo.
+setLocal
+for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
+	set tempvar12=%%T
+   ::echo.%%T
+   echo !tempvar12:---------- =! 2>nul | findstr /v Voukoder 2>nul
+)
+endlocal
+cd /d "%~dp0"
+echo.
+%Print%{255;255;255} What do you want to do? \n
+%Print%{231;72;86} 1 = Uninstall everything and Install the latest version \n
+%Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
+%Print%{231;72;86} 3 = Cancel and return to Main Menu \n
+echo.
+echo.
+%Print%{244;255;0}(Optional) It is recommended to manually un-install any unwanted versions. \n
+C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 3  GOTO SelectVegas
+IF ERRORLEVEL 2  GOTO install-12
 IF ERRORLEVEL 1  GOTO down-12
 echo.
 :down-12
@@ -725,24 +811,57 @@ GOTO install-12
 :::::::::::::::::::::::::::::::::::::::
 :: Download & Extract Option 3
 :13
+color 0C
 cls
 Echo.
 :: Check if vegas deep learning modules is already installed
 echo Checking if Vegas Pro Deep Learning Modules is already installed
-for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (VEGAS_Deep*.exe) do if exist "%%~fa" GOTO alrDown-13
+for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (VEGAS_Deep*.exe) do if exist "%%~fa" GOTO VP-Install-Check-13
 echo Deep Learning Modules isn't installed, continuing to download
 GOTO down-13
+
+:VP-Install-Check-13
+@ECHO OFF
+setlocal ENABLEDELAYEDEXPANSION
+SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
+call :LogVPVers > %LOGFILE%
+timeout /T 2 /nobreak >nul
+GOTO alrDown-13
+
 :alrDown-13
-cls
-echo Deep Learning Modules are already installed
-echo Do you want to install it again?
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+timeout /T 2 /nobreak >nul
 cls
 echo.
-IF ERRORLEVEL 2  GOTO SelectVegas
+color 0C
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+type nul>VP-Installations-found-output.txt
+for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
+  findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
+)
+cls
+echo Found installations of the following:
+echo.
+setLocal
+for /f "eol=- tokens=* delims= " %%T in ('find "Deep Learning Models" VP-Installations-found-output.txt') do (
+	set tempvar13=%%T
+   ::echo.%%T
+   echo !tempvar13:---------- =! 2>nul | findstr /v Voukoder 2>nul
+)
+endlocal
+cd /d "%~dp0"
+echo.
+%Print%{255;255;255} What do you want to do? \n
+%Print%{231;72;86} 1 = Uninstall everything and Install the latest version \n
+%Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
+%Print%{231;72;86} 3 = Cancel and return to Main Menu \n
+echo.
+echo.
+%Print%{244;255;0}(Optional) It is recommended to manually un-install any unwanted versions. \n
+C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 3  GOTO SelectVegas
+IF ERRORLEVEL 2  GOTO install-13
 IF ERRORLEVEL 1  GOTO down-13
 echo.
 :down-13
@@ -2905,6 +3024,7 @@ GOTO 3-Main
 
 :::::::::::::::::::::::::::::::::::::::
 :33
+color 0C
 cls
 echo Are you sure you want to clean all files from the installer?
 echo This will remove all downloaded files, but will not uninstall any Vegas software or any Plugin.
@@ -3016,11 +3136,16 @@ echo Finished.
 timeout /T 3 /nobreak >nul
 GOTO 34
 
+:::::::::::::::::::::::::::::::::::::::
+:Donate
+start "" https://paypal.me/ItsNifer?country.x=US&locale.x=en_US
+GOTO Main
+
 
 :::::::::::::::::::::::::::::::::::::::
 :Quit
 cls
-echo Quitting Nifer's Vegas Pro Install Script
+echo Quitting Nifer's Installer Script
 echo Twitter - @NiferEdits
 Timeout /T 3 /Nobreak >nul
 @exit
