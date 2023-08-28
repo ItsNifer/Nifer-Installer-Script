@@ -382,7 +382,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 4.1.3 \n
+%Print%{244;255;0}                        Version - 4.1.4 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -575,7 +575,7 @@ Echo.
 echo Checking for other installations...
 if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO VP-Install-Check-11
 echo Vegas Pro isn't installed, continuing to download
-GOTO down-11
+GOTO install-11
 
 :::::::::::::::::::::::::::::::::::::::
 :: Creates a Log File for scanning any Vegas Pro Installations
@@ -586,7 +586,7 @@ for /f "tokens=1,2*" %%J in ('^
 ') do (
     if "%%J"=="DisplayName" (
         set vpver=%%L
-	echo !vpver! 2>nul
+	echo !vpver! 2>nul | findstr /v Voukoder 2>nul
     ) else (
         set str=%%J
         if "!str:~0,4!"=="HKEY" set key=%%J
@@ -599,11 +599,9 @@ exit /b
 setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
-timeout /T 2 /nobreak >nul
 GOTO alrDown-11
 
 :alrDown-11
-timeout /T 2 /nobreak >nul
 cls
 echo.
 color 0C
@@ -625,29 +623,198 @@ endlocal
 cd /d "%~dp0"
 echo.
 %Print%{255;255;255} What do you want to do? \n
-%Print%{231;72;86} 1 = Uninstall everything and Install the latest version \n
+%Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
 %Print%{231;72;86} 3 = Cancel and return to Main Menu \n
 echo.
 echo.
-%Print%{244;255;0}(Optional) It is recommended to manually un-install any unwanted versions. \n
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
 echo.
 IF ERRORLEVEL 3  GOTO SelectVegas
 IF ERRORLEVEL 2  GOTO install-11
-IF ERRORLEVEL 1  GOTO down-11
+IF ERRORLEVEL 1  GOTO select-vp-uninstall-11
 echo.
-:down-11
+:select-vp-uninstall-11
+color 0C
 cls
-if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO alrUninstall-11
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: Changing directory is needed
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+echo.
+echo Select which program(s) you want to uninstall
+echo.
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is to delete any leading spaces for each line in a text file.
+:: Calls JREPL to remove leading spaces and append to input file.
+:: Otherwise, leading white space will conflict when we reg query for display name.
+call "%~dp0Installer-files\Installer-Scripts\jrepl.bat" "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is for multi-selection when user chooses to uninstall VP
+:: Deletes text preference for selection, if made previously
+set VP-Uninst-Select1="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
+if exist %VP-Uninst-Select1% del %VP-Uninst-Select1%
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
+  set "Line_!Counter!=%%x"
+  set /a Counter+=1
+)
+set /a NumLines=Counter - 1
+rem or, for arbitrary file lengths:
+for /l %%x in (1,1,%NumLines%) do echo %%x - !Line_%%x!
+echo.
+GOTO getOptions11
+:: Prompt user choices of all detected VP installations, and asks for multi-choice input
+:getOptions11
+%Print%{255;255;255}Type your choices with a space after each choice 
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "choices="
+set /p "choices=Type and press Enter when finished: "
+
+if not defined choices ( 
+    echo Please enter a valid option
+    goto getOptions11
+    )
+
+for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%i in (%choices%) do call :option-%%i 2>nul
+IF ERRORLEVEL 1 GOTO optionError11
+GOTO vp-uninstall-selection-prompt11
+exit
+
+:optionError11
+color 0C
+echo.
+echo Exceeded max number of selections.
+echo Selections (1-10)
+@pause
+GOTO getOptions11
+
+:option-1
+>> %VP-Uninst-Select1% echo !Line_1!
+exit /B
+
+:option-2
+>> %VP-Uninst-Select1% echo !Line_2!
+exit /B
+
+:option-3
+>> %VP-Uninst-Select1% echo !Line_3!
+exit /B
+
+:option-4
+>> %VP-Uninst-Select1% echo !Line_4!
+exit /B
+
+:option-5
+>> %VP-Uninst-Select1% echo !Line_5!
+exit /B
+
+:option-6
+>> %VP-Uninst-Select1% echo !Line_6!
+exit /B
+
+:option-7
+>> %VP-Uninst-Select1% echo !Line_7!
+exit /B
+
+:option-8
+>> %VP-Uninst-Select1% echo !Line_8!
+exit /B
+
+:option-9
+>> %VP-Uninst-Select1% echo !Line_9!
+exit /B
+
+:option-10
+>> %VP-Uninst-Select1% echo !Line_10!
+exit /B
+
+:vp-uninstall-selection-prompt11
+cls
+echo.
+echo Are you sure you want to Uninstall these selected programs?
+echo.
+type %VP-Uninst-Select1%
+echo.
+echo 1 = Yes, Uninstall these programs
+echo 2 = No, Cancel and Go back
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO alrDown-11
+IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue11
+echo.
+
+:vp-uninstall-selection-continue11
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+:: Parses each line in VP-Uninstall-Selection.txt to a variable
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (VP-Uninstall-Selection.txt) do (
+  set "Line_Select_!Counter!=%%x"
+  set /a Counter+=1
+)
+
+:: Parses each line in VP-Uninstall-Selection.txt to a variable number counter
+:: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
+:: Changing directory is needed
+cls
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+setlocal EnableDelayedExpansion
+set "cmd=findstr /R /N "^^" VP-Uninstall-Selection.txt | find /C ":""
+for /f %%U in ('!cmd!') do set VPnumber=%%U
+GOTO vp-uninstall-selection-check-11
+:vp-uninstall-selection-check-11
+:: Loop to check if VPnumber variable is 0 or not.
+%Print%{0;255;50} %VPnumber% Uninstalls Remaining \n
+IF %VPnumber% EQU 0 GOTO vp-uninstall-selection-fin-11
+IF %VPnumber% GEQ 1 GOTO vp-uninstall-selection-start11-1
+
+:vp-uninstall-selection-start11-1
+color 0C
+@echo off
+%Print%{244;255;0} !Line_Select_%VPnumber%! 2>nul \n
+For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_Select_%VPnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && !MsiStr!
+set /a VPnumber-=1
+GOTO vp-uninstall-selection-check-11
+@pause
+
+
+:vp-uninstall-selection-fin-11
+echo Finished all tasks
+echo Proceeding to Download the latest version of VEGAS Pro.
+cd /d "%~dp0"
+timeout /T 5 /nobreak >nul
 GOTO install-11
 
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:install-prompt-11
+cls
+color 0C
+echo.
+echo You already have this downloaded
+echo.
+echo       1 = Download it again
+echo       2 = Cancel and go back
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO alrDown-11
+IF ERRORLEVEL 1  GOTO install-11
+echo.
+
 :install-11
+cd /d "%~dp0"
 cls
 color 0c
 echo Initializing Download...
 if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS*.exe" GOTO install-prompt-11
 :: gdown command
 gdown --folder 1CfHOmkla8pim4jH2xBFLeBdUFCLHWVh4 -O ".\Installer-files\Vegas Pro"
 cls
@@ -739,29 +906,198 @@ endlocal
 cd /d "%~dp0"
 echo.
 %Print%{255;255;255} What do you want to do? \n
-%Print%{231;72;86} 1 = Uninstall everything and Install the latest version \n
+%Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
 %Print%{231;72;86} 3 = Cancel and return to Main Menu \n
 echo.
 echo.
-%Print%{244;255;0}(Optional) It is recommended to manually un-install any unwanted versions. \n
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
 echo.
 IF ERRORLEVEL 3  GOTO SelectVegas
 IF ERRORLEVEL 2  GOTO install-12
-IF ERRORLEVEL 1  GOTO down-12
+IF ERRORLEVEL 1  GOTO select-vp-uninstall-12
 echo.
-:down-12
+:select-vp-uninstall-12
+color 0C
 cls
-if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO alrUninstall-12
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: Changing directory is needed
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+echo.
+echo Select which program(s) you want to uninstall
+echo.
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is to delete any leading spaces for each line in a text file.
+:: Calls JREPL to remove leading spaces and append to input file.
+:: Otherwise, leading white space will conflict when we reg query for display name.
+call "%~dp0Installer-files\Installer-Scripts\jrepl.bat" "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is for multi-selection when user chooses to uninstall VP
+:: Deletes text preference for selection, if made previously
+set VP-Uninst-Select1="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
+if exist %VP-Uninst-Select1% del %VP-Uninst-Select1%
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
+  set "Line_!Counter!=%%x"
+  set /a Counter+=1
+)
+set /a NumLines=Counter - 1
+rem or, for arbitrary file lengths:
+for /l %%x in (1,1,%NumLines%) do echo %%x - !Line_%%x!
+echo.
+GOTO getOptions12
+:: Prompt user choices of all detected VP installations, and asks for multi-choice input
+:getOptions12
+%Print%{255;255;255}Type your choices with a space after each choice 
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "choices="
+set /p "choices=Type and press Enter when finished: "
+
+if not defined choices ( 
+    echo Please enter a valid option
+    goto getOptions12
+    )
+
+for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%i in (%choices%) do call :option-%%i 2>nul
+IF ERRORLEVEL 1 GOTO optionError12
+GOTO vp-uninstall-selection-prompt12
+exit
+
+:optionError12
+color 0C
+echo.
+echo Exceeded max number of selections.
+echo Selections (1-10)
+@pause
+GOTO getOptions12
+
+:option-1
+>> %VP-Uninst-Select1% echo !Line_1!
+exit /B
+
+:option-2
+>> %VP-Uninst-Select1% echo !Line_2!
+exit /B
+
+:option-3
+>> %VP-Uninst-Select1% echo !Line_3!
+exit /B
+
+:option-4
+>> %VP-Uninst-Select1% echo !Line_4!
+exit /B
+
+:option-5
+>> %VP-Uninst-Select1% echo !Line_5!
+exit /B
+
+:option-6
+>> %VP-Uninst-Select1% echo !Line_6!
+exit /B
+
+:option-7
+>> %VP-Uninst-Select1% echo !Line_7!
+exit /B
+
+:option-8
+>> %VP-Uninst-Select1% echo !Line_8!
+exit /B
+
+:option-9
+>> %VP-Uninst-Select1% echo !Line_9!
+exit /B
+
+:option-10
+>> %VP-Uninst-Select1% echo !Line_10!
+exit /B
+
+:vp-uninstall-selection-prompt12
+cls
+echo.
+echo Are you sure you want to Uninstall these selected programs?
+echo.
+type %VP-Uninst-Select1%
+echo.
+echo 1 = Yes, Uninstall these programs
+echo 2 = No, Cancel and Go back
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO alrDown-12
+IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue12
+echo.
+
+:vp-uninstall-selection-continue12
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+:: Parses each line in VP-Uninstall-Selection.txt to a variable
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (VP-Uninstall-Selection.txt) do (
+  set "Line_Select_!Counter!=%%x"
+  set /a Counter+=1
+)
+
+:: Parses each line in VP-Uninstall-Selection.txt to a variable number counter
+:: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
+:: Changing directory is needed
+cls
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+setlocal EnableDelayedExpansion
+set "cmd=findstr /R /N "^^" VP-Uninstall-Selection.txt | find /C ":""
+for /f %%U in ('!cmd!') do set VPnumber=%%U
+GOTO vp-uninstall-selection-check-12
+:vp-uninstall-selection-check-12
+:: Loop to check if VPnumber variable is 0 or not.
+%Print%{0;255;50} %VPnumber% Uninstalls Remaining \n
+IF %VPnumber% EQU 0 GOTO vp-uninstall-selection-fin-12
+IF %VPnumber% GEQ 1 GOTO vp-uninstall-selection-start12-1
+
+:vp-uninstall-selection-start12-1
+color 0C
+@echo off
+%Print%{244;255;0} !Line_Select_%VPnumber%! 2>nul \n
+For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_Select_%VPnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && !MsiStr!
+set /a VPnumber-=1
+GOTO vp-uninstall-selection-check-12
+@pause
+
+
+:vp-uninstall-selection-fin-12
+echo Finished all tasks
+echo Proceeding to Download the latest version of VEGAS Pro.
+cd /d "%~dp0"
+timeout /T 5 /nobreak >nul
 GOTO install-12
 
-:install-12
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:install-prompt-12
 cls
-color 0c
+color 0C
+echo.
+echo You already have this downloaded
+echo.
+echo       1 = Download it again
+echo       2 = Cancel and go back
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO alrDown-12
+IF ERRORLEVEL 1  GOTO install-12
+echo.
+
+:install-12
+cd /d "%~dp0"
+cls
+color 0C
 echo Initializing Download...
 if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS_Pro*.exe" GOTO install-prompt-11
 :: gdown command
 gdown --folder 12DW0zJtyAb_YR7W9Y43CGwAqAH60YblD -O ".\Installer-files\Vegas Pro"
 cls
@@ -825,11 +1161,9 @@ GOTO down-13
 setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
-timeout /T 2 /nobreak >nul
 GOTO alrDown-13
 
 :alrDown-13
-timeout /T 2 /nobreak >nul
 cls
 echo.
 color 0C
@@ -841,6 +1175,21 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
 cls
 echo Found installations of the following:
 echo.
+GOTO vp-dlm-parse-continue13
+
+:: Subroutine to write later during the script.
+:vp-dlm-parse13
+setLocal
+for /f "eol=- tokens=* delims= " %%T in ('find "Deep Learning Models" VP-Installations-found-output.txt') do (
+	set tempvar13=%%T
+   ::echo.%%T
+   echo !tempvar13:---------- =! 2>nul | findstr /v Voukoder 2>nul
+)
+endlocal
+exit /B
+
+
+:vp-dlm-parse-continue13
 setLocal
 for /f "eol=- tokens=* delims= " %%T in ('find "Deep Learning Models" VP-Installations-found-output.txt') do (
 	set tempvar13=%%T
@@ -851,23 +1200,194 @@ endlocal
 cd /d "%~dp0"
 echo.
 %Print%{255;255;255} What do you want to do? \n
-%Print%{231;72;86} 1 = Uninstall everything and Install the latest version \n
+%Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
 %Print%{231;72;86} 3 = Cancel and return to Main Menu \n
 echo.
 echo.
-%Print%{244;255;0}(Optional) It is recommended to manually un-install any unwanted versions. \n
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
 echo.
 IF ERRORLEVEL 3  GOTO SelectVegas
 IF ERRORLEVEL 2  GOTO install-13
-IF ERRORLEVEL 1  GOTO down-13
+IF ERRORLEVEL 1  GOTO select-vp-uninstall-13
 echo.
-:down-13
+
+:select-vp-uninstall-13
+color 0C
 cls
-if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO alrUninstall-13
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: Changing directory is needed
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+call :vp-dlm-parse13 > "VP-Uninstall-DLM-Selection.txt"
+echo.
+echo Select which program(s) you want to uninstall
+echo.
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is to delete any leading spaces for each line in a text file.
+:: Calls JREPL to remove leading spaces and append to input file.
+:: Otherwise, leading white space will conflict when we reg query for display name.
+call "%~dp0Installer-files\Installer-Scripts\jrepl.bat" "[ \t]+(?=\||$)" "" /f "VP-Uninstall-DLM-Selection.txt" /o -
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is for multi-selection when user chooses to uninstall VP
+:: Deletes text preference for selection, if made previously
+set VP-Uninst-Select2="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Uninstall-DLM-Selection-output.txt"
+if exist %VP-Uninst-Select2% del %VP-Uninst-Select2%
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (VP-Uninstall-DLM-Selection.txt) do (
+  set "Line_!Counter!=%%x"
+  set /a Counter+=1
+)
+set /a NumLines=Counter - 1
+rem or, for arbitrary file lengths:
+for /l %%x in (1,1,%NumLines%) do echo %%x - !Line_%%x!
+echo.
+GOTO getOptions13
+:: Prompt user choices of all detected VP installations, and asks for multi-choice input
+:getOptions13
+%Print%{255;255;255}Type your choices with a space after each choice 
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "choices="
+set /p "choices=Type and press Enter when finished: "
+
+if not defined choices ( 
+    echo Please enter a valid option
+    goto getOptions13
+    )
+
+for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%i in (%choices%) do call :option-%%i 2>nul
+IF ERRORLEVEL 1 GOTO optionError13
+GOTO vp-uninstall-selection-prompt13
+exit
+
+:optionError13
+color 0C
+echo.
+echo Exceeded max number of selections.
+echo Selections (1-10)
+@pause
+GOTO getOptions13
+
+:option-1
+>> %VP-Uninst-Select2% echo !Line_1!
+exit /B
+
+:option-2
+>> %VP-Uninst-Select2% echo !Line_2!
+exit /B
+
+:option-3
+>> %VP-Uninst-Select2% echo !Line_3!
+exit /B
+
+:option-4
+>> %VP-Uninst-Select2% echo !Line_4!
+exit /B
+
+:option-5
+>> %VP-Uninst-Select2% echo !Line_5!
+exit /B
+
+:option-6
+>> %VP-Uninst-Select2% echo !Line_6!
+exit /B
+
+:option-7
+>> %VP-Uninst-Select2% echo !Line_7!
+exit /B
+
+:option-8
+>> %VP-Uninst-Select2% echo !Line_8!
+exit /B
+
+:option-9
+>> %VP-Uninst-Select2% echo !Line_9!
+exit /B
+
+:option-10
+>> %VP-Uninst-Select2% echo !Line_10!
+exit /B
+
+:vp-uninstall-selection-prompt13
+cls
+echo.
+echo Are you sure you want to Uninstall these selected programs?
+echo ---------------------------------
+echo.
+type %VP-Uninst-Select2%
+echo.
+echo ---------------------------------
+echo 1 = Yes, Uninstall these programs
+echo 2 = No, Cancel and Go back
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO alrDown-13
+IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue13
+echo.
+
+:vp-uninstall-selection-continue13
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+:: Parses each line in VP-Uninstall-Selection.txt to a variable
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (VP-Uninstall-DLM-Selection-output.txt) do (
+  set "Line_Select_!Counter!=%%x"
+  set /a Counter+=1
+)
+
+:: Parses each line in VP-Uninstall-Selection.txt to a variable number counter
+:: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
+:: Changing directory is needed
+cls
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+setlocal EnableDelayedExpansion
+set "cmd=findstr /R /N "^^" VP-Uninstall-DLM-Selection-output.txt | find /C ":""
+for /f %%U in ('!cmd!') do set VPnumber=%%U
+GOTO vp-uninstall-selection-check-13
+:vp-uninstall-selection-check-13
+:: Loop to check if VPnumber variable is 0 or not.
+%Print%{0;255;50} %VPnumber% Uninstalls Remaining \n
+IF %VPnumber% EQU 0 GOTO vp-uninstall-selection-fin-13
+IF %VPnumber% GEQ 1 GOTO vp-uninstall-selection-start13-1
+
+:vp-uninstall-selection-start13-1
+color 0C
+@echo off
+%Print%{244;255;0} !Line_Select_%VPnumber%! 2>nul \n
+For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_Select_%VPnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && !MsiStr!
+set /a VPnumber-=1
+GOTO vp-uninstall-selection-check-13
+@pause
+
+
+:vp-uninstall-selection-fin-13
+echo Finished all tasks
+echo Proceeding to Download the latest version of VEGAS Pro Deep Learning Models.
+cd /d "%~dp0"
+timeout /T 5 /nobreak >nul
 GOTO install-13
+
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:install-prompt-13
+cls
+color 0C
+echo.
+echo You already have this downloaded
+echo.
+echo       1 = Download it again
+echo       2 = Cancel and go back
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  GOTO alrDown-13
+IF ERRORLEVEL 1  GOTO install-13
+echo.
 
 :install-13
 cls
@@ -910,7 +1430,7 @@ Echo.
 echo Checking if Vegas Pro is already installed
 if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\" GOTO install-14
 echo Vegas Pro isn't installed, please select the menu option to download Vegas Pro
-timeout /T 5 /nobreak >nul
+timeout /T 7 /nobreak >nul
 GOTO Main
 
 :install-14
@@ -3038,6 +3558,7 @@ IF ERRORLEVEL 2  GOTO Main
 IF ERRORLEVEL 1  GOTO clean-33
 echo.
 :clean-33
+cd /d "%~dp0"
 cls
 color 0C
 echo Cleaning up Vegas files
