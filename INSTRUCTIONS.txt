@@ -59,8 +59,8 @@ in the future. This would require Git to be installed, as it is pulling my githu
 
 This script utilizes Python, and a open source PyPi project called GDown.
 GDown is a Google Drive downloading tool, and as you can guess... It downloads files from google drive.
-You will also need WinRAR to extract the files (7zip will not work for the purposes of this script).
-This script will automatically detect if you have Python installed (any 3.x version), Gdown, and WinRAR installed.
+You will also need WinRAR or 7Zip to extract the files.
+This script will automatically detect if you have Python installed (any 3.x version), Gdown, and WinRAR/7Zip installed.
 If you don't have them installed, this script will automatically install them for you.
 
 
