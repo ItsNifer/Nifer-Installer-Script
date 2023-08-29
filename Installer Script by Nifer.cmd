@@ -382,7 +382,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 4.1.4 \n
+%Print%{244;255;0}                        Version - 4.2.0 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -573,9 +573,7 @@ color 0C
 Echo.
 :: Check if vegas is already installed
 echo Checking for other installations...
-if exist "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall\" GOTO VP-Install-Check-11
-echo Vegas Pro isn't installed, continuing to download
-GOTO install-11
+GOTO VP-Install-Check-11
 
 :::::::::::::::::::::::::::::::::::::::
 :: Creates a Log File for scanning any Vegas Pro Installations
@@ -599,7 +597,8 @@ exit /b
 setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
-GOTO alrDown-11
+:: If logfile is blank - continues to install. If data found, prompt user to uninstall
+(for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-11 || GOTO install-11
 
 :alrDown-11
 cls
@@ -611,21 +610,25 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
 )
 cls
-echo Found installations of the following:
+echo.
+%Print%{231;72;86} Found installations of the following: \n
+echo ---------------------------------
 echo.
 setLocal
+:: Trims down output and removes duplicate entries
 for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
 	set tempvar11=%%T
    ::echo.%%T
-   echo !tempvar11:---------- =! 2>nul | findstr /v Voukoder 2>nul
+   echo  !tempvar11:---------- =! 2>nul | findstr /v Voukoder 2>nul
 )
 endlocal
 cd /d "%~dp0"
 echo.
+echo ---------------------------------
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
-%Print%{231;72;86} 3 = Cancel and return to Main Menu \n
+%Print%{255;112;0} 3 = Cancel and return to Main Menu \n
 echo.
 echo.
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
@@ -642,7 +645,8 @@ cls
 :: Changing directory is needed
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 echo.
-echo Select which program(s) you want to uninstall
+%Print%{231;72;86} Select which program(s) you want to uninstall \n
+echo ---------------------------------
 echo.
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is to delete any leading spaces for each line in a text file.
@@ -662,12 +666,13 @@ for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
 )
 set /a NumLines=Counter - 1
 rem or, for arbitrary file lengths:
-for /l %%x in (1,1,%NumLines%) do echo %%x - !Line_%%x!
+for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
 echo.
+echo ---------------------------------
 GOTO getOptions11
 :: Prompt user choices of all detected VP installations, and asks for multi-choice input
 :getOptions11
-%Print%{255;255;255}Type your choices with a space after each choice 
+%Print%{231;72;86}Type your choices with a space after each choice 
 %Print%{255;112;0}(ie: 1 2 3 4) \n
 set "choices="
 set /p "choices=Type and press Enter when finished: "
@@ -732,14 +737,17 @@ exit /B
 exit /B
 
 :vp-uninstall-selection-prompt11
+color 0C
 cls
 echo.
-echo Are you sure you want to Uninstall these selected programs?
+%Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
+echo ---------------------------------
 echo.
 type %VP-Uninst-Select1%
 echo.
-echo 1 = Yes, Uninstall these programs
-echo 2 = No, Cancel and Go back
+echo ---------------------------------
+%Print%{231;72;86} 1 = Yes, Uninstall these programs \n
+%Print%{255;112;0} 2 = No, Cancel and Go back \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -796,7 +804,7 @@ GOTO install-11
 cls
 color 0C
 echo.
-echo You already have this downloaded
+echo You already have VEGAS Pro downloaded
 echo.
 echo       1 = Download it again
 echo       2 = Cancel and go back
@@ -804,7 +812,7 @@ echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO alrDown-11
+IF ERRORLEVEL 2  GOTO VP-Install-Check-11
 IF ERRORLEVEL 1  GOTO install-11
 echo.
 
@@ -871,20 +879,18 @@ color 0C
 Echo.
 :: Check if vegas is already installed
 echo Checking for other installations...
-for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (VEGAS_Pro*.exe) do if exist "%%~fa" GOTO VP-Install-Check-12
-echo Vegas Pro isn't installed, continuing to download
-GOTO down-12
+GOTO VP-Install-Check-12
 
 :VP-Install-Check-12
 @ECHO OFF
 setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
-timeout /T 2 /nobreak >nul
-GOTO alrDown-12
+:: If logfile is blank - continues to install. If data found, prompt user to uninstall
+(for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-12 || GOTO install-12
+
 
 :alrDown-12
-timeout /T 2 /nobreak >nul
 cls
 echo.
 color 0C
@@ -894,21 +900,24 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
 )
 cls
-echo Found installations of the following:
+%Print%{231;72;86} Found installations of the following: \n
+echo ---------------------------------
 echo.
 setLocal
+:: Trims down output and removes duplicate entries
 for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
 	set tempvar12=%%T
    ::echo.%%T
-   echo !tempvar12:---------- =! 2>nul | findstr /v Voukoder 2>nul
+   echo  !tempvar12:---------- =! 2>nul | findstr /v Voukoder 2>nul
 )
 endlocal
 cd /d "%~dp0"
 echo.
+echo ---------------------------------
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
-%Print%{231;72;86} 3 = Cancel and return to Main Menu \n
+%Print%{255;112;0} 3 = Cancel and return to Main Menu \n
 echo.
 echo.
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
@@ -925,7 +934,8 @@ cls
 :: Changing directory is needed
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 echo.
-echo Select which program(s) you want to uninstall
+%Print%{231;72;86} Select which program(s) you want to uninstall \n
+echo ---------------------------------
 echo.
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is to delete any leading spaces for each line in a text file.
@@ -945,13 +955,14 @@ for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
 )
 set /a NumLines=Counter - 1
 rem or, for arbitrary file lengths:
-for /l %%x in (1,1,%NumLines%) do echo %%x - !Line_%%x!
+for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
 echo.
+echo ---------------------------------
 GOTO getOptions12
 :: Prompt user choices of all detected VP installations, and asks for multi-choice input
 :getOptions12
-%Print%{255;255;255}Type your choices with a space after each choice 
-%Print%{255;112;0}(ie: 1 2 3 4) \n
+%Print%{231;72;86}Type your choices with a space after each choice 
+%Print%{244;255;0}(ie: 1 2 3 4) \n
 set "choices="
 set /p "choices=Type and press Enter when finished: "
 
@@ -1015,14 +1026,17 @@ exit /B
 exit /B
 
 :vp-uninstall-selection-prompt12
+color 0C
 cls
 echo.
-echo Are you sure you want to Uninstall these selected programs?
+%Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
+echo ---------------------------------
 echo.
 type %VP-Uninst-Select1%
 echo.
-echo 1 = Yes, Uninstall these programs
-echo 2 = No, Cancel and Go back
+echo ---------------------------------
+%Print%{231;72;86} 1 = Yes, Uninstall these programs \n
+%Print%{255;112;0} 2 = No, Cancel and Go back \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -1079,7 +1093,7 @@ GOTO install-12
 cls
 color 0C
 echo.
-echo You already have this downloaded
+echo You already have VEGAS Pro downloaded
 echo.
 echo       1 = Download it again
 echo       2 = Cancel and go back
@@ -1087,7 +1101,7 @@ echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO alrDown-12
+IF ERRORLEVEL 2  GOTO VP-Install-Check-12
 IF ERRORLEVEL 1  GOTO install-12
 echo.
 
@@ -1152,15 +1166,15 @@ cls
 Echo.
 :: Check if vegas deep learning modules is already installed
 echo Checking if Vegas Pro Deep Learning Modules is already installed
-for /r "C:\Program Files (x86)\Common Files\VEGAS Services\Uninstall" %%a in (VEGAS_Deep*.exe) do if exist "%%~fa" GOTO VP-Install-Check-13
-echo Deep Learning Modules isn't installed, continuing to download
-GOTO down-13
+GOTO VP-Install-Check-13
 
 :VP-Install-Check-13
 @ECHO OFF
 setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
+:: If logfile is blank - continues to install. If data found, prompt user to uninstall
+(for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-13 || GOTO install-13
 GOTO alrDown-13
 
 :alrDown-13
@@ -1173,7 +1187,8 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
 )
 cls
-echo Found installations of the following:
+%Print%{231;72;86} Found installations of the following: \n
+echo ---------------------------------
 echo.
 GOTO vp-dlm-parse-continue13
 
@@ -1190,19 +1205,21 @@ exit /B
 
 
 :vp-dlm-parse-continue13
+:: Trims down output and removes duplicate entries
 setLocal
 for /f "eol=- tokens=* delims= " %%T in ('find "Deep Learning Models" VP-Installations-found-output.txt') do (
 	set tempvar13=%%T
    ::echo.%%T
-   echo !tempvar13:---------- =! 2>nul | findstr /v Voukoder 2>nul
+   echo  !tempvar13:---------- =! 2>nul | findstr /v Voukoder 2>nul
 )
 endlocal
 cd /d "%~dp0"
 echo.
+echo ---------------------------------
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
-%Print%{231;72;86} 3 = Cancel and return to Main Menu \n
+%Print%{255;112;0} 3 = Cancel and return to Main Menu \n
 echo.
 echo.
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
@@ -1221,7 +1238,8 @@ cls
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 call :vp-dlm-parse13 > "VP-Uninstall-DLM-Selection.txt"
 echo.
-echo Select which program(s) you want to uninstall
+%Print%{231;72;86} Select which program(s) you want to uninstall \n
+echo ---------------------------------
 echo.
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is to delete any leading spaces for each line in a text file.
@@ -1241,13 +1259,14 @@ for /f "tokens=* delims=" %%x in (VP-Uninstall-DLM-Selection.txt) do (
 )
 set /a NumLines=Counter - 1
 rem or, for arbitrary file lengths:
-for /l %%x in (1,1,%NumLines%) do echo %%x - !Line_%%x!
+for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
 echo.
+echo ---------------------------------
 GOTO getOptions13
 :: Prompt user choices of all detected VP installations, and asks for multi-choice input
 :getOptions13
-%Print%{255;255;255}Type your choices with a space after each choice 
-%Print%{255;112;0}(ie: 1 2 3 4) \n
+%Print%{231;72;86}Type your choices with a space after each choice 
+%Print%{244;255;0}(ie: 1 2 3 4) \n
 set "choices="
 set /p "choices=Type and press Enter when finished: "
 
@@ -1313,19 +1332,19 @@ exit /B
 :vp-uninstall-selection-prompt13
 cls
 echo.
-echo Are you sure you want to Uninstall these selected programs?
+%Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
 echo ---------------------------------
 echo.
 type %VP-Uninst-Select2%
 echo.
 echo ---------------------------------
-echo 1 = Yes, Uninstall these programs
-echo 2 = No, Cancel and Go back
+%Print%{231;72;86} 1 = Yes, Uninstall these programs \n
+%Print%{255;112;0} 2 = No, Cancel and Go back \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO alrDown-13
+IF ERRORLEVEL 2  GOTO VP-Install-Check-13
 IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue13
 echo.
 
@@ -1377,7 +1396,7 @@ GOTO install-13
 cls
 color 0C
 echo.
-echo You already have this downloaded
+echo You already have VEGAS Pro Deep Learning Models downloaded
 echo.
 echo       1 = Download it again
 echo       2 = Cancel and go back
