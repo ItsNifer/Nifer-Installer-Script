@@ -267,7 +267,7 @@ GOTO mega-down-git
 :: megacmd command
 :mega-down-git
 color 0c
-call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts"
+call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts\autoup.cmd"
 IF ERRORLEVEL 1 GOTO mega-down-git-error
 IF ERRORLEVEL 0 GOTO mega-down-git-continue
 @pause
@@ -323,7 +323,7 @@ GOTO mega-down-git
 :: megacmd command
 :mega-down-git2
 color 0c
-call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts"
+call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts\autoup.cmd"
 IF ERRORLEVEL 1 GOTO mega-down-git2-error
 IF ERRORLEVEL 0 GOTO mega-down-git2-continue
 @pause
@@ -382,7 +382,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 5.0.3 \n
+%Print%{244;255;0}                        Version - 5.0.4 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
