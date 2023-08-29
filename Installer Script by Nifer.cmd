@@ -101,6 +101,8 @@ GOTO check-extract
 
 
 :check-extract
+::sets environment variables for megacmd, after it installs or scans for installation
+SET PATH=%localappdata%\MEGAcmd;%PATH%
 ::Variable for Extration method
 set winrar="C:\Program Files\WinRAR\WinRAR.exe"
 set szip="C:\Program Files\7-Zip\7z.exe"
@@ -375,14 +377,12 @@ GOTO Main
 @Title Installer Script by Nifer
 :: Deletes MEGAcmd shortcut on desktop, clean up some clutter lol
 if exist "%UserProfile%\Desktop\MEGAcmd.lnk" del "%UserProfile%\Desktop\MEGAcmd.lnk"
-::sets environment variables for megacmd
-SET PATH=%localappdata%\MEGAcmd;%PATH%
 cls
 color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 5.0.2 \n
+%Print%{244;255;0}                        Version - 5.0.3 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
