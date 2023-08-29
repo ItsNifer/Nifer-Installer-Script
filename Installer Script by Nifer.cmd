@@ -92,7 +92,7 @@ echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\MEGAcmdSetup64.exe" /S
 echo MEGAcmd has installed successfully
 echo.
-timeout /T 3 /nobreak >nul
+timeout /T 5 /nobreak >nul
 :: Deletes MEGAcmd shortcut on desktop, clean up some clutter lol
 if exist "%UserProfile%\Desktop\MEGAcmd.lnk" del "%UserProfile%\Desktop\MEGAcmd.lnk"
 GOTO check-extract
@@ -228,13 +228,8 @@ GOTO git-installed1
 :errorNoGit
 color 0C
 echo Git is not installed
-echo Downloading the installer for Git 2.42
-%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
-color 0C
-echo.
 cls
 color 0C
-echo Download is finished
 timeout /T 3 /nobreak >nul
 echo Launching the installer for Git 2.42
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
@@ -265,7 +260,21 @@ GOTO Main
 :git-update-error
 cls
 echo Downloading Auto Update Script
-gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
+for /D %%I in (".\Installer-files\Installer-Scripts") do if exist "%%~I\autoup.cmd" del "%%~I\autoup.cmd" 2>1 >nul
+GOTO mega-down-git
+:: megacmd command
+:mega-down-git
+color 0c
+call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts"
+IF ERRORLEVEL 1 GOTO mega-down-git-error
+IF ERRORLEVEL 0 GOTO mega-down-git-continue
+@pause
+:mega-down-git-error
+echo Failed to connect to MegaCMDServer, retrying...
+taskkill /f /im MEGAcmdServer.exe 2>1 >nul
+timeout /T 10 /nobreak >nul
+GOTO mega-down-git
+:mega-down-git-continue
 echo.
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
@@ -306,9 +315,22 @@ if %ERRORLEVEL% == 1 GOTO git-pull-error
 :git-pull-error
 :: copy/paste of git-update-error
     echo Auto update failed...
-cls
 echo Downloading Auto Update Script
-gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
+for /D %%I in (".\Installer-files\Installer-Scripts") do if exist "%%~I\autoup.cmd" del "%%~I\autoup.cmd" 2>1 >nul
+GOTO mega-down-git
+:: megacmd command
+:mega-down-git2
+color 0c
+call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts"
+IF ERRORLEVEL 1 GOTO mega-down-git2-error
+IF ERRORLEVEL 0 GOTO mega-down-git2-continue
+@pause
+:mega-down-git2-error
+echo Failed to connect to MegaCMDServer, retrying...
+taskkill /f /im MEGAcmdServer.exe 2>1 >nul
+timeout /T 10 /nobreak >nul
+GOTO mega-down-git2
+:mega-down-git2-continue
 echo.
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
@@ -351,6 +373,8 @@ GOTO Main
 ::------------------------------------------
 :Main
 @Title Installer Script by Nifer
+:: Deletes MEGAcmd shortcut on desktop, clean up some clutter lol
+if exist "%UserProfile%\Desktop\MEGAcmd.lnk" del "%UserProfile%\Desktop\MEGAcmd.lnk"
 ::sets environment variables for megacmd
 SET PATH=%localappdata%\MEGAcmd;%PATH%
 cls
@@ -358,7 +382,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 5.0.1 \n
+%Print%{244;255;0}                        Version - 5.0.2 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -4005,5 +4029,6 @@ GOTO Main
 cls
 echo Quitting Nifer's Installer Script
 echo Twitter - @NiferEdits
+taskkill /f /im MEGAcmdServer.exe 2>1 >nul
 Timeout /T 3 /Nobreak >nul
 @exit
