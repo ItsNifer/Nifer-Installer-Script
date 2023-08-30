@@ -54,25 +54,27 @@ if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
 pushd "%CD%"
 CD /D "%~dp0"
 @cls
-GOTO MEGAcmd-check
+GOTO Python-check
 
-:MEGAcmd-check
-:: Check for MEGAcmd installation
-echo Checking MEGAcmd
-if not exist "%localappdata%\MEGAcmd" GOTO errorNoMEGAcmd
-if exist "%localappdata%\MEGAcmd" echo MEGAcmd is installed & GOTO check-extract
+:Python-check
+:: Check for Python Installation
+echo Checking Python
+python --version 2>NUL
+if errorlevel 1 GOTO errorNoPython
+GOTO InstallGDown1
 
-:errorNoMEGAcmd
+:errorNoPython
 echo.
-echo MEGAcmd is not installed.
+echo Error^: Python not installed
 GOTO req-Install
 :req-Install
 cls
 echo Required software for this installer is not detected.
 echo Do you want to install the Required software?
-echo.
-echo - MEGAcmd
-echo - WinRAR or 7Zip
+echo This will install (if you don't already have):
+echo - Python 3.11.4
+echo - GDown (Google Drive Downloader)
+echo - WinRAR, 7Zip, or WinZip
 echo.
 echo 1 = Yes
 echo 2 = No
@@ -80,29 +82,49 @@ echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO Main
-IF ERRORLEVEL 1  GOTO errorNoMEGAcmd2
+IF ERRORLEVEL 2  GOTO InstallGDown1
+IF ERRORLEVEL 1  GOTO errorNoPython2
 echo.
 
-:errorNoMEGAcmd2
+:errorNoPython2
 cls
-echo Installing MEGAcmd
+echo Installing Python 3.11.4 to PATH
 echo This is a silent install, this means you won't see anything popup on your screen.
 echo Please wait patiently until the script continues.
-".\Installer-files\Installer-Scripts\MEGAcmdSetup64.exe" /S
-echo MEGAcmd has installed successfully
+".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
+echo Python 3.11.4 has installed successfully
 echo.
-timeout /T 5 /nobreak >nul
-:: Deletes MEGAcmd shortcut on desktop, clean up some clutter lol
-if exist "%UserProfile%\Desktop\MEGAcmd.lnk" del "%UserProfile%\Desktop\MEGAcmd.lnk"
-GOTO check-extract
+%Print%{244;255;0} Please restart the installer script. \n
+%Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
+timeout /T 3 /nobreak >nul
 @pause >nul
 
 
+:InstallGDown1
+color 0C
+echo.
+echo Checking GDown
+:: Check for GDown Installation
+gdown --version 2>NUL
+if errorlevel 1 goto errorNoGDown1
+echo GDown is installed
+GOTO check-extract
+
+
+:errorNoGDown1
+color 0C
+echo GDown is not installed
+python --version >NUL
+if errorlevel 1 GOTO errorNoPython2
+echo Installing GDown
+timeout /T 3 /nobreak >nul
+pip install gdown
+timeout /T 7 /nobreak >nul
+cls
+GOTO check-extract
+
 
 :check-extract
-::sets environment variables for megacmd, after it installs or scans for installation
-SET PATH=%localappdata%\MEGAcmd;%PATH%
 ::Variable for Extration method
 set winrar="C:\Program Files\WinRAR\WinRAR.exe"
 set szip="C:\Program Files\7-Zip\7z.exe"
@@ -202,14 +224,14 @@ echo Auto Updates are not enabled.
 GOTO prompt-auto-up1
 
 :prompt-auto-up1
-echo.
+color 0C
 echo.
 echo Do you want to enable Auto Updates for this Installer Script?
 echo This will only check for updates when you launch the Installer Script.
-echo This will install Git, if you do not have it already.
+%Print%{244;255;0}Auto Updates must be enabled for any patch updates for VEGAS Pro. \n
 echo.
-echo 1 = Yes
-echo 2 = No
+%Print%{231;72;86} 1 = Yes \n
+%Print%{231;72;86} 2 = No \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -230,13 +252,22 @@ GOTO git-installed1
 :errorNoGit
 color 0C
 echo Git is not installed
+echo Downloading the installer for Git 2.41
+%Print%{244;255;0}This may take a while... \n
+%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
+:: download git with gdown
+echo.
+gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
 cls
 color 0C
+echo Download is finished
 timeout /T 3 /nobreak >nul
-echo Launching the installer for Git 2.42
+echo Launching the installer for Git 2.41
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
+echo Cleaning up extra files...
+del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
 echo.
-%Print%{244;255;0} Please restart the installer script to initialize Git. \n
+%Print%{244;255;0} Please restart the installer script. \n
 %Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
 timeout /T 3 /nobreak >nul
 pause >nul
@@ -262,21 +293,7 @@ GOTO Main
 :git-update-error
 cls
 echo Downloading Auto Update Script
-for /D %%I in (".\Installer-files\Installer-Scripts") do if exist "%%~I\autoup.cmd" del "%%~I\autoup.cmd" 2>1 >nul
-GOTO mega-down-git
-:: megacmd command
-:mega-down-git
-color 0c
-call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts\autoup.cmd"
-IF ERRORLEVEL 1 GOTO mega-down-git-error
-IF ERRORLEVEL 0 GOTO mega-down-git-continue
-@pause
-:mega-down-git-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-git
-:mega-down-git-continue
+gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
 echo.
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
@@ -317,22 +334,9 @@ if %ERRORLEVEL% == 1 GOTO git-pull-error
 :git-pull-error
 :: copy/paste of git-update-error
     echo Auto update failed...
+cls
 echo Downloading Auto Update Script
-for /D %%I in (".\Installer-files\Installer-Scripts") do if exist "%%~I\autoup.cmd" del "%%~I\autoup.cmd" 2>1 >nul
-GOTO mega-down-git
-:: megacmd command
-:mega-down-git2
-color 0c
-call mega-get -m --ignore-quota-warn "https://mega.nz/file/G9clyDgZ#ly_bKOEimBpxkxf3TgNDK5mXryLqHudgRhixbkBwpn4" "%~dp0Installer-files\Installer-Scripts\autoup.cmd"
-IF ERRORLEVEL 1 GOTO mega-down-git2-error
-IF ERRORLEVEL 0 GOTO mega-down-git2-continue
-@pause
-:mega-down-git2-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-git2
-:mega-down-git2-continue
+gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
 echo.
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
@@ -375,14 +379,12 @@ GOTO Main
 ::------------------------------------------
 :Main
 @Title Installer Script by Nifer
-:: Deletes MEGAcmd shortcut on desktop, clean up some clutter lol
-if exist "%UserProfile%\Desktop\MEGAcmd.lnk" del "%UserProfile%\Desktop\MEGAcmd.lnk"
 cls
 color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 5.0.4 \n
+%Print%{244;255;0}                        Version - 5.0.5 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -457,41 +459,13 @@ echo.
 IF ERRORLEVEL 2  GOTO 1
 IF ERRORLEVEL 1  GOTO VegasEffects1
 echo.
-
-:install-prompt-ve-1
-cls
-color 0C
-echo.
-echo You already have VEGAS Effects downloaded
-echo.
-echo       1 = Download it again
-echo       2 = Cancel and go back
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO 1
-IF ERRORLEVEL 1  del ".\Installer-files\Vegas Effects\VEGAS_Effects*.msi" 2>1 >nul & GOTO mega-down-ve1
-echo.
 :VegasEffects1
-if not exist ".\Installer-files\Vegas Effects" mkdir ".\Installer-files\Vegas Effects" 
-for /D %%I in (".\Installer-files\Vegas Effects") do if exist "%%~I\VEGAS_Effects*.msi" GOTO install-prompt-ve-1
-GOTO mega-down-ve1
-:: megacmd command
-:mega-down-ve1
 cls
 color 0c
 echo Initializing Download...
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/b4clQa4R#GsZxxxPC1a7l3Dq6YKYI-g" "%~dp0Installer-files\Vegas Effects"
-IF ERRORLEVEL 1 GOTO mega-down-error-ve1
-IF ERRORLEVEL 0 GOTO mega-down-ve1-continue
-@pause
-:mega-down-error-ve1
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-ve1
-:mega-down-ve1-continue
+if not exist ".\Installer-files\Vegas Effects" mkdir ".\Installer-files\Vegas Effects" 
+:: gdown command
+gdown --folder 1lo4oIq7dY88cQZZZv1narhqWXweMAmwN -O ".\Installer-files\Vegas Effects"
 cls
 color 0c
 echo Download is finished
@@ -531,42 +505,13 @@ echo.
 IF ERRORLEVEL 2  GOTO 1
 IF ERRORLEVEL 1  GOTO VegasImage1
 echo.
-
-
-:install-prompt-vi-1
-cls
-color 0C
-echo.
-echo You already have VEGAS Image downloaded
-echo.
-echo       1 = Download it again
-echo       2 = Cancel and go back
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO 1
-IF ERRORLEVEL 1  del ".\Installer-files\Vegas Effects\VEGAS_Effects*.msi" 2>1 >nul & GOTO mega-down-vi1
-echo.
 :VegasImage1
-if not exist ".\Installer-files\Vegas Image" mkdir ".\Installer-files\Vegas Image" 
-for /D %%I in (".\Installer-files\Vegas Image") do if exist "%%~I\VEGAS_Image*.exe" GOTO install-prompt-vi-1
-GOTO mega-down-vi1
-:: megacmd command
-:mega-down-vi1
 cls
 color 0c
 echo Initializing Download...
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/2pc3jYYR#DiAbCVMKJjKNIERzj7sSwQ" "%~dp0Installer-files\Vegas Image"
-IF ERRORLEVEL 1 GOTO mega-down-error-vi1
-IF ERRORLEVEL 0 GOTO mega-down-vi1-continue
-@pause
-:mega-down-error-vi1
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-vi1
-:mega-down-vi1-continue
+if not exist ".\Installer-files\Vegas Image" mkdir ".\Installer-files\Vegas Image" 
+:: gdown command
+gdown --folder 1UIwIG72njWUtTgg-3vmXbEBwmCD51V_7 -O ".\Installer-files\Vegas Image"
 cls
 color 0c
 echo Download is finished
@@ -594,7 +539,12 @@ Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
 %Print%{244;255;0}Current Build: Vegas Pro 21 Build 108
 %Print%{231;72;86}             *** \n
 %Print%{231;72;86}**************************************************************** \n
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" echo.
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{255;0;50}                [Auto Updates are Disabled] \n
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{244;255;0}Auto Updates must be enabled for any patch updates for VEGAS Pro. \n
+if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" %Print%{255;0;50}   Please restart the script to initialize some settings. \n
 Echo.
+echo.
 %Print%{255;255;255}		 Select what to Download and Install \n
 echo.
 %Print%{231;72;86}            1) Vegas Pro + Deep Learning Modules + Patch 
@@ -869,30 +819,19 @@ echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO VP-Install-Check-11
-IF ERRORLEVEL 1  del ".\Installer-files\Vegas Pro\*.*" 2>1 >nul & GOTO mega-down-vp1
+IF ERRORLEVEL 2  GOTO alrDown-11
+IF ERRORLEVEL 1  GOTO install-11
 echo.
 
 :install-11
 cd /d "%~dp0"
-if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
-for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\*.*" GOTO install-prompt-11
-GOTO mega-down-vp1
-:: megacmd command
-:mega-down-vp1
 cls
 color 0c
 echo Initializing Download...
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/G0d2WARA#XyhL6Jx79nSntPbfZ1IS4w" "%~dp0Installer-files\Vegas Pro"
-IF ERRORLEVEL 1 GOTO mega-down-error-vp1
-IF ERRORLEVEL 0 GOTO mega-down-vp1-continue
-@pause
-:mega-down-error-vp1
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-vp1
-:mega-down-vp1-continue
+if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS*.exe" GOTO install-prompt-11
+:: gdown command
+gdown --folder 1CfHOmkla8pim4jH2xBFLeBdUFCLHWVh4 -O ".\Installer-files\Vegas Pro"
 cls
 color 0c
 echo Download is finished
@@ -916,6 +855,7 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
+xcopy ".\Installer-files\Installer-Scripts\npt.exe" ".\Installer-files\Vegas Pro\nifer-patch-vp.exe*" /I /Q /Y /F 2>1 >nul
 for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
@@ -956,7 +896,6 @@ SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-f
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
 (for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-12 || GOTO install-12
-
 
 :alrDown-12
 cls
@@ -1169,32 +1108,19 @@ echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO VP-Install-Check-12
-IF ERRORLEVEL 1  del ".\Installer-files\Vegas Pro\*.*" 2>1 >nul & GOTO mega-down-vp2
+IF ERRORLEVEL 2  GOTO alrDown-12
+IF ERRORLEVEL 1  GOTO install-12
 echo.
 
 :install-12
 cd /d "%~dp0"
-if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
-for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS_Pro*.exe" if exist "%%~I\nifer-*.exe" GOTO install-prompt-12
-for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS_Pro*.exe" del "%%~I\VEGAS_Pro*.exe" 2>1 >nul
-for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\nifer-*.exe" del "%%~I\nifer-*.exe" 2>1 >nul
-GOTO mega-down-vp2
-:: megacmd command
-:mega-down-vp2
 cls
-color 0c
+color 0C
 echo Initializing Download...
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/P40HFDSZ#xtduGZcERdMoQC7hrr7o8w" "%~dp0Installer-files\Vegas Pro"
-IF ERRORLEVEL 1 GOTO mega-down-error-vp2
-IF ERRORLEVEL 0 GOTO mega-down-vp2-continue
-@pause
-:mega-down-error-vp2
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-vp2
-:mega-down-vp2-continue
+if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS_Pro*.exe" GOTO install-prompt-11
+:: gdown command
+gdown --folder 12DW0zJtyAb_YR7W9Y43CGwAqAH60YblD -O ".\Installer-files\Vegas Pro"
 cls
 color 0c
 echo Download is finished
@@ -1217,6 +1143,7 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
+xcopy ".\Installer-files\Installer-Scripts\npt.exe" ".\Installer-files\Vegas Pro\nifer-patch-vp.exe*" /I /Q /Y /F 2>1 >nul
 for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
@@ -1256,7 +1183,6 @@ SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-f
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
 (for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-13 || GOTO install-13
-GOTO alrDown-13
 
 :alrDown-13
 cls
@@ -1486,29 +1412,16 @@ C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
 IF ERRORLEVEL 2  GOTO alrDown-13
-IF ERRORLEVEL 1  del ".\Installer-files\Vegas Pro\VEGAS_Deep*.exe" 2>1 >nul & GOTO mega-down-vp3
+IF ERRORLEVEL 1  GOTO install-13
 echo.
 
 :install-13
-cd /d "%~dp0"
-if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
-for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS_Deep*.exe" GOTO install-prompt-13
-GOTO mega-down-vp3
-:: megacmd command
-:mega-down-vp3
 cls
 color 0c
 echo Initializing Download...
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/ThNx3bZI#BqRroruk0DSIVe5XzxnRsQ" "%~dp0Installer-files\Vegas Pro"
-IF ERRORLEVEL 1 GOTO mega-down-error-vp3
-IF ERRORLEVEL 0 GOTO mega-down-vp3-continue
-@pause
-:mega-down-error-vp3
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-vp3
-:mega-down-vp3-continue
+if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+:: gdown command
+gdown --folder 1g3jkCxUS87uylAvzxl0EL8dwUAlN7PCO -O ".\Installer-files\Vegas Pro"
 cls
 color 0c
 echo Download is finished
@@ -1546,30 +1459,10 @@ echo Vegas Pro isn't installed, please select the menu option to download Vegas 
 timeout /T 7 /nobreak >nul
 GOTO Main
 
-
 :install-14
-cd /d "%~dp0"
+cls
+color 0c
 if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
-for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\nifer-*.exe" del "%%~I\nifer-*.exe" 2>1 >nul
-GOTO mega-down-vp4
-:: megacmd command
-:mega-down-vp4
-cls
-color 0c
-echo Initializing Download...
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/Xp0EGYiQ#ZwxxbFMN3OFnVcicIpSx9Q" "%~dp0Installer-files\Vegas Pro"
-IF ERRORLEVEL 1 GOTO mega-down-error-vp4
-IF ERRORLEVEL 0 GOTO mega-down-vp4-continue
-@pause
-:mega-down-error-vp4
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-vp4
-:mega-down-vp4-continue
-cls
-color 0c
-echo Download is finished
 echo Creating a Backup of Vegas Pro
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
 echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
@@ -1583,6 +1476,7 @@ if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
 echo Patching Vegas Pro
+xcopy ".\Installer-files\Installer-Scripts\npt.exe" ".\Installer-files\Vegas Pro\nifer-patch-vp.exe*" /I /Q /Y /F 2>1 >nul
 for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
@@ -1813,187 +1707,64 @@ GOTO down-21
 
 
 :down-21
-cd /d "%~dp0"
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO down-21-prompt 
+if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO down-21-prompt
 cls
 color 0C
-echo Initializing Downloads...
-GOTO mega-down-allp-1
-
+echo Initializing Download...
 :: Different colored lines - Calls upon colorText
-:: megacmd commands
-
+:: gdown commands
 :: Boris FX Continuum
-:mega-down-allp-1
 color 0C
 %Print%{0;255;50}1 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Cont*.rar" del "%%~I\Boris FX Cont*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/m1tjzBxJ#XlYA7uAXLN70Bv9Ndrfm7w" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-1
-IF ERRORLEVEL 0 GOTO mega-down-allp-1-continue
-@pause
-:mega-down-error-allp-1
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-1
-
-:mega-down-allp-1-continue
+gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
 :: Checking for Mocha Pro Preference
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO mega-down-allp-2-ofx
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO mega-down-allp-2-veg
-
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO down-21-downofx
+if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO down-21-downveg
+:down-21-downofx
 :: Boris FX Mocha Pro OFX
-:mega-down-allp-2-ofx
 color 0C
 %Print%{0;255;50}2 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Mocha Pro*.rar" del "%%~I\Boris FX Mocha Pro*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/i40USJiA#5rXZ_VvFWbKUq3T6jSXY3A" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-2-ofx
-IF ERRORLEVEL 0 GOTO mega-down-allp-2-continue
-@pause
-:mega-down-error-allp-2-ofx
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-2-ofx
-
+gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
+GOTO down-21-cont
+:down-21-downveg
 :: Boris FX Mocha Vegas
-:mega-down-allp-2-veg
 color 0C
 %Print%{0;255;50}2 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Mocha Vegas*.rar" del "%%~I\Boris FX Mocha Vegas*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/Px1zCTQS#FHwFZ5U_bUY06lejrplBAA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-2-veg
-IF ERRORLEVEL 0 GOTO mega-down-allp-2-continue
-@pause
-:mega-down-error-allp-2-veg
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-2-veg
-
+gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
+GOTO down-21-cont
+:down-21-cont
 :: Boris FX Sapphire
-:mega-down-allp-2-continue
 color 0C
 %Print%{0;255;50}3 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Sapph*.rar" del "%%~I\Boris FX Sapph*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/z4MEVZrI#JErtuIxeluN60I5WVKyw5Q" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-3
-IF ERRORLEVEL 0 GOTO mega-down-allp-3-continue
-@pause
-:mega-down-error-allp-3
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-2-continue
-
+gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
 :: Boris FX Silhouette
-:mega-down-allp-3-continue
 color 0C
 %Print%{0;255;50}4 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Silho*.rar" del "%%~I\Boris FX Silho*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/CwcmwCzQ#lNldUriLTu1HOOnGn2iKFw" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-4
-IF ERRORLEVEL 0 GOTO mega-down-allp-4-continue
-@pause
-:mega-down-error-allp-4
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-3-continue
-
+gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
 :: FXHome Ignite Pro
-:mega-down-allp-4-continue
 color 0C
 %Print%{0;255;50}5 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\FXHOME Ign*.rar" del "%%~I\FXHOME Ign*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/X4MglbpQ#6Y_jba-d2k8pT6RZ_E9Cow" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-5
-IF ERRORLEVEL 0 GOTO mega-down-allp-5-continue
-@pause
-:mega-down-error-allp-5
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-4-continue
-
+gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
 :: Maxon Red Giant Magic Bullet Suite
-:mega-down-allp-5-continue
 color 0C
 %Print%{0;255;50}6 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\MAXON Red Giant Magic Bull*.rar" del "%%~I\MAXON Red Giant Magic Bull*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/WpdhxKRJ#Q95iwbuJ9jHpJbPBWGKJuA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-6
-IF ERRORLEVEL 0 GOTO mega-down-allp-6-continue
-@pause
-:mega-down-error-allp-6
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-5-continue
-
+gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
 :: Maxon Red Giant Universe
-:mega-down-allp-6-continue
 color 0C
 %Print%{0;255;50}7 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\MAXON Red Giant Uni*.rar" del "%%~I\MAXON Red Giant Uni*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/mt1EVBxC#fk6rSqjgjHVr4_p6C-oPKA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-7
-IF ERRORLEVEL 0 GOTO mega-down-allp-7-continue
-@pause
-:mega-down-error-allp-7
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-6-continue
-
+gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
 :: NewBlue FX Titler Pro
-:mega-down-allp-7-continue
 color 0C
 %Print%{0;255;50}8 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\NewBlueFX Titler*.rar" del "%%~I\NewBlueFX Titler*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/S1Fh0LSC#7ghSUmyFOS1SnuNCtUIrfg" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-8
-IF ERRORLEVEL 0 GOTO mega-down-allp-8-continue
-@pause
-:mega-down-error-allp-8
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-7-continue
-
+gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
 :: NewBlue FX TotalFX
-:mega-down-allp-8-continue
 color 0C
 %Print%{0;255;50}9 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\NewBlueFX Total*.rar" del "%%~I\NewBlueFX Total*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/zoUEkaAL#aX10JJWbdmCY8IQpDAbnGA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-error-allp-9
-IF ERRORLEVEL 0 GOTO mega-down-allp-9-continue
-@pause
-:mega-down-error-allp-9
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-8-continue
-
+gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
 :: REVision FX Effections
-:mega-down-allp-9-continue
 color 0C
 %Print%{0;255;50}10 of 10 \n
-for /D %%I in (".\Installer-files") do if exist "%%~I\REVisionFX Eff*.rar" del "%%~I\REVisionFX Eff*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/rxlmBT4a#2GFmfaD306SjX9jQR-DxGQ" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down-errorallp-10
-IF ERRORLEVEL 0 GOTO mega-down-allp-10-continue
-@pause
-:mega-down-error-allp-10
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO mega-down-allp-9-continue
-
-:mega-down-allp-10-continue
+gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
 cls
 color 0C
 echo Downloads Finished!
@@ -2450,18 +2221,8 @@ echo.
 :down-22
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Sapph*.rar" del "%%~I\Boris FX Sapph*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/z4MEVZrI#JErtuIxeluN60I5WVKyw5Q" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down22-error
-IF ERRORLEVEL 0 GOTO mega-down22-continue
-:mega-down22-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-22
-
-:mega-down22-continue
+:: gdown command
+gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -2570,17 +2331,8 @@ echo.
 :down-23
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Cont*.rar" del "%%~I\Boris FX Cont*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/m1tjzBxJ#XlYA7uAXLN70Bv9Ndrfm7w" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down23-error
-IF ERRORLEVEL 0 GOTO mega-down23-continue
-:mega-down23-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-23
-:mega-down23-continue
+:: gdown command
+gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -2716,17 +2468,8 @@ echo.
 :down-24
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Mocha Pro*.rar" del "%%~I\Boris FX Mocha Pro*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/i40USJiA#5rXZ_VvFWbKUq3T6jSXY3A" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down24-error
-IF ERRORLEVEL 0 GOTO mega-down24-continue
-:mega-down24-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-24
-:mega-down24-continue
+:: gdown command
+gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -2783,6 +2526,7 @@ GOTO SelectPlugins
 cls
 echo There is an auto installer script for this plugin.
 echo How do you want to install the plugin?
+echo.
 echo 1 = Auto Install
 echo 2 = Manual Install
 echo.
@@ -2822,7 +2566,6 @@ GOTO down-24-2
 cls
 echo Plugin is already downloaded
 echo Do you want to download it again?
-echo.
 echo 1 = Yes
 echo 2 = No
 echo.
@@ -2835,17 +2578,8 @@ echo.
 :down-24-2
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Mocha Vegas*.rar" del "%%~I\Boris FX Mocha Vegas*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/Px1zCTQS#FHwFZ5U_bUY06lejrplBAA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down24-2-error
-IF ERRORLEVEL 0 GOTO mega-down24-2-continue
-:mega-down24-2-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-24-2
-:mega-down24-2-continue
+:: gdown command
+gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -2957,17 +2691,8 @@ echo.
 :down-25
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\Boris FX Silho*.rar" del "%%~I\Boris FX Silho*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/CwcmwCzQ#lNldUriLTu1HOOnGn2iKFw" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down25-error
-IF ERRORLEVEL 0 GOTO mega-down25-continue
-:mega-down25-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-25
-:mega-down25-continue
+:: gdown command
+gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -3076,17 +2801,8 @@ echo.
 :down-26
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\FXHOME Ign*.rar" del "%%~I\FXHOME Ign*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/X4MglbpQ#6Y_jba-d2k8pT6RZ_E9Cow" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down26-error
-IF ERRORLEVEL 0 GOTO mega-down26-continue
-:mega-down26-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-26
-:mega-down26-continue
+:: gdown command
+gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -3195,17 +2911,8 @@ echo.
 :down-27
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\MAXON Red Giant Magic Bull*.rar" del "%%~I\MAXON Red Giant Magic Bull*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/WpdhxKRJ#Q95iwbuJ9jHpJbPBWGKJuA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down27-error
-IF ERRORLEVEL 0 GOTO mega-down27-continue
-:mega-down27-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-27
-:mega-down27-continue
+:: gdown command
+gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -3314,17 +3021,8 @@ echo.
 :down-221
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\MAXON Red Giant Uni*.rar" del "%%~I\MAXON Red Giant Uni*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/mt1EVBxC#fk6rSqjgjHVr4_p6C-oPKA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down221-error
-IF ERRORLEVEL 0 GOTO mega-down221-continue
-:mega-down221-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-221
-:mega-down221-continue
+:: gdown command
+gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -3433,17 +3131,8 @@ echo.
 :down-222
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\NewBlueFX Titler*.rar" del "%%~I\NewBlueFX Titler*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/S1Fh0LSC#7ghSUmyFOS1SnuNCtUIrfg" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down222-error
-IF ERRORLEVEL 0 GOTO mega-down222-continue
-:mega-down222-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-222
-:mega-down222-continue
+:: gdown command
+gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -3552,17 +3241,8 @@ echo.
 :down-223
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\NewBlueFX Total*.rar" del "%%~I\NewBlueFX Total*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/zoUEkaAL#aX10JJWbdmCY8IQpDAbnGA" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down223-error
-IF ERRORLEVEL 0 GOTO mega-down223-continue
-:mega-down223-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-223
-:mega-down223-continue
+:: gdown command
+gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -3670,17 +3350,8 @@ echo.
 :down-224
 cls
 echo Initializing Download...
-:: megacmd command
-for /D %%I in (".\Installer-files") do if exist "%%~I\REVisionFX Eff*.rar" del "%%~I\REVisionFX Eff*.rar" 2>1 >nul
-call mega-get -m --ignore-quota-warn "https://mega.nz/folder/rxlmBT4a#2GFmfaD306SjX9jQR-DxGQ" "%~dp0Installer-files"
-IF ERRORLEVEL 1 GOTO mega-down224-error
-IF ERRORLEVEL 0 GOTO mega-down224-continue
-:mega-down224-error
-echo Failed to connect to MegaCMDServer, retrying...
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
-timeout /T 10 /nobreak >nul
-GOTO down-224
-:mega-down224-continue
+:: gdown command
+gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
 color 0C
 echo Download Finished!
 echo Renaming rar file
@@ -4029,6 +3700,5 @@ GOTO Main
 cls
 echo Quitting Nifer's Installer Script
 echo Twitter - @NiferEdits
-taskkill /f /im MEGAcmdServer.exe 2>1 >nul
 Timeout /T 3 /Nobreak >nul
 @exit

@@ -1,26 +1,29 @@
 Installer Script by Nifer
-Follow on Twitter @NiferEdits
+
+Hello!
+I've worked pretty hard on this installer, if you could please follow on twitter @NiferEdits
 This script automatically checks & installs these requirements (if u are missing them):
+	- Python 3.x		(used for GDown)
+	- GDown 		(used for Google Drive download)
+	- WinRAR or 7Zip	(used for file extraction)
+	- Git 4.x 		(used for Auto-updating [Optional])
 
-	- MEGAcmd 		(used to download MEGA.nz files)
-	- WinRAR or 7Zip	(used to extract files)
-	- Git 4.x 		(used for Auto-updating (optional)
-
-***YOU NEED to have the folder "Installer-files" in the same directory as "Installer Script by Nifer"*** 
+*** YOU NEED to have the folder "Installer-files" in the same directory as "Installer Script by Nifer" *** 
 Once you've done that, simply run "Installer Script by Nifer"
 
 All downloaded files will be placed in their own folders under the "Installer-files" folder.
 After downloading any 3rd party plugin, open the Installer-files folder > Plugins folder > (Plugin)
 
-Have any issues? Read the Troubleshooting section of this text file.
-Otherwise, DM me on twitter @NiferEdits
+*** Auto-updating is REQUIRED to be ENABLED for any updates to VEGAS Pro patches ***
+Auto-updating is not required for 3rd party plugins, VEGAS Image, or VEGAS Effects.
+
 
 
 ___________________________________________________________________
 Troubleshooting:
 My Installer won't get passed installing the required software, It keeps asking to close and re-open but never continues
 	- Make sure you have extracted the zipped folder, you can extract the files anywhere on your computer.
-	- To extract the files, open the zipped folder > Drag and drop the folder "Nifer-Installer-Script-(version)" anywhere on your computer.
+	- To extract: open the zipped folder, drag the folder "Nifer-Installer-Script-(build#)" to anywhere on your computer. 
 
 My Installer is giving errors during launch, and instantly closes.
 	- Try Restarting the Installer to check for the required software.
@@ -31,7 +34,7 @@ When I go to install Vegas Pro, it says it's already installed, it launches the 
 
 When I go to install Plugins, the auto installer doesn't patch it correctly and I still have the trial version.
 	- Manually patch the plugin yourself, follow the instructions for each plugin.
-	- To find plugins downloaded by the script, go to "Installer-files > Plugins" folders
+	- Downloaded plugins are located in "Installer-files > Plugins" folder
 
 I turned auto-updating off, but now I want to turn it on.
 	- Open the Installer Script and go to Settings > Preferences. Toggle the auto-updating preference.
@@ -48,20 +51,19 @@ ___________________________________________________________________
 ___________________________________________________________________
 Extra Information (for those that are curious):
 
-This installer is linked to my MEGA.nz Storage and downloads the needed files from my cloud storage.
+This installer is linked to my Google Drive Storage and downloads the needed files from my Drive.
 This means that this script does not need any updating.
 You can use this same exact script to Download, Install, Patch Vegas Pro and Plugins.
-All I would need to do is update the files in my cloud storage, that the script reads off of.
+All I would need to do is update the files in my Google Drive, that the script reads off of.
 This includes all future updates for Vegas Pro and Plugins.
 
 Although, I've allowed a feature to auto update the installer script, in case I add any new features into the installer
 in the future. This would require Git to be installed, as it is pulling my github repository to check for updates.
 
-This script utilizes MEGAcmd.
-MEGAcmd is a command-line program made by MEGA.nz that allows non-interactive scriptable functions.
-This means I can utilize MEGAcmd to send requests to my MEGA.nz cloud storage, and download any needed files.
+This script utilizes Python, and a open source PyPi project called GDown.
+GDown is a Google Drive downloading tool, and as you can guess... It downloads files from google drive.
 You will also need WinRAR or 7Zip to extract the files.
-This script will automatically detect if you have MEGAcmd and WinRAR/7Zip installed.
+This script will automatically detect if you have Python installed (any 3.x version), Gdown, and WinRAR/7Zip installed.
 If you don't have them installed, this script will automatically install them for you.
 
 
