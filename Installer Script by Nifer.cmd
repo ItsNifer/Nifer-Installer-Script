@@ -74,7 +74,7 @@ echo Do you want to install the Required software?
 echo This will install (if you don't already have):
 echo - Python 3.11.4
 echo - GDown (Google Drive Downloader)
-echo - WinRAR, 7Zip, or WinZip
+echo - WinRAR or 7Zip
 echo.
 echo 1 = Yes
 echo 2 = No
@@ -82,9 +82,29 @@ echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO InstallGDown1
-IF ERRORLEVEL 1  GOTO errorNoPython2
+IF ERRORLEVEL 2  GOTO Main
+IF ERRORLEVEL 1  GOTO pre-autoup-prompt1
 echo.
+
+:pre-autoup-prompt1
+color 0C
+echo.
+echo Do you want to enable Auto Updates for this Installer Script?
+echo This will only check for updates when you launch the Installer Script.
+echo This will install Git, if you don't already have it.
+%Print%{244;255;0}Auto Updates must be enabled for any patch updates for VEGAS Pro. \n
+%Print%{244;255;0}Auto Updates are not required for anything else. \n
+echo.
+%Print%{231;72;86} 1 = Yes \n
+%Print%{231;72;86} 2 = No \n
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  break>".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" & GOTO errorNoPython2
+IF ERRORLEVEL 1  break>".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" & GOTO errorNoPython2
+echo.
+
 
 :errorNoPython2
 cls
@@ -94,10 +114,12 @@ echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
 echo Python 3.11.4 has installed successfully
 echo.
+timeout /T 3 /nobreak >nul
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO errorNoGit-pre
 %Print%{244;255;0} Please restart the installer script. \n
 %Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
 timeout /T 3 /nobreak >nul
-@pause >nul
+pause >nul
 
 
 :InstallGDown1
@@ -221,24 +243,7 @@ GOTO auto-update-fin
 :check-auto-0
 color 0C
 echo Auto Updates are not enabled.
-GOTO prompt-auto-up1
-
-:prompt-auto-up1
-color 0C
-echo.
-echo Do you want to enable Auto Updates for this Installer Script?
-echo This will only check for updates when you launch the Installer Script.
-%Print%{244;255;0}Auto Updates must be enabled for any patch updates for VEGAS Pro. \n
-echo.
-%Print%{231;72;86} 1 = Yes \n
-%Print%{231;72;86} 2 = No \n
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO auto-update-no
-IF ERRORLEVEL 1  GOTO git-install
-echo.
+GOTO pre-autoup-prompt1
 
 :git-install
 cls
@@ -249,23 +254,47 @@ git --version 2>NUL
 if errorlevel 1 GOTO errorNoGit
 GOTO git-installed1
 
+:errorNoGit-pre
+color 0C
+echo.
+echo Git is not installed
+::echo Downloading the installer for Git 2.41
+::%Print%{244;255;0}This may take a while... \n
+::%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
+:: download git with gdown
+::echo.
+::gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
+::cls
+::color 0C
+::echo Download is finished
+timeout /T 3 /nobreak >nul
+echo Launching the installer for Git 2.42
+start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
+::echo Cleaning up extra files...
+::del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
+echo.
+%Print%{244;255;0} Please restart the installer script to initialize Python and Git. \n
+%Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
+timeout /T 3 /nobreak >nul
+pause >nul
+
 :errorNoGit
 color 0C
 echo Git is not installed
-echo Downloading the installer for Git 2.41
-%Print%{244;255;0}This may take a while... \n
-%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
+::echo Downloading the installer for Git 2.41
+::%Print%{244;255;0}This may take a while... \n
+::%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
 :: download git with gdown
-echo.
-gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
-cls
-color 0C
-echo Download is finished
+::echo.
+::gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
+::cls
+::color 0C
+::echo Download is finished
 timeout /T 3 /nobreak >nul
-echo Launching the installer for Git 2.41
+echo Launching the installer for Git 2.42
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 echo Cleaning up extra files...
-del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
+::del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
 echo.
 %Print%{244;255;0} Please restart the installer script. \n
 %Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
