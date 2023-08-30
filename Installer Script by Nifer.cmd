@@ -87,6 +87,7 @@ IF ERRORLEVEL 1  GOTO pre-autoup-prompt1
 echo.
 
 :pre-autoup-prompt1
+IF NOT EXIST ".\Installer-files\Installer-Scripts\Settings" mkdir ".\Installer-files\Installer-Scripts\Settings"
 color 0C
 echo.
 echo Do you want to enable Auto Updates for this Installer Script?
@@ -107,6 +108,7 @@ echo.
 
 
 :errorNoPython2
+color 0C
 cls
 echo Installing Python 3.11.4 to PATH
 echo This is a silent install, this means you won't see anything popup on your screen.
@@ -413,7 +415,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 5.0.5 \n
+%Print%{244;255;0}                        Version - 6.0.1 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -883,9 +885,13 @@ echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS 
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
+echo.
 echo Patching Vegas Pro
-xcopy ".\Installer-files\Installer-Scripts\npt.exe" ".\Installer-files\Vegas Pro\nifer-patch-vp.exe*" /I /Q /Y /F 2>1 >nul
-for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
+xcopy ".\Installer-files\Installer-Scripts\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now installed and patched
@@ -1171,9 +1177,13 @@ echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS 
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
+echo.
 echo Patching Vegas Pro
-xcopy ".\Installer-files\Installer-Scripts\npt.exe" ".\Installer-files\Vegas Pro\nifer-patch-vp.exe*" /I /Q /Y /F 2>1 >nul
-for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
+xcopy ".\Installer-files\Installer-Scripts\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now installed and patched
@@ -1504,9 +1514,13 @@ echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS 
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
+echo.
 echo Patching Vegas Pro
-xcopy ".\Installer-files\Installer-Scripts\npt.exe" ".\Installer-files\Vegas Pro\nifer-patch-vp.exe*" /I /Q /Y /F 2>1 >nul
-for /r ".\Installer-files\Vegas Pro" %%a in (nifer-patch-vp*.exe) do "%%~fa" /wait /s /v/qb
+xcopy ".\Installer-files\Installer-Scripts\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Installer-Scripts\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now patched
