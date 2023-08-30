@@ -415,7 +415,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.0.1 \n
+%Print%{244;255;0}                        Version - 6.0.2 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -887,16 +887,20 @@ echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro
 timeout /T 5 /nobreak >nul
 echo.
 echo Patching Vegas Pro
-xcopy ".\Installer-files\Installer-Scripts\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
-del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe" 2>nul
+del ".\Installer-files\Vegas Pro\vegas210.exe" 2>nul
+del ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" 2>nul
+del ".\Installer-files\Vegas Pro\Protein.4.2.dll" 2>nul
+del ".\Installer-files\Vegas Pro\Protein_x64.4.2.dll" 2>nul
+del ".\Installer-files\Vegas Pro\TransitionWPFLibrary.dll" 2>nul
 GOTO Main
 
 :: If user chooses to install when VP20 is already installed, Script will uninstall VP20 + Deep Learning Modules and install again.
@@ -1179,16 +1183,20 @@ echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro
 timeout /T 5 /nobreak >nul
 echo.
 echo Patching Vegas Pro
-xcopy ".\Installer-files\Installer-Scripts\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
-del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe"
+del ".\Installer-files\Vegas Pro\vegas210.exe" 2>nul
+del ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" 2>nul
+del ".\Installer-files\Vegas Pro\Protein.4.2.dll" 2>nul
+del ".\Installer-files\Vegas Pro\Protein_x64.4.2.dll" 2>nul
+del ".\Installer-files\Vegas Pro\TransitionWPFLibrary.dll" 2>nul
 GOTO Main
 
 :: If user chooses to install when VP20 is already installed, Script will uninstall VP20 + Deep Learning Modules and install again.
@@ -1501,7 +1509,13 @@ GOTO Main
 :install-14
 cls
 color 0c
+echo Initializing Download...
 if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+:: gdown command
+gdown --folder 1Tfb3iMF3lUZx-t96eEuflkZliBvPTT3k -O ".\Installer-files\Vegas Pro"
+cls
+color 0c
+echo Download is finished
 echo Creating a Backup of Vegas Pro
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK*" /I /Q /Y /F
 echo Created "vegas210.exe.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
@@ -1516,16 +1530,20 @@ echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro
 timeout /T 5 /nobreak >nul
 echo.
 echo Patching Vegas Pro
-xcopy ".\Installer-files\Installer-Scripts\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
-xcopy ".\Installer-files\Installer-Scripts\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\Protein.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\Protein_x64.4.2.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul
+xcopy ".\Installer-files\Vegas Pro\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul
 :: Creates preference for VP Patch
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
-echo Vegas Pro is now patched
+echo Vegas Pro is now installed and patched
 timeout /T 3 /nobreak >nul
-del ".\Installer-files\Vegas Pro\nifer-patch-vp.exe"
+del ".\Installer-files\Vegas Pro\vegas210.exe" 2>nul
+del ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" 2>nul
+del ".\Installer-files\Vegas Pro\Protein.4.2.dll" 2>nul
+del ".\Installer-files\Vegas Pro\Protein_x64.4.2.dll" 2>nul
+del ".\Installer-files\Vegas Pro\TransitionWPFLibrary.dll" 2>nul
 GOTO Main
 
 
