@@ -424,7 +424,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.2.8 \n
+%Print%{244;255;0}                        Version - 6.2.9 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -1983,7 +1983,7 @@ cls
 echo.
 IF ERRORLEVEL 3  GOTO Main
 IF ERRORLEVEL 2  set getOptionsPlugCountCheck=1 & GOTO Plug-Select-Continue-1
-IF ERRORLEVEL 1  GOTO 21
+IF ERRORLEVEL 1  GOTO Plug-Select-All
 echo.
 
 
@@ -2059,7 +2059,22 @@ exit /B
 set plugcountrfxefffinal=1
 exit /B
 
+:Plug-Select-All
+set plugcountall=1
+set plugcountbfxsaphfinal=1
+set plugcountbfxmochafinal=1
+set plugcountbfxcontinfinal=1
+set plugcountbfxsilhofinal=1
+set plugcountignitefinal=1
+set plugcountmblfinal=1
+set plugcountunifinal=1
+set plugcountnfxtitlerfinal=1
+set plugcountnfxtotalfinal=1
+set plugcountrfxefffinal=1
+GOTO getOptionPlug-Confirm-Prompt
+
 :getOptionPlug-Confirm-Prompt
+if not defined plugcountall set plugcountall=0
 if not defined plugcountbfxsaphfinal set plugcountbfxsaphfinal=0
 if not defined plugcountbfxmochafinal set plugcountbfxmochafinal=0
 if not defined plugcountbfxcontinfinal set plugcountbfxcontinfinal=0
@@ -2163,6 +2178,8 @@ IF defined PLUGKEY2 (
 
 echo         --------------------------------
 echo.
+if %plugcountall% EQU 1 %Print%{231;72;86}         ALL plugins are around
+if %plugcountall% EQU 1 %Print%{244;255;0} 7 GB \n
 echo.
 %Print%{204;204;204}            1) Yes, install these plugins \n
 echo.
@@ -3144,6 +3161,7 @@ set plugcountunifinal=
 set plugcountnfxtitlerfinal=
 set plugcountnfxtotalfinal=
 set plugcountrfxefffinal=
+set plugcountall=
 set plugcountbfxsaph=
 set plugcountbfxmocha=
 set plugcountbfxcontin=
