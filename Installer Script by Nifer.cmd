@@ -54,6 +54,7 @@ if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
 pushd "%CD%"
 CD /D "%~dp0"
 @cls
+set jrepl="%~dp0Installer-files\Installer-Scripts\jrepl.bat"
 GOTO Python-check
 
 :Python-check
@@ -71,13 +72,13 @@ GOTO req-Install
 cls
 echo Required software for this installer is not detected.
 echo Do you want to install the Required software?
-echo This will install (if you don't already have):
-echo - Python 3.11.4
-echo - GDown (Google Drive Downloader)
-echo - WinRAR or 7Zip
+%Print%{244;255;0}This will install (if you don't already have): \n
+%Print%{0;255;50} - Python 3.11.4 \n
+%Print%{0;255;50} - GDown (Google Drive Downloader) \n
+%Print%{0;255;50} - WinRAR or 7Zip \n
 echo.
-echo 1 = Yes
-echo 2 = No
+%Print%{231;72;86} 1) Yes \n
+%Print%{231;72;86} 2) No \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -87,23 +88,28 @@ IF ERRORLEVEL 1  GOTO pre-autoup-prompt1
 echo.
 
 :pre-autoup-prompt1
+if not defined pre-autoup set pre-autoup=0
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO Main
+if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" del ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" >nul
+if %pre-autoup% EQU 2 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" del ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" >nul
 IF NOT EXIST ".\Installer-files\Installer-Scripts\Settings" mkdir ".\Installer-files\Installer-Scripts\Settings"
 color 0C
 echo.
 echo Do you want to enable Auto Updates for this Installer Script?
 echo This will only check for updates when you launch the Installer Script.
-echo This will install Git, if you don't already have it.
-%Print%{244;255;0}Auto Updates must be enabled for any patch updates for VEGAS Pro. \n
-%Print%{244;255;0}Auto Updates are not required for anything else. \n
+%Print%{244;255;0}This will install (if you don't already have): \n
+%Print%{0;255;50} - Git 2.41 \n
 echo.
-%Print%{231;72;86} 1 = Yes \n
-%Print%{231;72;86} 2 = No \n
+%Print%{231;72;86} 1) Yes \n
+%Print%{231;72;86} 2) No \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  break>".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" & GOTO errorNoPython2
-IF ERRORLEVEL 1  break>".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" & GOTO errorNoPython2
+IF ERRORLEVEL 2  if %pre-autoup% EQU 2 GOTO auto-update-no
+IF ERRORLEVEL 2  if %pre-autoup% EQU 0 break>".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" & GOTO errorNoPython2
+IF ERRORLEVEL 1  if %pre-autoup% EQU 2 GOTO check-auto-1
+IF ERRORLEVEL 1  if %pre-autoup% EQU 0 break>".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" & GOTO errorNoPython2
 echo.
 
 
@@ -166,8 +172,9 @@ GOTO Prompt-Archiver
 cls
 echo File Archiver is not detected
 echo Select which archiver that you'd prefer to install:
-echo 1 - WinRAR
-echo 2 - 7Zip
+echo.
+echo 1) WinRAR
+echo 2) 7Zip
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
@@ -244,6 +251,7 @@ echo Auto Updates are enabled.
 GOTO auto-update-fin
 :check-auto-0
 color 0C
+set pre-autoup=2
 echo Auto Updates are not enabled.
 GOTO pre-autoup-prompt1
 
@@ -270,7 +278,7 @@ echo Git is not installed
 ::color 0C
 ::echo Download is finished
 timeout /T 3 /nobreak >nul
-echo Launching the installer for Git 2.42
+echo Launching the installer for Git 2.41
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 ::echo Cleaning up extra files...
 ::del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
@@ -293,7 +301,7 @@ echo Git is not installed
 ::color 0C
 ::echo Download is finished
 timeout /T 3 /nobreak >nul
-echo Launching the installer for Git 2.42
+echo Launching the installer for Git 2.41
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 echo Cleaning up extra files...
 ::del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
@@ -396,6 +404,7 @@ if %ERRORLEVEL% == 1 GOTO git-stash2-error
 	GOTO Main
 :::::::::::::::::::::::::::::::::::::::::::::
 :auto-update-no
+color 0C
 echo.
 echo Disabling auto Updates
 REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-2.txt" 2>nul
@@ -415,7 +424,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.0.2 \n
+%Print%{244;255;0}                        Version - 6.2.8 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -423,6 +432,7 @@ Echo.
 %Print%{231;72;86}            2) 3rd Party Plugins \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            3) Settings \n
+%Print%{231;72;86}\n
 %Print%{231;72;86}\n
 %Print%{0;185;255}            4) Donate to support (Paypal) \n
 %Print%{231;72;86}\n
@@ -560,6 +570,9 @@ GOTO 1
 
 
 :SelectVegas
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" set getOptionPlugSkip=1
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" set getOptionPlugSkip=0
+if not defined getOptionPlugSkip set getOptionPlugSkip=0
 color 0C
 cls
 @ECHO OFF
@@ -590,7 +603,8 @@ echo.
 %Print%{231;72;86}            4) Patch Only 
 %Print%{244;255;0}(18 MB) \n
 echo.
-%Print%{255;112;0}            5) Back \n
+echo.
+%Print%{255;112;0}            5) Main Menu \n
 echo.
 C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what you want to Select." /N
 cls
@@ -608,6 +622,7 @@ echo.
 :11
 cls
 color 0C
+if %getOptionPlugSkip% EQU 1 GOTO install-11
 Echo.
 :: Check if vegas is already installed
 echo Checking for other installations...
@@ -690,7 +705,7 @@ echo.
 :: This entire process is to delete any leading spaces for each line in a text file.
 :: Calls JREPL to remove leading spaces and append to input file.
 :: Otherwise, leading white space will conflict when we reg query for display name.
-call "%~dp0Installer-files\Installer-Scripts\jrepl.bat" "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
+call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
@@ -923,6 +938,7 @@ GOTO install-11
 :12
 cls
 color 0C
+if %getOptionPlugSkip% EQU 1 GOTO install-12
 Echo.
 :: Check if vegas is already installed
 echo Checking for other installations...
@@ -987,7 +1003,7 @@ echo.
 :: This entire process is to delete any leading spaces for each line in a text file.
 :: Calls JREPL to remove leading spaces and append to input file.
 :: Otherwise, leading white space will conflict when we reg query for display name.
-call "%~dp0Installer-files\Installer-Scripts\jrepl.bat" "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
+call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
@@ -1218,6 +1234,7 @@ GOTO install-12
 :13
 color 0C
 cls
+if %getOptionPlugSkip% EQU 1 GOTO install-13
 Echo.
 :: Check if vegas deep learning modules is already installed
 echo Checking if Vegas Pro Deep Learning Modules is already installed
@@ -1299,7 +1316,7 @@ echo.
 :: This entire process is to delete any leading spaces for each line in a text file.
 :: Calls JREPL to remove leading spaces and append to input file.
 :: Otherwise, leading white space will conflict when we reg query for display name.
-call "%~dp0Installer-files\Installer-Scripts\jrepl.bat" "[ \t]+(?=\||$)" "" /f "VP-Uninstall-DLM-Selection.txt" /o -
+call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Uninstall-DLM-Selection.txt" /o -
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
@@ -1558,22 +1575,30 @@ echo.
 GOTO SelectPlugins
 
 :SelectPlugins
+cd /d "%~dp0"
 color 0C
 ::Variable for WinRAR
 set winrar="C:\Program Files\WinRAR\WinRAR.exe"
 :: Variables for each plugin, to call later on
-set BFX-Sapphire=Boris FX Sapphire OFX by Nifer.rar
-set BFX-Continuum=Boris FX Continuum Complete OFX by Nifer.rar
-set BFX-Mocha=Boris FX Mocha Pro OFX by Nifer.rar
-set BFX-Mocha-Vegas=Boris FX Mocha Vegas by Nifer.rar
-set BFX-Silhouette=Boris FX Silhouette by Nifer.rar
-set FXH-Ignite=FXHOME Ignite Pro OFX by Nifer.rar
-set MXN-MBL=MAXON Red Giant Magic Bullet Suite by Team V.R.rar
-set MXN-Universe=MAXON Red Giant Universe by Team V.R.rar
-set NFX-Titler=NewBlueFX Titler Pro 7 Ultimate by Nifer.rar
-set NFX-TotalFX=NewBlueFX TotalFX 7 OFX by Nifer.rar
-set RFX-Effections=REVisionFX Effections OFX by Team V.R.rar
-set All-Plugins=All Plugins.rar
+set "BFX-Sapphire=Boris FX Sapphire OFX by Nifer.rar"
+set "BFX-Continuum=Boris FX Continuum Complete OFX by Nifer.rar"
+set "BFX-Mocha=Boris FX Mocha Pro OFX by Nifer.rar"
+set "BFX-Mocha-Vegas=Boris FX Mocha Vegas by Nifer.rar"
+set "BFX-Silhouette=Boris FX Silhouette by Nifer.rar"
+set "FXH-Ignite=FXHOME Ignite Pro OFX by Nifer.rar"
+set "MXN-MBL=MAXON Red Giant Magic Bullet Suite by Team V.R.rar"
+set "MXN-Universe=MAXON Red Giant Universe by Team V.R.rar"
+set "NFX-Titler=NewBlueFX Titler Pro 7 Ultimate by Nifer.rar"
+set "NFX-TotalFX=NewBlueFX TotalFX 7 OFX by Nifer.rar"
+set "RFX-Effections=REVisionFX Effections OFX by Team V.R.rar"
+set "All-Plugins=All Plugins.rar"
+
+
+
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" set getOptionPlugSkip=1
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" set getOptionPlugSkip=0
+if not defined getOptionPlugSkip set getOptionPlugSkip=0
+GOTO Plugin-Select-Start
 
 cls
 @ECHO OFF
@@ -1582,318 +1607,1043 @@ Echo *****************************************************************
 Echo ***    (Option #2) Downloading 3rd Party Plugins for OFX      ***
 Echo *****************************************************************
 Echo.
-%Print%{255;255;255}		 Select which plugins to Download \n
+%Print%{255;255;255}	 Available plugins to Download: \n
+echo         --------------------------------
 echo.
-%Print%{231;72;86}            1) All Plugins 
-%Print%{244;255;0}(6.8 GB) \n
+%Print%{231;72;86}            BORIS FX - Sapphire \n
+%Print%{231;72;86}            BORIS FX - Mocha Pro \n
+%Print%{231;72;86}            BORIS FX - Continuum \n
+%Print%{231;72;86}            BORIS FX - Silhouette \n
+%Print%{231;72;86}            FXHOME - Ignite Pro \n
+%Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite \n
+%Print%{231;72;86}            MAXON - Red Giant Universe \n
+%Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 \n
+%Print%{231;72;86}            NEWBLUEFX - TotalFX 7 \n
+%Print%{231;72;86}            REVISIONFX - Effections \n
 echo.
-%Print%{231;72;86}            2) BORIS FX - Sapphire 
-%Print%{244;255;0}(670 MB) \n
+echo         --------------------------------
 echo.
-%Print%{231;72;86}            3) BORIS FX - Continuum 
-%Print%{244;255;0}(510 MB) \n
+%Print%{204;204;204}            1) Download all plugins \n
 echo.
-%Print%{231;72;86}            4) BORIS FX - Mocha Pro
-%Print%{244;255;0}(270 MB) \n
+%Print%{204;204;204}            2) Select which plugins to download \n
 echo.
-%Print%{231;72;86}            5) BORIS FX - Silhouette 
-%Print%{244;255;0}(1.4 GB) \n
-echo.
-%Print%{231;72;86}            6) FXHOME - Ignite Pro 
-%Print%{244;255;0}(430 MB) \n
-echo.
-%Print%{231;72;86}            7) MAXON - Red Giant Magic Bullet Suite 
-%Print%{244;255;0}(260 MB) \n
-echo.
-%Print%{255;112;0}            8) Next Page \n
-echo.
-%Print%{255;112;0}            9) Main Menu \n
-echo.
-C:\Windows\System32\CHOICE /C 123456789 /M "Type the number (1-9) of what you want to Download." /N
-cls
-echo.
-IF ERRORLEVEL 9  GOTO Main
-IF ERRORLEVEL 8  GOTO SelectPlugins2
-IF ERRORLEVEL 7  GOTO 27
-IF ERRORLEVEL 6  GOTO 26
-IF ERRORLEVEL 5  GOTO 25
-IF ERRORLEVEL 4  GOTO 24-prompt
-IF ERRORLEVEL 3  GOTO 23
-IF ERRORLEVEL 2  GOTO 22
-IF ERRORLEVEL 1  GOTO 21
-echo.
-
-:SelectPlugins2
-cls
-@ECHO OFF
-color 0C
-Echo *****************************************************************
-Echo ***    (Option #2) Downloading 3rd Party Plugins for OFX      ***
-Echo *****************************************************************
-Echo.
-%Print%{255;255;255}		 Select which plugins to Download \n
-echo.
-%Print%{231;72;86}            1) MAXON - Red Giant Universe 
-%Print%{244;255;0}(1.8 GB) \n
-echo.
-%Print%{231;72;86}            2) NEWBLUEFX - Titler Pro 7 
-%Print%{244;255;0}(630 MB) \n
-echo.
-%Print%{231;72;86}            3) NEWBLUEFX - TotalFX 7 
-%Print%{244;255;0}(790 MB) \n
-echo.
-%Print%{231;72;86}            4) REVISIONFX - Effections 
-%Print%{244;255;0}(50 MB) \n
-echo.
-%Print%{255;112;0}            5) Previous Page \n
-echo.
-%Print%{255;112;0}            6) Main Menu \n
-echo.
-C:\Windows\System32\CHOICE /C 123456 /M "Type the number (1-6) of what you want to Download." /N
-cls
-echo.
-IF ERRORLEVEL 6  GOTO Main
-IF ERRORLEVEL 5  GOTO SelectPlugins
-IF ERRORLEVEL 4  GOTO 224
-IF ERRORLEVEL 3  GOTO 223
-IF ERRORLEVEL 2  GOTO 222
-IF ERRORLEVEL 1  GOTO 221
-echo.
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 1
-:21
-cls
-color 0C
-Echo.
-:: Ask if user is sure they want to download all plugins
-echo Are you sure you want to install all plugins?
-%Print%{231;72;86}This entire process may or may not take
-%Print%{244;255;0} 30-90 minutes, 
-%Print%{231;72;86}depending on internet connection and disk speed. \n
-%Print%{244;255;0}Approx. 7 GB
-echo.
-%Print%{231;72;86}1 = Yes \n
-%Print%{231;72;86}2 = No \n
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO checkdown-21
-echo.
-:: Check if all plugins are already downloaded
-:checkdown-21
-:: Deletes any existing Mocha Pro Preference and prompts user to choose again
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" del ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" 2>1 1>nul
-color 0C
-echo Checking if all plugins are already downloaded
-if exist ".\Installer-files\Plugins\Boris FX Sapph*" GOTO alrDown21-22
-GOTO down-21-prompt
-:alrDown21-22
-if exist ".\Installer-files\Plugins\Boris FX Cont*" GOTO alrDown21-23
-GOTO down-21-prompt
-:alrDown21-23
-if exist ".\Installer-files\Plugins\Boris FX Mocha*" GOTO alrDown21-24
-GOTO down-21-prompt
-:alrDown21-24
-if exist ".\Installer-files\Plugins\Boris FX Silho*" GOTO alrDown21-25
-GOTO down-21-prompt
-:alrDown21-25
-if exist ".\Installer-files\Plugins\FXHOME Ign*" GOTO alrDown21-26
-GOTO down-21-prompt
-:alrDown21-26
-if exist ".\Installer-files\Plugins\MAXON Red Giant Magic Bull*" GOTO alrDown21-27
-GOTO down-21-prompt
-:alrDown21-27
-if exist ".\Installer-files\Plugins\MAXON Red Giant Uni*" GOTO alrDown21-221
-GOTO down-21-prompt
-:alrDown21-221
-if exist ".\Installer-files\Plugins\NewBlueFX Titler*" GOTO alrDown21-222
-GOTO down-21-prompt
-:alrDown21-222
-if exist ".\Installer-files\Plugins\NewBlueFX Total*" GOTO alrDown21-223
-GOTO down-21-prompt
-:alrDown21-223
-if exist ".\Installer-files\Plugins\REVisionFX Eff*" GOTO prompt-allplug-down
-GOTO down-21-prompt
-:prompt-allplug-down
-echo.
-color 0C
-echo You already have all plugins downloaded
-echo What do you want to do?
-echo.
-echo 1 = Re-download them all
-echo 2 = Continue to installing
-echo 3 = back to Main Menu
+%Print%{255;112;0}            3) Main Menu \n
 echo.
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 3  GOTO SelectPlugins
-IF ERRORLEVEL 2  GOTO auto-21
-IF ERRORLEVEL 1  GOTO down-21-prompt
+IF ERRORLEVEL 3  GOTO Main
+::IF ERRORLEVEL 2  set getOptionPlugSkip=1 & GOTO Plug-Select-Continue-1
+IF ERRORLEVEL 2  GOTO Plugin-Select-Start
+IF ERRORLEVEL 1  GOTO 21
+echo.
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:LogPlugList
+:: Reg Query for all supported plugins, output to logfile3.
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Boris FX"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugbfxlist=%%L
+	echo !plugbfxlist! 2>nul | findstr /v /C:"After Effects" /C:"Adobe" /C:"Photoshop" /C:"Optics" 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Pro 21.0 (Mocha VEGAS)"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugvpmochalist=%%L
+	echo !plugvpmochalist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Ignite"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugfxhlist=%%L
+	echo !plugfxhlist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Magic Bullet Suite"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugmbllist=%%L
+	echo !plugmbllist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Universe"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugunilist=%%L
+	echo !plugunilist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "NewBlue Titler Pro 7 Ultimate"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugnbxtitlerlist=%%L
+	echo !plugnbxtitlerlist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "NewBlue TotalFX 7"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugnbxtfxlist=%%L
+	echo !plugnbxtfxlist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "RE:Vision Effections Fusion"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugnbxtitlerlist=%%L
+	echo !plugnbxtitlerlist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+exit /b
+
+:Plugin-Select-Start
+setlocal ENABLEDELAYEDEXPANSION
+color 0C
+if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Continue-1
+echo.
+echo.
+echo                 Loading...
+SET LOGFILE3=".\Installer-files\Installer-Scripts\Settings\Plug-Installations-found.txt"
+call :LogPlugList > %LOGFILE3%
+:: Trims down outputs to only plugin names and removes leading space for each line in a text file.
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
+for %%i in ("Plug-Installations-found.txt") do (
+    call %jrepl% "by Nifer|for OFX|Fusion|Plug-ins for OpenFX and Compatible Products|VEGAS Pro 21.0 " "" /m /f "Plug-Installations-found.txt" /o -
+    call %jrepl% "[ \t]+(?=\||$)" "" /f "Plug-Installations-found.txt" /o -
+)
+:: Parses each line in Plug-Installations-found.txt to a variable
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (Plug-Installations-found.txt) do (
+  set "Line_Plug_Select_!Counter!=%%x"
+  set /a Counter+=1
+)
+:: Parses each line in Plug-Installations-found.txt to a number counter
+:: sets variables for each plugin to 0, counts later when checked.
+set "cmd3=findstr /R /N "^^" Plug-Installations-found.txt | find /C ":""
+for /f %%U in ('!cmd3!') do set PlugNumber=%%U
+set getOptionsPlugCountCheck=0
+set plugcountbfxsaph=0
+set plugcountbfxmocha=0
+set plugcountbfxcontin=0
+set plugcountbfxsilho=0
+set plugcountignite=0
+set plugcountmbl=0
+set plugcountuni=0
+set plugcountnfxtitler=0
+set plugcountnfxtotal=0
+set plugcountrfxeff=0
+GOTO Plug-Select-Counter
+:Plug-Select-Counter
+IF %PlugNumber% EQU 0 GOTO Plug-Select-Continue-1
+IF %PlugNumber% GEQ 1 GOTO Plug-Select-Loop-1
+:Plug-Select-Loop-1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,26!" == "Boris FX Sapphire Plug-ins" set /a plugcountbfxsaph+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,23!" == "Boris FX Mocha Plug-ins" set /a plugcountbfxmocha+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,13!" == "(Mocha VEGAS)" set plugcountvpbfxmocha=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Boris FX Continuum" set /a plugcountbfxcontin+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Boris FX Silhouette" set /a plugcountbfxsilho+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,10!" == "Ignite Pro" set /a plugcountignite+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Magic Bullet Suite" set /a plugcountmbl+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,8!" == "Universe" set /a plugcountuni+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" set /a plugcountnfxtitler+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,17!" == "NewBlue TotalFX 7" set /a plugcountnfxtotal+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,20!" == "RE:Vision Effections" set /a plugcountrfxeff+=1
+set /a PlugNumber-=1
+GOTO Plug-Select-Counter
+
+:Plug-Select-Continue-1
+if not defined getOptionPlugSkip set getOptionPlugSkip=0
+if not defined getOptionsPlugCountCheck set getOptionsPlugCountCheck=0
+if not defined plugcountbfxsaph set plugcountbfxsaph=0
+if not defined plugcountbfxmocha set plugcountbfxmocha=0
+if not defined plugcountvpbfxmocha set plugcountvpbfxmocha=0
+if not defined plugcountbfxcontin set plugcountbfxcontin=0
+if not defined plugcountbfxsilho set plugcountbfxsilho=0
+if not defined plugcountignite set plugcountignite=0
+if not defined plugcountmbl set plugcountmbl=0
+if not defined plugcountuni set plugcountuni=0
+if not defined plugcountnfxtitler set plugcountnfxtitler=0
+if not defined plugcountnfxtotal set plugcountnfxtotal=0
+if not defined plugcountrfxeff set plugcountrfxeff=0
+::0=none 1=ofx 2=vegas 3=both
+if %plugcountbfxmocha% EQU 0 if %plugcountvpbfxmocha% EQU 0 set mochadisplay=0
+if %plugcountbfxmocha% EQU 1 if %plugcountvpbfxmocha% EQU 0 set mochadisplay=1
+if %plugcountbfxmocha% EQU 0 if %plugcountvpbfxmocha% EQU 1 set mochadisplay=2
+if %plugcountbfxmocha% EQU 1 if %plugcountvpbfxmocha% EQU 1 set mochadisplay=3
+if defined plugcountbfxsapfinal set plugcountbfxsapfinal=0
+if defined plugcountbfxmochafinal set plugcountbfxmochafinal=0
+if defined plugcountbfxcontinfinal set plugcountbfxcontinfinal=0
+if defined plugcountbfxsilhofinal set plugcountbfxsilhofinal=0
+if defined plugcountignitefinal set plugcountignitefinal=0
+if defined plugcountmblfinal set plugcountmblfinal=0
+if defined plugcountunifinal set plugcountunifinal=0
+if defined plugcountnfxtitlerfinal set plugcountnfxtitlerfinal=0
+if defined plugcountnfxtotalfinal set plugcountnfxtotalfinal=0
+if defined plugcountrfxefffinal set plugcountrfxefffinal=0
+cls
+echo.
+color 0C
+Echo ***************************************************************
+Echo ***    (Option #2) Selecting 3rd Party Plugins for OFX      ***
+Echo ***************************************************************
+Echo.
+%Print%{255;255;255}	 Available plugins to Download: \n
+echo         --------------------------------
+echo.
+if %plugcountbfxsaph% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Sapphire 
+if %plugcountbfxsaph% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Sapphire 
+if %plugcountbfxsaph% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Sapphire 
+if %plugcountbfxsaph% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            1) BORIS FX - Sapphire 
+if %plugcountbfxsaph% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            1) BORIS FX - Sapphire 
+if %plugcountbfxsaph% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            1) BORIS FX - Sapphire 
+if %plugcountbfxsaph% GEQ 0 %Print%{0;185;255}(670 MB) \n
+if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% LEQ 1 %Print%{231;72;86}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% LEQ 1 %Print%{0;255;50}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% LEQ 1 %Print%{244;255;0}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% LEQ 1 %Print%{231;72;86}            2) BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% LEQ 1 %Print%{0;255;50}            2) BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% LEQ 1 %Print%{244;255;0}            2) BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 0 if %mochadisplay% LEQ 1 %Print%{0;185;255}(270 MB) \n
+if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{231;72;86}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{0;255;50}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{244;255;0}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{231;72;86}            2) BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{0;255;50}            2) BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{244;255;0}            2) BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 0 if %mochadisplay% EQU 3 %Print%{0;185;255}(270 MB) \n
+if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 2 %Print%{231;72;86}            BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 2 %Print%{0;255;50}            BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 2 %Print%{244;255;0}            BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 2 %Print%{231;72;86}            2) BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 2 %Print%{0;255;50}            2) BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 2 %Print%{244;255;0}            2) BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% GEQ 0 if %mochadisplay% EQU 2 %Print%{0;185;255}(70 MB) \n
+if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{231;72;86}            BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{0;255;50}            BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{244;255;0}            BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{231;72;86}            2) BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{0;255;50}            2) BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{244;255;0}            2) BORIS FX - Mocha VEGAS 
+if %plugcountvpbfxmocha% GEQ 0 if %mochadisplay% EQU 3 %Print%{0;185;255}(70 MB) \n
+if %plugcountbfxcontin% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            3) BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            3) BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            3) BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% GEQ 0 %Print%{0;185;255}(510 MB) \n
+if %plugcountbfxsilho% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Silhouette 
+if %plugcountbfxsilho% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Silhouette 
+if %plugcountbfxsilho% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Silhouette 
+if %plugcountbfxsilho% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            4) BORIS FX - Silhouette 
+if %plugcountbfxsilho% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            4) BORIS FX - Silhouette 
+if %plugcountbfxsilho% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            4) BORIS FX - Silhouette 
+if %plugcountbfxsilho% GEQ 0 %Print%{0;185;255}(1.4 GB) \n
+if %plugcountignite% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            FXHOME - Ignite Pro 
+if %plugcountignite% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            FXHOME - Ignite Pro 
+if %plugcountignite% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            FXHOME - Ignite Pro 
+if %plugcountignite% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            5) FXHOME - Ignite Pro 
+if %plugcountignite% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            5) FXHOME - Ignite Pro 
+if %plugcountignite% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            5) FXHOME - Ignite Pro
+if %plugcountignite% GEQ 0 %Print%{0;185;255}(430 MB) \n
+if %plugcountmbl% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            6) MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            6) MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            6) MAXON - Red Giant Magic Bullet Suite
+if %plugcountmbl% GEQ 0 %Print%{0;185;255}(260 MB) \n
+if %plugcountuni% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            MAXON - Red Giant Universe 
+if %plugcountuni% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            MAXON - Red Giant Universe 
+if %plugcountuni% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            MAXON - Red Giant Universe 
+if %plugcountuni% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            7) MAXON - Red Giant Universe 
+if %plugcountuni% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            7) MAXON - Red Giant Universe 
+if %plugcountuni% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            7) MAXON - Red Giant Universe
+if %plugcountuni% GEQ 0 %Print%{0;185;255}(1.8 GB) \n
+if %plugcountnfxtitler% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            8) NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            8) NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            8) NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% GEQ 0 %Print%{0;185;255}(630 MB) \n
+if %plugcountnfxtotal% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            9) NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            9) NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            9) NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% GEQ 0 %Print%{0;185;255}(790 MB) \n
+if %plugcountrfxeff% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            REVISIONFX - Effections 
+if %plugcountrfxeff% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            REVISIONFX - Effections 
+if %plugcountrfxeff% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            REVISIONFX - Effections 
+if %plugcountrfxeff% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            10) REVISIONFX - Effections 
+if %plugcountrfxeff% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            10) REVISIONFX - Effections 
+if %plugcountrfxeff% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            10) REVISIONFX - Effections 
+if %plugcountrfxeff% GEQ 0 %Print%{0;185;255}(50 MB) \n
+echo.
+If %getOptionPlugSkip% EQU 0 echo         --------------------------------
+set "PLUGKEY0="
+IF %plugcountbfxsaph% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountbfxcontin% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountbfxmocha% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountbfxsilho% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountignite% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountmbl% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountuni% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountnfxtitler% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountnfxtotal% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountrfxeff% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF defined PLUGKEY0 (
+%Print%{231;72;86}        Red =        not installed \n
+)
+set "PLUGKEY1="
+IF %plugcountbfxsaph% EQU 1 set PLUGKEY1=1
+IF %plugcountbfxcontin% EQU 1 set PLUGKEY1=1
+IF %plugcountbfxmocha% EQU 1 set PLUGKEY1=1
+IF %plugcountbfxsilho% EQU 1 set PLUGKEY1=1
+IF %plugcountignite% EQU 1 set PLUGKEY1=1
+IF %plugcountmbl% EQU 1 set PLUGKEY1=1
+IF %plugcountuni% EQU 1 set PLUGKEY1=1
+IF %plugcountnfxtitler% EQU 1 set PLUGKEY1=1
+IF %plugcountnfxtotal% EQU 1 set PLUGKEY1=1
+IF %plugcountrfxeff% EQU 1 set PLUGKEY1=1
+IF defined PLUGKEY1 (
+%Print%{0;255;50}        Green =      installed \n
+)
+set "PLUGKEY2="
+IF %plugcountbfxsaph% GEQ 2 set PLUGKEY2=1
+IF %plugcountbfxcontin% GEQ 2 set PLUGKEY2=1
+IF %plugcountbfxmocha% GEQ 2 set PLUGKEY2=1
+IF %plugcountbfxsilho% GEQ 2 set PLUGKEY2=1
+IF %plugcountignite% GEQ 2 set PLUGKEY2=1
+IF %plugcountmbl% GEQ 2 set PLUGKEY2=1
+IF %plugcountuni% GEQ 2 set PLUGKEY2=1
+IF %plugcountnfxtitler% GEQ 2 set PLUGKEY2=1
+IF %plugcountnfxtotal% GEQ 2 set PLUGKEY2=1
+IF %plugcountrfxeff% GEQ 2 set PLUGKEY2=1
+IF defined PLUGKEY2 (
+%Print%{244;255;0}        Yellow =     multiple installed [May detect AE plugins] \n
+)
+IF %getOptionsPlugCountCheck% GEQ 1 GOTO getOptionsPlug
+echo         --------------------------------
+echo.
+echo.
+%Print%{204;204;204}            1) Download all plugins \n
+echo.
+%Print%{204;204;204}            2) Select which plugins to download \n
+echo.
+%Print%{255;112;0}            3) Main Menu \n
+echo.
+C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 3  GOTO Main
+IF ERRORLEVEL 2  set getOptionsPlugCountCheck=1 & GOTO Plug-Select-Continue-1
+IF ERRORLEVEL 1  GOTO 21
 echo.
 
-:::::::::::::::::::::::::::::::::::::::
-:: Prompts to ask which version of Mocha to Download
-:down-21-prompt
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO down-21
+
+:getOptionsPlug
+:: This entire process is for multi-selection when user chooses to install desired plugins
+:: Deletes text preference for selection, if made previously
+::set Plug-Inst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Install-Selection.txt"
+::if exist %Plug-Inst-Select1% del %Plug-Inst-Select1%
+echo         --------------------------------
+echo.
+echo.
+%Print%{204;204;204}Type your choices with a space after each choice 
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "choices="
+set /p "choices=Type and press Enter when finished: "
+
+if not defined choices ( 
+    echo Please enter a valid option
+    goto getOptionsPlug
+    )
+
+for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%i in (%choices%) do call :optionPlug-%%i 2>nul
+IF ERRORLEVEL 1 GOTO optionErrorPlug
+GOTO getOptionPlug-Confirm-Prompt
+exit
+
+:optionErrorPlug
+color 0C
+echo.
+echo Exceeded max number of selections.
+echo Selections (1-10)
+@pause
+GOTO getOptionsPlug
+
+:optionPlug-1
+set plugcountbfxsaphfinal=1 
+exit /B
+
+:optionPlug-2
+set plugcountbfxmochafinal=1
+exit /B
+
+:optionPlug-3
+set plugcountbfxcontinfinal=1
+exit /B
+
+:optionPlug-4
+set plugcountbfxsilhofinal=1
+exit /B
+
+:optionPlug-5
+set plugcountignitefinal=1
+exit /B
+
+:optionPlug-6
+set plugcountmblfinal=1
+exit /B
+
+:optionPlug-7
+et plugcountunifinal=1
+exit /B
+
+:optionPlug-8
+set plugcountnfxtitlerfinal=1
+exit /B
+
+:optionPlug-9
+set plugcountnfxtotalfinal=1
+exit /B
+
+:optionPlug-10
+set plugcountrfxefffinal=1
+exit /B
+
+:getOptionPlug-Confirm-Prompt
+if not defined plugcountbfxsaphfinal set plugcountbfxsaphfinal=0
+if not defined plugcountbfxmochafinal set plugcountbfxmochafinal=0
+if not defined plugcountbfxcontinfinal set plugcountbfxcontinfinal=0
+if not defined plugcountbfxsilhofinal set plugcountbfxsilhofinal=0
+if not defined plugcountignitefinal set plugcountignitefinal=0
+if not defined plugcountmblfinal set plugcountmblfinal=0
+if not defined plugcountunifinal set plugcountunifinal=0
+if not defined plugcountnfxtitlerfinal set plugcountnfxtitlerfinal=0
+if not defined plugcountnfxtotalfinal set plugcountnfxtotalfinal=0
+if not defined plugcountrfxefffinal set plugcountrfxefffinal=0
+color 0C
 cls
-echo Before continuing and downloading all plugins...
-echo There are two available verisons of Boris FX Mocha
 echo.
-%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. \n
-%Print%{244;255;0} It has better integration, but may be outdated. \n
+%Print%{231;72;86} Are you sure you want to install these selected plugins? \n
+echo         --------------------------------
 echo.
-%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX. \n
-%Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
+if %plugcountbfxsaph% EQU 0 If %plugcountbfxsaphfinal% EQU 1 %Print%{231;72;86}            BORIS FX - Sapphire 
+if %plugcountbfxsaph% EQU 1 If %plugcountbfxsaphfinal% EQU 1 %Print%{0;255;50}            BORIS FX - Sapphire 
+if %plugcountbfxsaph% GEQ 2 If %plugcountbfxsaphfinal% EQU 1 %Print%{244;255;0}            BORIS FX - Sapphire 
+if %plugcountbfxsaph% GEQ 0 If %plugcountbfxsaphfinal% EQU 1 %Print%{0;185;255}(670 MB) \n
+if %plugcountbfxmocha% EQU 0 If %plugcountbfxmochafinal% EQU 1 %Print%{231;72;86}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% EQU 1 If %plugcountbfxmochafinal% EQU 1 %Print%{0;255;50}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 2 If %plugcountbfxmochafinal% EQU 1 %Print%{244;255;0}            BORIS FX - Mocha Pro 
+if %plugcountbfxmocha% GEQ 0 If %plugcountbfxmochafinal% EQU 1 %Print%{0;185;255}(270 MB) \n
+if %plugcountbfxcontin% EQU 0 If %plugcountbfxcontinfinal% EQU 1 %Print%{231;72;86}            BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% EQU 1 If %plugcountbfxcontinfinal% EQU 1 %Print%{0;255;50}            BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% GEQ 2 If %plugcountbfxcontinfinal% EQU 1 %Print%{244;255;0}            BORIS FX - Continuum Complete 
+if %plugcountbfxcontin% GEQ 0 If %plugcountbfxcontinfinal% EQU 1 %Print%{0;185;255}(510 MB) \n
+if %plugcountbfxsilho% EQU 0 If %plugcountbfxsilhofinal% EQU 1 %Print%{231;72;86}            BORIS FX - Silhouette 
+if %plugcountbfxsilho% EQU 1 If %plugcountbfxsilhofinal% EQU 1 %Print%{0;255;50}            BORIS FX - Silhouette 
+if %plugcountbfxsilho% GEQ 2 If %plugcountbfxsilhofinal% EQU 1 %Print%{244;255;0}            BORIS FX - Silhouette 
+if %plugcountbfxsilho% GEQ 0 If %plugcountbfxsilhofinal% EQU 1 %Print%{0;185;255}(1.4 GB) \n
+if %plugcountignite% EQU 0 If %plugcountignitefinal% EQU 1 %Print%{231;72;86}            FXHOME - Ignite Pro 
+if %plugcountignite% EQU 1 If %plugcountignitefinal% EQU 1 %Print%{0;255;50}            FXHOME - Ignite Pro 
+if %plugcountignite% GEQ 2 If %plugcountignitefinal% EQU 1 %Print%{244;255;0}            FXHOME - Ignite Pro 
+if %plugcountignite% GEQ 0 If %plugcountignitefinal% EQU 1 %Print%{0;185;255}(430 MB) \n
+if %plugcountmbl% EQU 0 If %plugcountmblfinal% EQU 1 %Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% EQU 1 If %plugcountmblfinal% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% GEQ 2 If %plugcountmblfinal% EQU 1 %Print%{244;255;0}            MAXON - Red Giant Magic Bullet Suite 
+if %plugcountmbl% GEQ 0 If %plugcountmblfinal% EQU 1 %Print%{0;185;255}(260 MB) \n
+if %plugcountuni% EQU 0 If %plugcountunifinal% EQU 1 %Print%{231;72;86}            MAXON - Red Giant Universe 
+if %plugcountuni% EQU 1 If %plugcountunifinal% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Universe 
+if %plugcountuni% GEQ 2 If %plugcountunifinal% EQU 1 %Print%{244;255;0}            MAXON - Red Giant Universe 
+if %plugcountuni% GEQ 0 If %plugcountunifinal% EQU 1 %Print%{0;185;255}(1.8 GB) \n
+if %plugcountnfxtitler% EQU 0 If %plugcountnfxtitlerfinal% EQU 1 %Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% EQU 1 If %plugcountnfxtitlerfinal% EQU 1 %Print%{0;255;50}            NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% GEQ 2 If %plugcountnfxtitlerfinal% EQU 1 %Print%{244;255;0}            NEWBLUEFX - Titler Pro 7 
+if %plugcountnfxtitler% GEQ 0 If %plugcountnfxtitlerfinal% EQU 1 %Print%{0;185;255}(630 MB) \n
+if %plugcountnfxtotal% EQU 0 If %plugcountnfxtotalfinal% EQU 1 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% EQU 1 If %plugcountnfxtotalfinal% EQU 1 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% GEQ 2 If %plugcountnfxtotalfinal% EQU 1 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7 
+if %plugcountnfxtotal% GEQ 0 If %plugcountnfxtotalfinal% EQU 1 %Print%{0;185;255}(790 MB) \n
+if %plugcountrfxeff% EQU 0 If %plugcountrfxefffinal% EQU 1 %Print%{231;72;86}            REVISIONFX - Effections 
+if %plugcountrfxeff% EQU 1 If %plugcountrfxefffinal% EQU 1 %Print%{0;255;50}            REVISIONFX - Effections 
+if %plugcountrfxeff% GEQ 2 If %plugcountrfxefffinal% EQU 1 %Print%{244;255;0}            REVISIONFX - Effections 
+if %plugcountrfxeff% GEQ 0 If %plugcountrfxefffinal% EQU 1 %Print%{0;185;255}(50 MB) \n
 echo.
-%Print%{231;72;86} 1 = Mocha Vegas \n
-%Print%{231;72;86} 2 = Mocha Pro OFX \n
+If %getOptionPlugSkip% EQU 0 echo         --------------------------------
+set "PLUGKEY0="
+IF %plugcountbfxsaph% EQU 0 if %plugcountbfxsaphfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountbfxcontin% EQU 0 if %plugcountbfxcontinfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountbfxmocha% EQU 0 if %plugcountbfxmochafinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountbfxsilho% EQU 0 if %plugcountbfxsilhofinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountignite% EQU 0 if %plugcountignitefinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountmbl% EQU 0 if %plugcountmblfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountuni% EQU 0 if %plugcountunifinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountnfxtitler% EQU 0 if %plugcountnfxtitlerfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountnfxtotal% EQU 0 if %plugcountnfxtotalfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF %plugcountrfxeff% EQU 0 if %plugcountrfxefffinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
+IF defined PLUGKEY0 (
+%Print%{231;72;86}        Red =        not installed \n
+)
+set "PLUGKEY1="
+IF %plugcountbfxsaph% EQU 1 if %plugcountbfxsaphfinal% EQU 1 set PLUGKEY1=1
+IF %plugcountbfxcontin% EQU 1 if %plugcountbfxcontinfinal% EQU 1 set PLUGKEY1=1
+IF %plugcountbfxmocha% EQU 1 if %plugcountbfxmochafinal% EQU 1 set PLUGKEY1=1
+IF %plugcountbfxsilho% EQU 1 if %plugcountbfxsilhofinal% EQU 1 set PLUGKEY1=1
+IF %plugcountignite% EQU 1 if %plugcountignitefinal% EQU 1 set PLUGKEY1=1
+IF %plugcountmbl% EQU 1 if %plugcountmblfinal% EQU 1 set PLUGKEY1=1
+IF %plugcountuni% EQU 1 if %plugcountunifinal% EQU 1 set PLUGKEY1=1
+IF %plugcountnfxtitler% EQU 1 if %plugcountnfxtitlerfinal% EQU 1 set PLUGKEY1=1
+IF %plugcountnfxtotal% EQU 1 if %plugcountnfxtotalfinal% EQU 1 set PLUGKEY1=1
+IF %plugcountrfxeff% EQU 1 if %plugcountrfxefffinal% EQU 1 set PLUGKEY1=1
+IF defined PLUGKEY1 (
+%Print%{0;255;50}        Green =      installed \n
+)
+set "PLUGKEY2="
+IF %plugcountbfxsaph% GEQ 2 if %plugcountbfxsaphfinal% EQU 1 set PLUGKEY2=1
+IF %plugcountbfxcontin% GEQ 2 if %plugcountbfxcontinfinal% EQU 1 set PLUGKEY2=1
+IF %plugcountbfxmocha% GEQ 2 if %plugcountbfxmochafinal% EQU 1 set PLUGKEY2=1
+IF %plugcountbfxsilho% GEQ 2 if %plugcountbfxsilhofinal% EQU 1 set PLUGKEY2=1
+IF %plugcountignite% GEQ 2 if %plugcountignitefinal% EQU 1 set PLUGKEY2=1
+IF %plugcountmbl% GEQ 2 if %plugcountmblfinal% EQU 1 set PLUGKEY2=1
+IF %plugcountuni% GEQ 2 if %plugcountunifinal% EQU 1 set PLUGKEY2=1
+IF %plugcountnfxtitler% GEQ 2 if %plugcountnfxtitlerfinal% EQU 1 set PLUGKEY2=1
+IF %plugcountnfxtotal% GEQ 2 if %plugcountnfxtotalfinal% EQU 1 set PLUGKEY2=1
+IF %plugcountrfxeff% GEQ 2 if %plugcountrfxefffinal% EQU 1 set PLUGKEY2=1
+IF defined PLUGKEY2 (
+%Print%{244;255;0}        Yellow =     multiple installed [May detect AE plugins] \n
+)
+
+echo         --------------------------------
+echo.
+echo.
+%Print%{204;204;204}            1) Yes, install these plugins \n
+echo.
+%Print%{255;112;0}            2) No, Cancel and Go back \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO down-21-ofx
-IF ERRORLEVEL 1  GOTO down-21-veg
+IF ERRORLEVEL 2  set getOptionsPlugCountCheck=0 & GOTO Plug-Select-Continue-1
+IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup
 echo.
-:down-21-veg
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt"
-GOTO down-21
-:down-21-ofx
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt"
-GOTO down-21
 
-
-:down-21
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO down-21-prompt
+:Plug-Already-Installed-Prompt
 cls
 color 0C
+echo.
+%Print%{231;72;86} You already have these items downloaded \n
+echo.
+if %plugcountbfxsaphAlr% EQU 1 %Print%{244;255;0}BORIS FX - Sapphire \n
+if %plugcountbfxmochaAlr% EQU 1 %Print%{244;255;0}BORIS FX - Mocha Pro \n
+if %plugcountbfxcontinAlr% EQU 1 %Print%{244;255;0}BORIS FX - Continuum Complete \n
+if %plugcountbfxsilhoAlr% EQU 1 %Print%{244;255;0}BORIS FX - Silhouette \n
+if %plugcountigniteAlr% EQU 1 %Print%{244;255;0}FXHOME - Ignite Pro \n
+if %plugcountmblAlr% EQU 1 %Print%{244;255;0}MAXON - Red Giant Magic Bullet Suite \n
+if %plugcountuniAlr% EQU 1 %Print%{244;255;0}MAXON - Red Giant Universe \n
+if %plugcountnfxtitlerAlr% EQU 1 %Print%{244;255;0}NEWBLUEFX - Titler Pro 7 \n
+if %plugcountnfxtotalAlr% EQU 1 %Print%{244;255;0}NEWBLUEFX - TotalFX 7 \n
+if %plugcountrfxeffAlr% EQU 1 %Print%{244;255;0}REVISIONFX - Effections \n
+echo.
+%Print%{231;72;86} Do you want to re-download? \n
+echo.
+%Print%{231;72;86} 1) Yes, Re-download \n
+%Print%{231;72;86} 2) No, Back to Main Menu \n
+echo.
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 2  set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
+IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup-1
+echo.
+
+
+:Plug-Select-Queue-Setup
+cd /d "%~dp0"
+if not defined plugcountbfxsaphAlr set plugcountbfxsaphAlr=0
+if not defined plugcountbfxmochaAlr set plugcountbfxmochaAlr=0
+if not defined plugcountbfxcontinAlr set plugcountbfxcontinAlr=0
+if not defined plugcountbfxsilhoAlr set plugcountbfxsilhoAlr=0
+if not defined plugcountigniteAlr set plugcountigniteAlr=0
+if not defined plugcountmblAlr set plugcountmblAlr=0
+if not defined plugcountuniAlr set plugcountuniAlr=0
+if not defined plugcountnfxtitlerAlr set plugcountnfxtitlerAlr=0
+if not defined plugcountnfxtotalAlr set plugcountnfxtotalAlr=0
+if not defined plugcountrfxeffAlr set plugcountrfxeffAlr=0
+:: Check selected plugins if it's already downloaded previously
+if %plugcountbfxsaphfinal% EQU 1 if exist ".\Installer-files\Plugins\Boris FX Sapph*" set plugcountbfxsaphAlr=1
+if %plugcountbfxmochafinal% EQU 1  if exist ".\Installer-files\Plugins\Boris FX Mocha*" set plugcountbfxmochaAlr=1
+if %plugcountbfxcontinfinal% EQU 1 if exist ".\Installer-files\Plugins\Boris FX Cont*" set plugcountbfxcontinAlr=1
+if %plugcountbfxsilhofinal% EQU 1 if exist ".\Installer-files\Plugins\Boris FX Silho*" set plugcountbfxsilhoAlr=1
+if %plugcountignitefinal% EQU 1 if exist ".\Installer-files\Plugins\FXHOME Ign*" set plugcountigniteAlr=1
+if %plugcountmblfinal% EQU 1 if exist ".\Installer-files\Plugins\MAXON Red Giant Magic Bull*" set plugcountmblAlr=1
+if %plugcountunifinal% EQU 1 if exist ".\Installer-files\Plugins\MAXON Red Giant Uni*" set plugcountuniAlr=1
+if %plugcountnfxtitlerfinal% EQU 1 if exist ".\Installer-files\Plugins\NewBlueFX Titler*" set plugcountnfxtitlerAlr=1
+if %plugcountnfxtotalfinal% EQU 1 if exist ".\Installer-files\Plugins\NewBlueFX Total*" set plugcountnfxtotalAlr=1
+if %plugcountrfxefffinal% EQU 1 if exist ".\Installer-files\Plugins\REVisionFX Eff*" set plugcountrfxeffAlr=1
+set "PLUGKEY8="
+IF %plugcountbfxsaphAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountbfxmochaAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountbfxcontinAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountbfxsilhoAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountigniteAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountmblAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountuniAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountnfxtitlerAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountnfxtotalAlr% EQU 1 set PLUGKEY8=1
+IF %plugcountrfxeffAlr% EQU 1 set PLUGKEY8=1
+IF defined PLUGKEY8 (
+GOTO Plug-Already-Installed-Prompt
+)
+GOTO Plug-Select-Queue-Setup-1
+:Plug-Select-Queue-Setup-1
+:: Set variables for each selected plugin, add counter for task countdown
+set PlugQueueCounter=0
+set PlugQueueCounterPre=1
+if not defined Mocha-veg-ofx set Mocha-veg-ofx=0
+if %plugcountbfxmochafinal% EQU 1 if %Mocha-veg-ofx% EQU 0 GOTO Mocha-veg-ofx-prompt
+if %plugcountbfxsaphfinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountbfxmochafinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountbfxcontinfinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountbfxsilhofinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountignitefinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountmblfinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountunifinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountnfxtitlerfinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountnfxtotalfinal% EQU 1 set /a PlugQueueCounter+=1
+if %plugcountrfxefffinal% EQU 1 set /a PlugQueueCounter+=1
+cls
+GOTO Plug-Select-Queue-Setup-2
+:Plug-Select-Queue-Setup-2
+:: set first found selected plugin in queue, after queue, minus 1 from queue counter.
+if %plugcountbfxsaphfinal% EQU 1 set plugin1queue=1 & set plugin1queueInst=1
+if %plugcountbfxmochafinal% EQU 1 set plugin2queue=1 & set plugin2queueInst=1
+if %plugcountbfxcontinfinal% EQU 1 set plugin3queue=1 & set plugin3queueInst=1
+if %plugcountbfxsilhofinal% EQU 1 set plugin4queue=1 & set plugin4queueInst=1
+if %plugcountignitefinal% EQU 1 set plugin5queue=1 & set plugin5queueInst=1
+if %plugcountmblfinal% EQU 1 set plugin6queue=1 & set plugin6queueInst=1
+if %plugcountunifinal% EQU 1 set plugin7queue=1 & set plugin7queueInst=1
+if %plugcountnfxtitlerfinal% EQU 1 set plugin8queue=1 & set plugin8queueInst=1
+if %plugcountnfxtotalfinal% EQU 1 set plugin9queue=1 & set plugin9queueInst=1
+if %plugcountrfxefffinal% EQU 1 set plugin10queue=1 & set plugin10queueInst=1
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Select-Queue-Setup-3
+if not defined plugin1queue set plugin1queue=0
+if not defined plugin2queue set plugin2queue=0
+if not defined plugin3queue set plugin3queue=0
+if not defined plugin4queue set plugin4queue=0
+if not defined plugin5queue set plugin5queue=0
+if not defined plugin6queue set plugin6queue=0
+if not defined plugin7queue set plugin7queue=0
+if not defined plugin8queue set plugin8queue=0
+if not defined plugin9queue set plugin9queue=0
+if not defined plugin10queue set plugin10queue=0
+if not defined plugin1queueInst set plugin1queueInst=0
+if not defined plugin2queueInst set plugin2queueInst=0
+if not defined plugin3queueInst set plugin3queueInst=0
+if not defined plugin4queueInst set plugin4queueInst=0
+if not defined plugin5queueInst set plugin5queueInst=0
+if not defined plugin6queueInst set plugin6queueInst=0
+if not defined plugin7queueInst set plugin7queueInst=0
+if not defined plugin8queueInst set plugin8queueInst=0
+if not defined plugin9queueInst set plugin9queueInst=0
+if not defined plugin10queueInst set plugin10queueInst=0
+if not defined plugin1results set plugin1results=0
+if not defined plugin2results set plugin2results=0
+if not defined plugin3results set plugin3results=0
+if not defined plugin4results set plugin4results=0
+if not defined plugin5results set plugin5results=0
+if not defined plugin6results set plugin6results=0
+if not defined plugin7results set plugin7results=0
+if not defined plugin8results set plugin8results=0
+if not defined plugin9results set plugin9results=0
+if not defined plugin10results set plugin10results=0
+echo.
+set "PLUGKEY4="
+IF %plugin1queue% EQU 1 set PLUGKEY4=1
+IF %plugin2queue% EQU 1 set PLUGKEY4=1
+IF %plugin3queue% EQU 1 set PLUGKEY4=1
+IF %plugin4queue% EQU 1 set PLUGKEY4=1
+IF %plugin5queue% EQU 1 set PLUGKEY4=1
+IF %plugin6queue% EQU 1 set PLUGKEY4=1
+IF %plugin7queue% EQU 1 set PLUGKEY4=1
+IF %plugin8queue% EQU 1 set PLUGKEY4=1
+IF %plugin9queue% EQU 1 set PLUGKEY4=1
+IF %plugin10queue% EQU 1 set PLUGKEY4=1
+IF defined PLUGKEY4 GOTO Plug-Queue-Install
+IF not defined PLUGKEY4 GOTO Plugin-Select-Extract
+
+
+:Mocha-veg-ofx-prompt
+cls
+color 0C
+echo  Before continuing...
+echo  There are two available verisons of Boris FX Mocha
+echo.
+%Print%{204;204;204} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 ONLY. \n
+%Print%{244;255;0} has better tracking integration with Vegas Pro, and may be more updated. \n
+%Print%{0;185;255} Downlad size = (70 MB) \n
+echo.
+%Print%{204;204;204} 2 is the OFX version of Mocha by Boris FX. \n
+%Print%{244;255;0} It works for ALL versions of Vegas Pro, \n
+%Print%{244;255;0} has more features like 3d camera tracker, and may be more outdated. \n
+%Print%{0;185;255} Downlad size = (270 MB) \n
+echo.
+%Print%{231;72;86}  1) Mocha Vegas \n
+%Print%{231;72;86}  2) Mocha Pro OFX \n
+%Print%{231;72;86}  3) Comparison of both (Open's Web Browser) \n
+echo.
+C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+cls
+echo.
+IF ERRORLEVEL 3  start "" https://vfx.borisfx.com/mochavegas & GOTO Mocha-veg-ofx-prompt
+IF ERRORLEVEL 2  set Mocha-veg-ofx=2 & GOTO Plug-Select-Queue-Setup-1
+IF ERRORLEVEL 1  set Mocha-veg-ofx=1 & GOTO Plug-Select-Queue-Setup-1
+echo.
+
+:Plug-Queue-Install
+cd /d "%~dp0"
+color 0C
+%Print%{0;255;50}%PlugQueueCounterPre% out of %PlugQueueCounter% \n
 echo Initializing Download...
-:: Different colored lines - Calls upon colorText
-:: gdown commands
-:: Boris FX Continuum
-color 0C
-%Print%{0;255;50}1 of 10 \n
-gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
-:: Checking for Mocha Pro Preference
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO down-21-downofx
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO down-21-downveg
-:down-21-downofx
-:: Boris FX Mocha Pro OFX
-color 0C
-%Print%{0;255;50}2 of 10 \n
-gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
-GOTO down-21-cont
-:down-21-downveg
-:: Boris FX Mocha Vegas
-color 0C
-%Print%{0;255;50}2 of 10 \n
-gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
-GOTO down-21-cont
-:down-21-cont
+if %plugin1queue% EQU 1 GOTO Plug-Queue-1
+if %plugin2queue% EQU 1 if %Mocha-veg-ofx% EQU 2 GOTO Plug-Queue-2-1
+if %plugin2queue% EQU 1 if %Mocha-veg-ofx% EQU 1 GOTO Plug-Queue-2-2
+if %plugin3queue% EQU 1 GOTO Plug-Queue-3
+if %plugin4queue% EQU 1 GOTO Plug-Queue-4
+if %plugin5queue% EQU 1 GOTO Plug-Queue-5
+if %plugin6queue% EQU 1 GOTO Plug-Queue-6
+if %plugin7queue% EQU 1 GOTO Plug-Queue-7
+if %plugin8queue% EQU 1 GOTO Plug-Queue-8
+if %plugin9queue% EQU 1 GOTO Plug-Queue-9
+if %plugin10queue% EQU 1 GOTO Plug-Queue-10
+
+:Plug-Queue-1
 :: Boris FX Sapphire
-color 0C
-%Print%{0;255;50}3 of 10 \n
 gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-1-error
+set /a PlugQueueCounterPre+=1
+set plugcountbfxsaphfinal=0
+set plugin1queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-1-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin1results% LEQ 2 set plugin1results=3
+if %plugin1results% GEQ 3 set /a plugin1results+=1
+if %plugin1results% GTR 4 set plugin1results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-2-1
+:: Boris FX Mocha Pro OFX
+gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-2-1-error
+set /a PlugQueueCounterPre+=1
+set plugcountbfxmochafinal=0
+set plugin2queue=0
+GOTO Plug-Select-Queu0-Setup-3
+:Plug-Queue-2-1-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin2results% LEQ 2 set plugin2results=3
+if %plugin2results% GEQ 3 set /a plugin2results+=1
+if %plugin2results% GTR 4 set plugin2results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-2-2
+:: Boris FX Mocha Vegas
+gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-2-2-error
+set /a PlugQueueCounterPre+=1
+set plugcountbfxmochafinal=0
+set plugin2queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-2-2-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin2results% LEQ 2 set plugin2results=3
+if %plugin2results% GEQ 3 set /a plugin2results+=1
+if %plugin2results% GTR 4 set plugin2results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-3
+:: Boris FX Continuum
+gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-3-error
+set /a PlugQueueCounterPre+=1
+set plugcountbfxcontinfinal=0
+set plugin3queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-3-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin3results% LEQ 2 set plugin3results=3
+if %plugin3results% GEQ 3 set /a plugin3results+=1
+if %plugin3results% GTR 4 set plugin3results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-4
 :: Boris FX Silhouette
-color 0C
-%Print%{0;255;50}4 of 10 \n
 gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-4-error
+set /a PlugQueueCounterPre+=1
+set plugcountbfxsilhofinal=0
+set plugin4queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-4-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin4results% LEQ 2 set plugin4results=3
+if %plugin4results% GEQ 3 set /a plugin4results+=1
+if %plugin4results% GTR 4 set plugin4results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-5
 :: FXHome Ignite Pro
-color 0C
-%Print%{0;255;50}5 of 10 \n
 gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-5-error
+set /a PlugQueueCounterPre+=1
+set plugcountignitefinal=0
+set plugin5queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-5-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin5results% LEQ 2 set plugin5results=3
+if %plugin5results% GEQ 3 set /a plugin5results+=1
+if %plugin5results% GTR 4 set plugin5results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-6
 :: Maxon Red Giant Magic Bullet Suite
-color 0C
-%Print%{0;255;50}6 of 10 \n
 gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-6-error
+set /a PlugQueueCounterPre+=1
+set plugcountmblfinal=0
+set plugin6queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-6-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin6results% LEQ 2 set plugin6results=3
+if %plugin6results% GEQ 3 set /a plugin6results+=1
+if %plugin6results% GTR 4 set plugin6results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-7
 :: Maxon Red Giant Universe
-color 0C
-%Print%{0;255;50}7 of 10 \n
 gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-7-error
+set /a PlugQueueCounterPre+=1
+set plugcountunifinal=0
+set plugin7queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-7-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin7results% LEQ 2 set plugin7results=3
+if %plugin7results% GEQ 3 set /a plugin7results+=1
+if %plugin7results% GTR 4 set plugin7results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-8
 :: NewBlue FX Titler Pro
-color 0C
-%Print%{0;255;50}8 of 10 \n
 gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-8-error
+set /a PlugQueueCounterPre+=1
+set plugcountnfxtitlerfinal=0
+set plugin8queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-8-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin8results% LEQ 2 set plugin8results=3
+if %plugin8results% GEQ 3 set /a plugin8results+=1
+if %plugin8results% GTR 4 set plugin8results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-9
 :: NewBlue FX TotalFX
-color 0C
-%Print%{0;255;50}9 of 10 \n
 gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-9-error
+set /a PlugQueueCounterPre+=1
+set plugcountnfxtotalfinal=0
+set plugin9queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-9-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin9results% LEQ 2 set plugin9results=3
+if %plugin9results% GEQ 3 set /a plugin9results+=1
+if %plugin9results% GTR 4 set plugin9results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+:Plug-Queue-10
 :: REVision FX Effections
-color 0C
-%Print%{0;255;50}10 of 10 \n
 gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
+if errorlevel 1 GOTO Plug-Queue-10-error
+set /a PlugQueueCounterPre+=1
+set plugcountrfxefffinal=0
+set plugin10queue=0
+GOTO Plug-Select-Queue-Setup-3
+:Plug-Queue-10-error
+echo.
+%Print%{255;0;0}GDown download Failed!
+%Print%{231;72;86}Resetting GDown cache...
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{231;72;86}Re-trying download...
+if %plugin10results% LEQ 2 set plugin10results=3
+if %plugin10results% GEQ 3 set /a plugin10results+=1
+if %plugin10results% GTR 4 set plugin10results=3 & GOTO Plugin-Select-Extract
+GOTO Plug-Select-Queue-Setup-3
+
+
+:Plugin-Select-Extract
+cd /d "%~dp0"
 cls
 color 0C
 echo Downloads Finished!
 echo Renaming rar files
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%"
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%"
+REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
+REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
 REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
 REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%"
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%"
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%"
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%"
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%"
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%"
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%"
+REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
+REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
+REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
+REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
+REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
+REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
+REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
 color 0C
-echo Extracting files
+echo Extracting rar files
 :: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
 if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-21-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-21-szip
-:down-21-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO Plug-Select-win
+if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO Plug-Select-szip
+:Plug-Select-win
 :: Closes all instances of WinRAR, so any already opened instances wont mess up the script
 color 0C
-echo Closing all instances of WinRAR
-@echo OFF
 taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o- ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%BFX-Mocha-Vegas%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%BFX-Silhouette%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%FXH-Ignite%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%MXN-MBL%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%MXN-Universe%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%NFX-Titler%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%NFX-TotalFX%" ".\Installer-files\Plugins"
-%winrar% x -o- ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins"
+if %plugin1queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins" 2>nul
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 %winrar% x -o- ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins" 2>nul
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 %winrar% x -o- ".\Installer-files\%BFX-Mocha-Vegas%" ".\Installer-files\Plugins" 2>nul
+if %plugin3queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins" 2>nul
+if %plugin4queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%BFX-Silhouette%" ".\Installer-files\Plugins" 2>nul
+if %plugin5queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%FXH-Ignite%" ".\Installer-files\Plugins" 2>nul
+if %plugin6queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%MXN-MBL%" ".\Installer-files\Plugins" 2>nul
+if %plugin7queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%MXN-Universe%" ".\Installer-files\Plugins" 2>nul
+if %plugin8queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%NFX-Titler%" ".\Installer-files\Plugins" 2>nul
+if %plugin9queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%NFX-TotalFX%" ".\Installer-files\Plugins" 2>nul
+if %plugin10queueInst% EQU 1 %winrar% x -o- ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins" 2>nul
 timeout /T 6 /nobreak >nul
-GOTO LOOP21
-:down-21-szip
+GOTO Plug-Select-LOOP21
+:Plug-Select-szip
 cd /d "%~dp0\Installer-files"
-%szip% x -aos "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%BFX-Mocha-Vegas%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%MXN-Universe%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%NFX-Titler%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-%szip% x -aos "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin1queueInst% EQU 1 %szip% x -aos "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 %szip% x -aos "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 %szip% x -aos "%BFX-Mocha-Vegas%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin3queueInst% EQU 1 %szip% x -aos "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin4queueInst% EQU 1 %szip% x -aos "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin5queueInst% EQU 1 %szip% x -aos "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin6queueInst% EQU 1 %szip% x -aos "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin7queueInst% EQU 1 %szip% x -aos "%MXN-Universe%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin8queueInst% EQU 1 %szip% x -aos "%NFX-Titler%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin9queueInst% EQU 1 %szip% x -aos "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
+if %plugin10queueInst% EQU 1 %szip% x -aos "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
 timeout /T 6 /nobreak >nul
 cd /d "%~dp0"
 cls
-GOTO CONTINUE21
+GOTO Plug-Select-CONTINUE21
 :: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP21
+:Plug-Select-LOOP21
 tasklist | find /i "WinRAR" >nul 2>&1
 IF ERRORLEVEL 1 (
-  GOTO CONTINUE21
+  GOTO Plug-Select-CONTINUE21
 ) ELSE (
   ECHO WinRAR is still running
   Timeout /T 5 /Nobreak >nul
-  GOTO LOOP21
+  GOTO Plug-Select-LOOP21
 )
-:CONTINUE21
+:Plug-Select-CONTINUE21
+echo Cleaning up files...
 del "%~dp0\Installer-files\%BFX-Sapphire%" 2>nul
 del "%~dp0\Installer-files\%BFX-Continuum%" 2>nul
 del "%~dp0\Installer-files\%BFX-Mocha%" 2>nul
@@ -1908,1589 +2658,522 @@ del "%~dp0\Installer-files\%RFX-Effections%" 2>nul
 del "%~dp0\Installer-files\*.rar" 2>nul
 echo.
 echo Finished, Extracted to "\Installer-files\Plugins"
+set pluginresultsEcounter=0
+if %plugin1results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin2results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin3results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin4results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin5results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin6results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin7results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin8results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin9results% EQU 3 set /a pluginresultsEcounter+=1
+if %plugin10results% EQU 3 set /a pluginresultsEcounter+=1
 Timeout /T 5 /Nobreak >nul
-GOTO auto-21
+GOTO Plug-Select-auto-prompt
 
-:auto-21
+:Plug-Select-auto-prompt
+set PlugQueueCounterPre=1
 cls
+color 0C
+echo.
 echo How do you want to install the plugins?
-echo 1 = Auto Install
-echo 2 = Manual Install
+echo.
+echo 1) Auto Install
+echo 2) Manual Install
+echo.
+if %pluginresultsEcounter% GEQ 1 %Print%{244;255;0} %pluginresultsEcounter% out of %PlugQueueCounter% plugins failed to download. \n
+if %pluginresultsEcounter% GEQ 1 %Print%{244;255;0} If you decide to Auto Install, failed plugins will be skipped. \n
 echo.
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo.
-IF ERRORLEVEL 2  GOTO manual-21
-IF ERRORLEVEL 1  GOTO autoinst-21
+IF ERRORLEVEL 2  GOTO Plug-Select-manualinst
+IF ERRORLEVEL 1  cls & color 0C & GOTO Plug-Select-autoinst0
 echo.
-:manual-21
+:Plug-Select-manualinst
+color 0c
 cls
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-21
-cls
+Timeout /T 10 /Nobreak >nul
+GOTO Pre-SelectPlugins
+
+:Plug-Select-autoinst0
+echo.
+set "PLUGKEY5="
+IF %plugin1queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin2queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin3queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin4queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin5queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin6queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin7queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin8queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin9queueInst% EQU 1 set PLUGKEY5=1
+IF %plugin10queueInst% EQU 1 set PLUGKEY5=1
+IF defined PLUGKEY5 (
+GOTO Plug-Select-autoinst
+)
+IF not defined PLUGKEY5 GOTO Plug-Queue-Results
+
+:Plug-Select-autoinst
+color 0C
+%Print%{0;255;50}%PlugQueueCounterPre% out of %PlugQueueCounter% \n
+if %plugin1queueInst% EQU 1 GOTO Plug-Queue-Install-1
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 GOTO Plug-Queue-Install-2-1
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 GOTO Plug-Queue-Install-2-2
+if %plugin3queueInst% EQU 1 GOTO Plug-Queue-Install-3
+if %plugin4queueInst% EQU 1 GOTO Plug-Queue-Install-4
+if %plugin5queueInst% EQU 1 GOTO Plug-Queue-Install-5
+if %plugin6queueInst% EQU 1 GOTO Plug-Queue-Install-6
+if %plugin7queueInst% EQU 1 GOTO Plug-Queue-Install-7
+if %plugin8queueInst% EQU 1 GOTO Plug-Queue-Install-8
+if %plugin9queueInst% EQU 1 GOTO Plug-Queue-Install-9
+if %plugin10queueInst% EQU 1 GOTO Plug-Queue-Install-10
+GOTO Plug-Select-autoinst0
+
 :: 1st auto install
-echo Launching auto install script for Boris FX Continuum Complete
-for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Cont*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-1
-echo.
-:no-auto-1
-echo There is no auto install script for Boris FX Continuum Complete.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-1
-:autoscript-1
-cls
-color 0C
-:: Checking for Mocha Pro Preference
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" GOTO autoscript-1-prompt
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO autoscript-1-1
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO autoscript-1-2
-:autoscript-1-prompt
-cls
-color 0C
-echo Before continuing and installing the rest of the plugins...
-echo There are two available verisons of Boris FX Mocha
-echo.
-%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. \n
-%Print%{244;255;0} It has better integration, but may be outdated. \n
-echo.
-%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX. \n
-%Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
-echo.
-%Print%{231;72;86} 1 = Mocha Vegas \n
-%Print%{231;72;86} 2 = Mocha Pro OFX \n
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO autoscript-1-prompt-ofx
-IF ERRORLEVEL 1  GOTO autoscript-1-prompt-veg
-echo.
-:autoscript-1-prompt-veg
-cls
-color 0C
-echo.
-echo Saving Mocha Pro preference
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt"
-GOTO autoscript-1
-:autoscript-1-prompt-ofx
-cls
-color 0C
-echo.
-echo Saving Mocha Pro preference
-if not exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto*.txt" break>".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt"
-GOTO autoscript-1
-:: 2nd auto install
-:autoscript-1-1
-echo Launching auto install script for Boris FX Mocha Pro OFX
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Pro*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Pro*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-2
-echo.
-:no-auto-2
-echo There is no auto install script for Boris FX Mocha Pro OFX.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-2
-:autoscript-1-2
-echo Launching auto install script for Boris FX Mocha Vegas
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Vegas*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2-2
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Vegas*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-2
-echo.
-:no-auto-2-2
-echo There is no auto install script for Boris FX Mocha Vegas.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-2
-:autoscript-2
-cls
-color 0C
-:: 3rd auto install
+:Plug-Queue-Install-1
 echo Launching auto install script for Boris FX Sapphire
-for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
+for /D %%I in (".\Installer-files\Plugins\Boris FX Sapph*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Sapph*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-3
-echo.
-:no-auto-3
+set /a PlugQueueCounterPre+=1
+set plugin1queueInst=0
+set plugin1results=1
+GOTO Plug-Select-autoinst0
+:no-auto-1
+if %plugin1results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin1queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for Boris FX Sapphire.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-3
-:autoscript-3
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin1queueInst=0
+set plugin1results=2
+GOTO Plug-Select-autoinst0
+
+:: 2nd-1 auto install
+:Plug-Queue-Install-2-1
+echo Launching auto install script for Boris FX Mocha Pro OFX
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Pro*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Pro*") do start "" /wait "%%~I\INSTALL.cmd"
+set /a PlugQueueCounterPre+=1
+set plugin2queueInst=0
+set plugin2results=1
+GOTO Plug-Select-autoinst0
+:no-auto-2
+if %plugin2results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin2queueInst=0 & GOTO Plug-Select-autoinst0
+echo There is no auto install script for Boris FX Mocha Pro OFX.
+echo For manual installation, please open this directory
+echo "Installer-files > Plugins > (Plugin Name)"
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin2queueInst=0
+set plugin2results=2
+GOTO Plug-Select-autoinst0
+
+:: 2nd-2 auto install
+:Plug-Queue-Install-2-2
+echo Launching auto install script for Boris FX Mocha Vegas
+for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Vegas*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2-2
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Vegas*") do start "" /wait "%%~I\INSTALL.cmd"
+set /a PlugQueueCounterPre+=1
+set plugin2queueInst=0
+set plugin2results=1
+GOTO Plug-Select-autoinst0
+:no-auto-2-2
+if %plugin2results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin2queueInst=0 & GOTO Plug-Select-autoinst0
+echo There is no auto install script for Boris FX Mocha Vegas.
+echo For manual installation, please open this directory
+echo "Installer-files > Plugins > (Plugin Name)"
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin2queueInst=0
+set plugin2results=2
+GOTO Plug-Select-autoinst0
+
+:: 3rd auto install
+:Plug-Queue-Install-3
+echo Launching auto install script for Boris FX Continuum Complete
+for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
+for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Cont*") do start "" /wait "%%~I\INSTALL.cmd"
+set /a PlugQueueCounterPre+=1
+set plugin3queueInst=0
+set plugin3results=1
+GOTO Plug-Select-autoinst0
+:no-auto-3
+if %plugin3results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin3queueInst=0 & GOTO Plug-Select-autoinst0
+echo There is no auto install script for Boris FX Continuum Complete.
+echo For manual installation, please open this directory
+echo "Installer-files > Plugins > (Plugin Name)"
+echo and follow the instructions in the text file.
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin3queueInst=0
+set plugin3results=2
+GOTO Plug-Select-autoinst0
+
 :: 4th auto install
+:Plug-Queue-Install-4
 echo Launching auto install script for Boris FX Silhouette
 for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-4
 for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Silho*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-4
-echo.
+set /a PlugQueueCounterPre+=1
+set plugin4queueInst=0
+set plugin4results=1
+GOTO Plug-Select-autoinst0
 :no-auto-4
+if %plugin4results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin4queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for Boris FX Silhouette.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-4
-:autoscript-4
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin4queueInst=0
+set plugin4results=2
+GOTO Plug-Select-autoinst0
+
 :: 5th auto install
+:Plug-Queue-Install-5
 echo Launching auto install script for FXHOME Ignite Pro
 for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-5
 for /D %%I in ("%~dp0\Installer-files\Plugins\FXHOME Ign*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-5
-echo.
+set /a PlugQueueCounterPre+=1
+set plugin5queueInst=0
+set plugin5results=1
+GOTO Plug-Select-autoinst0
 :no-auto-5
+if %plugin5results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin5queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for FXHOME Ignite Pro.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-5
-:autoscript-5
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin5queueInst=0
+set plugin5results=2
+GOTO Plug-Select-autoinst0
+
 :: 6th auto install
+:Plug-Queue-Install-6
 echo Launching auto install script for MAXON Red Giant Magic Bullet Suite
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-6
 for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-6
-echo.
+set /a PlugQueueCounterPre+=1
+set plugin6queueInst=0
+set plugin6results=1
+GOTO Plug-Select-autoinst0
 :no-auto-6
+if %plugin6results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin6queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for MAXON Red Giant Magic Bullet Suite.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-6
-:autoscript-6
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin6queueInst=0
+set plugin6results=2
+GOTO Plug-Select-autoinst0
+
 :: 7th auto install
+:Plug-Queue-Install-7
 echo Launching auto install script for MAXON Red Giant Universe
 for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-7
 for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-7
-echo.
+set /a PlugQueueCounterPre+=1
+set plugin7queueInst=0
+set plugin7results=1
+GOTO Plug-Select-autoinst0
 :no-auto-7
+if %plugin7results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin7queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for MAXON Red Giant Universe.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-7
-:autoscript-7
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin7queueInst=0
+set plugin7results=2
+GOTO Plug-Select-autoinst0
+
 :: 8th auto install
+:Plug-Queue-Install-8
 echo Launching auto install script for NewBlueFX Titler Pro 7 Ultimate
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-8
 for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Titler*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-8
-echo.
+set /a PlugQueueCounterPre+=1
+set plugin8queueInst=0
+set plugin8results=1
+GOTO Plug-Select-autoinst0
 :no-auto-8
+if %plugin8results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin8queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for NewBlueFX Titler Pro 7 Ultimate.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-8
-:autoscript-8
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin8queueInst=0
+set plugin8results=2
+GOTO Plug-Select-autoinst0
+
 :: 9th auto install
+:Plug-Queue-Install-9
 echo Launching auto install script for NewBlueFX TotalFX 7
 for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-9
 for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Total*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-echo.
-echo Select what to do next
-echo.
-echo 1 = Continue Auto Install
-echo 2 = Cancel and Go back to Main Menu
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO autoscript-9
-echo.
+set /a PlugQueueCounterPre+=1
+set plugin9queueInst=0
+set plugin9results=1
+GOTO Plug-Select-autoinst0
 :no-auto-9
+if %plugin9results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin9queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for NewBlueFX TotalFX 7.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO autoscript-9
-:autoscript-9
-cls
-color 0C
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin9queueInst=0
+set plugin9results=2
+GOTO Plug-Select-autoinst0
+
 :: 10th auto install
+:Plug-Queue-Install-10
 echo Launching auto install script for REVisionFX Effections
 for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-10
 for /D %%I in ("%~dp0\Installer-files\Plugins\REVisionFX Eff*") do start "" /wait "%%~I\INSTALL.cmd"
-Timeout /T 2 /Nobreak >nul
-GOTO SelectPlugins
+set /a PlugQueueCounterPre+=1
+set plugin10queueInst=0
+set plugin10results=1
+GOTO Plug-Select-autoinst0
 :no-auto-10
+if %plugin10results% EQU 3 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin10queueInst=0 & GOTO Plug-Select-autoinst0
 echo There is no auto install script for REVisionFX Effections.
 echo For manual installation, please open this directory
 echo "Installer-files > Plugins > (Plugin Name)"
 echo and follow the instructions in the text file.
-Timeout /T 10 /Nobreak >nul
-GOTO SelectPlugins
+Timeout /T 5 /Nobreak >nul
+set /a PlugQueueCounterPre+=1
+set plugin10queueInst=0
+set plugin10results=2
+GOTO Plug-Select-autoinst0
 
 
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 2
-:22
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\Boris FX Sapph*" GOTO alrDown-22
-echo Plugin isn't downloaded, continuing to download
-GOTO down-22
-:alrDown-22
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+
+:: Display results of plugin process
+:Plug-Queue-Results
 cls
 echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-22
+%Print%{204;204;204}           Plugin Process Results: \n
 echo.
-:down-22
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1FowQpPfNNwHeykCfHCEfeeS1WkZdVh_U -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-22-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-22-szip
-:down-22-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%BFX-Sapphire%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP22
-:down-22-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%BFX-Sapphire%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE22
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP22
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE22
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP22
+echo.
+set "PLUGKEY3="
+IF %plugin1results% EQU 1 set PLUGKEY3=1
+IF %plugin2results% EQU 1 set PLUGKEY3=1
+IF %plugin3results% EQU 1 set PLUGKEY3=1
+IF %plugin4results% EQU 1 set PLUGKEY3=1
+IF %plugin5results% EQU 1 set PLUGKEY3=1
+IF %plugin6results% EQU 1 set PLUGKEY3=1
+IF %plugin7results% EQU 1 set PLUGKEY3=1
+IF %plugin8results% EQU 1 set PLUGKEY3=1
+IF %plugin9results% EQU 1 set PLUGKEY3=1
+IF %plugin10results% EQU 1 set PLUGKEY3=1
+IF defined PLUGKEY3 (
+%Print%{0;255;50}             Downloaded & Installed \n
+%Print%{0;255;50}        -------------------------------- \n
 )
-:CONTINUE22
-del "%~dp0\Installer-files\%BFX-Sapphire%"
 echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if exist "%%~I\INSTALL.cmd" GOTO auto-22
-GOTO SelectPlugins
-
-:auto-22
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
+if %plugin1results% EQU 1 %Print%{0;255;50}            BORIS FX - Sapphire 
+if %plugin1results% EQU 1 %Print%{0;185;255}(670 MB) \n
+if %plugin2results% EQU 1 %Print%{0;255;50}            BORIS FX - Continuum Complete 
+if %plugin2results% EQU 1 %Print%{0;185;255}(510 MB) \n
+if %plugin3results% EQU 1 %Print%{0;255;50}            BORIS FX - Mocha Pro 
+if %plugin3results% EQU 1 %Print%{0;185;255}(270 MB) \n
+if %plugin4results% EQU 1 %Print%{0;255;50}            BORIS FX - Silhouette 
+if %plugin4results% EQU 1 %Print%{0;185;255}(1.4 GB) \n
+if %plugin5results% EQU 1 %Print%{0;255;50}            FXHOME - Ignite Pro 
+if %plugin5results% EQU 1 %Print%{0;185;255}(430 MB) \n
+if %plugin6results% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Magic Bullet Suite 
+if %plugin6results% EQU 1 %Print%{0;185;255}(260 MB) \n
+if %plugin7results% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Universe 
+if %plugin7results% EQU 1 %Print%{0;185;255}(1.8 GB) \n
+if %plugin8results% EQU 1 %Print%{0;255;50}            NEWBLUEFX - Titler Pro 7 
+if %plugin8results% EQU 1 %Print%{0;185;255}(630 MB) \n
+if %plugin9results% EQU 1 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7 
+if %plugin9results% EQU 1 %Print%{0;185;255}(790 MB) \n
+if %plugin10results% EQU 1 %Print%{0;255;50}            REVISIONFX - Effections 
+if %plugin10results% EQU 1 %Print%{0;185;255}(50 MB) \n
 echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-22
-IF ERRORLEVEL 1  GOTO autoinst-22
-echo.
-:manual-22
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-22
-cls
-echo Launching auto install script...
-for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 3
-:23
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\Boris FX Cont*" GOTO alrDown-23
-echo Plugin isn't downloaded, continuing to download
-GOTO down-23
-:alrDown-23
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-23
-echo.
-:down-23
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1CN3oJ4D2FPO3S9joBEjFtdlOuQD9H6QJ -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-23-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-23-szip
-:down-23-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%BFX-Continuum%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP23
-:down-23-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%BFX-Continuum%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE23
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP23
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE23
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP23
+set "PLUGKEY6="
+IF %plugin1results% EQU 2 set PLUGKEY6=1
+IF %plugin2results% EQU 2 set PLUGKEY6=1
+IF %plugin3results% EQU 2 set PLUGKEY6=1
+IF %plugin4results% EQU 2 set PLUGKEY6=1
+IF %plugin5results% EQU 2 set PLUGKEY6=1
+IF %plugin6results% EQU 2 set PLUGKEY6=1
+IF %plugin7results% EQU 2 set PLUGKEY6=1
+IF %plugin8results% EQU 2 set PLUGKEY6=1
+IF %plugin9results% EQU 2 set PLUGKEY6=1
+IF %plugin10results% EQU 2 set PLUGKEY6=1
+IF defined PLUGKEY6 (
+%Print%{244;255;0}           Downloaded & Not Installed \n
+%Print%{244;255;0}        -------------------------------- \n
 )
-:CONTINUE23
-del "%~dp0\Installer-files\%BFX-Continuum%"
+if %plugin1results% GEQ 3 %Print%{244;255;0}            BORIS FX - Sapphire 
+if %plugin1results% GEQ 3 %Print%{0;185;255}(670 MB) \n
+if %plugin2results% GEQ 3 %Print%{244;255;0}            BORIS FX - Continuum Complete 
+if %plugin2results% GEQ 3 %Print%{0;185;255}(510 MB) \n
+if %plugin3results% GEQ 3 %Print%{244;255;0}            BORIS FX - Mocha Pro 
+if %plugin3results% GEQ 3 %Print%{0;185;255}(270 MB) \n
+if %plugin4results% GEQ 3 %Print%{244;255;0}            BORIS FX - Silhouette 
+if %plugin4results% GEQ 3 %Print%{0;185;255}(1.4 GB) \n
+if %plugin5results% GEQ 3 %Print%{244;255;0}            FXHOME - Ignite Pro 
+if %plugin5results% GEQ 3 %Print%{0;185;255}(430 MB) \n
+if %plugin6results% GEQ 3 %Print%{244;255;0}            MAXON - Red Giant Magic Bullet Suite 
+if %plugin6results% GEQ 3 %Print%{0;185;255}(260 MB) \n
+if %plugin7results% GEQ 3 %Print%{244;255;0}            MAXON - Red Giant Universe 
+if %plugin7results% GEQ 3 %Print%{0;185;255}(1.8 GB) \n
+if %plugin8results% GEQ 3 %Print%{244;255;0}            NEWBLUEFX - Titler Pro 7 
+if %plugin8results% GEQ 3 %Print%{0;185;255}(630 MB) \n
+if %plugin9results% GEQ 3 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7 
+if %plugin9results% GEQ 3 %Print%{0;185;255}(790 MB) \n
+if %plugin10results% GEQ 3 %Print%{244;255;0}            REVISIONFX - Effections 
+if %plugin10results% GEQ 3 %Print%{0;185;255}(50 MB) \n
 echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\Boris FX Cont*") do if exist "%%~I\INSTALL.cmd" GOTO auto-23
-GOTO SelectPlugins
-
-:auto-23
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-23
-IF ERRORLEVEL 1  GOTO autoinst-23
-echo.
-:manual-23
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-23
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Cont*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Prompts to ask which version of Mocha to Download
-:24-prompt
-cls
-:: Checking for Mocha Pro Preference
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-ofx.txt" GOTO 24
-if exist ".\Installer-files\Installer-Scripts\Settings\mocha-auto-veg.txt" GOTO 24-2
-color 0C
-echo There are two available verisons of Boris FX Mocha
-echo.
-echo.
-%Print%{231;72;86} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 and above. \n
-%Print%{244;255;0} It has better integration, but may be outdated. \n
-echo.
-%Print%{231;72;86} 2 is the OFX version of Mocha by Boris FX. \n
-%Print%{244;255;0} It works for ALL versions of Vegas Pro, and may be more updated. \n
-echo.
-%Print%{231;72;86} 1 = Mocha Vegas \n
-%Print%{231;72;86} 2 = Mocha Pro OFX \n
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO 24
-IF ERRORLEVEL 1  GOTO 24-2
-echo.
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 4-1
-:24
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\Boris FX Mocha Pro*" GOTO alrDown-24
-echo Plugin isn't downloaded, continuing to download
-GOTO down-24
-:alrDown-24
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-24
-echo.
-:down-24
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1MD9cFQVUPIAhOuO5BC99MTlCJRuPyBLQ -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-24-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-24-szip
-:down-24-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%BFX-Mocha%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP24
-:down-24-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%BFX-Mocha%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE24
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP24
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE24
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP24
+set "PLUGKEY7="
+IF %plugin1results% GEQ 3 set PLUGKEY7=1
+IF %plugin2results% GEQ 3 set PLUGKEY7=1
+IF %plugin3results% GEQ 3 set PLUGKEY7=1
+IF %plugin4results% GEQ 3 set PLUGKEY7=1
+IF %plugin5results% GEQ 3 set PLUGKEY7=1
+IF %plugin6results% GEQ 3 set PLUGKEY7=1
+IF %plugin7results% GEQ 3 set PLUGKEY7=1
+IF %plugin8results% GEQ 3 set PLUGKEY7=1
+IF %plugin9results% GEQ 3 set PLUGKEY7=1
+IF %plugin10results% GEQ 3 set PLUGKEY7=1
+IF defined PLUGKEY7 (
+%Print%{231;72;86}         Not Downloaded & Not Installed \n
+%Print%{231;72;86}        -------------------------------- \n
 )
-:CONTINUE24
-del "%~dp0\Installer-files\%BFX-Mocha%"
+if %plugin1results% EQU 2 %Print%{231;72;86}            BORIS FX - Sapphire 
+if %plugin1results% EQU 2 %Print%{0;185;255}(670 MB) \n
+if %plugin2results% EQU 2 %Print%{231;72;86}            BORIS FX - Continuum Complete 
+if %plugin2results% EQU 2 %Print%{0;185;255}(510 MB) \n
+if %plugin3results% EQU 2 %Print%{231;72;86}            BORIS FX - Mocha Pro 
+if %plugin3results% EQU 2 %Print%{0;185;255}(270 MB) \n
+if %plugin4results% EQU 2 %Print%{231;72;86}            BORIS FX - Silhouette 
+if %plugin4results% EQU 2 %Print%{0;185;255}(1.4 GB) \n
+if %plugin5results% EQU 2 %Print%{231;72;86}            FXHOME - Ignite Pro 
+if %plugin5results% EQU 2 %Print%{0;185;255}(430 MB) \n
+if %plugin6results% EQU 2 %Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite 
+if %plugin6results% EQU 2 %Print%{0;185;255}(260 MB) \n
+if %plugin7results% EQU 2 %Print%{231;72;86}            MAXON - Red Giant Universe 
+if %plugin7results% EQU 2 %Print%{0;185;255}(1.8 GB) \n
+if %plugin8results% EQU 2 %Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 
+if %plugin8results% EQU 2 %Print%{0;185;255}(630 MB) \n
+if %plugin9results% EQU 2 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7 
+if %plugin9results% EQU 2 %Print%{0;185;255}(790 MB) \n
+if %plugin10results% EQU 2 %Print%{231;72;86}            REVISIONFX - Effections 
+if %plugin10results% EQU 2 %Print%{0;185;255}(50 MB) \n
 echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Pro*") do if exist "%%~I\INSTALL.cmd" GOTO auto-24
-GOTO SelectPlugins
+echo.
+%Print%{204;204;204}        -------------------------------- \n
+echo.
+C:\Windows\System32\CHOICE /C 1 /M "        1) Return to the Main Menu" /N
+cls
+echo.
+IF ERRORLEVEL 1  GOTO Pre-SelectPlugins
+echo.
 
-:auto-24
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo.
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-24
-IF ERRORLEVEL 1  GOTO autoinst-24
-echo.
-:manual-24
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-24
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Pro*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 4-2
-:24-2
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\Boris FX Mocha Vegas*" GOTO alrDown-24-2
-echo Plugin isn't downloaded, continuing to download
-GOTO down-24-2
-:alrDown-24-2
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-24-2
-echo.
-:down-24-2
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1fcUcrYAqA18Ym-y4vgSAGOlnJUvMboaT -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-24-2-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-24-2-szip
-:down-24-2-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%BFX-Mocha-Vegas%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP24-2
-:down-24-2-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%BFX-Mocha-Vegas%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE24-2
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP24-2
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE24-2
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP24-2
-)
-:CONTINUE24-2
-del "%~dp0\Installer-files\%BFX-Mocha-Vegas%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\Boris FX Mocha Vegas*") do if exist "%%~I\INSTALL.cmd" GOTO auto-24-2
-GOTO SelectPlugins
-
-:auto-24-2
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-24-2
-IF ERRORLEVEL 1  GOTO autoinst-24-2
-echo.
-:manual-24-2
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-24-2
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Mocha Vegas*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-
-
-
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 5
-:25
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\Boris FX Silho*" GOTO alrDown-25
-echo Plugin isn't downloaded, continuing to download
-GOTO down-25
-:alrDown-25
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-25
-echo.
-:down-25
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 18GUz5M02QdInmQlQj8o-ky-HB7A0Dba4 -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-25-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-25-szip
-:down-25-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%BFX-Silhouette%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP25
-:down-25-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%BFX-Silhouette%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE25
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP25
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE25
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP25
-)
-:CONTINUE25
-del "%~dp0\Installer-files\%BFX-Silhouette%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\Boris FX Silho*") do if exist "%%~I\INSTALL.cmd" GOTO auto-25
-GOTO SelectPlugins
-
-:auto-25
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-25
-IF ERRORLEVEL 1  GOTO autoinst-25
-echo.
-:manual-25
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-25
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\Boris FX Silho*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
+:Pre-SelectPlugins
+set plugin1results=
+set plugin2results=
+set plugin3results=
+set plugin4results=
+set plugin5results=
+set plugin6results=
+set plugin7results=
+set plugin8results=
+set plugin9results=
+set plugin10results=
+set PLUGKEY0=
+set PLUGKEY1=
+set PLUGKEY2=
+set PLUGKEY3=
+set PLUGKEY4=
+set PLUGKEY5=
+set PLUGKEY6=
+set PLUGKEY7=
+set plugin1queue=
+set plugin2queue=
+set plugin3queue=
+set plugin4queue=
+set plugin5queue=
+set plugin6queue=
+set plugin7queue=
+set plugin8queue=
+set plugin9queue=
+set plugin10queue=
+set plugin1queueInst=
+set plugin2queueInst=
+set plugin3queueInst=
+set plugin4queueInst=
+set plugin5queueInst=
+set plugin6queueInst=
+set plugin7queueInst=
+set plugin8queueInst=
+set plugin9queueInst=
+set plugin10queueInst=
+set PlugQueueCounter=
+set PlugQueueCounterPre=
+set pluginresultsEcounter=
+set plugcountbfxsaphfinal=
+set plugcountbfxmochafinal=
+set plugcountbfxcontinfinal=
+set plugcountbfxsilhofinal=
+set plugcountignitefinal=
+set plugcountmblfinal=
+set plugcountunifinal=
+set plugcountnfxtitlerfinal=
+set plugcountnfxtotalfinal=
+set plugcountrfxefffinal=
+set plugcountbfxsaph=
+set plugcountbfxmocha=
+set plugcountbfxcontin=
+set plugcountbfxsilho=
+set plugcountignite=
+set plugcountmbl=
+set plugcountuni=
+set plugcountnfxtitler=
+set plugcountnfxtotal=
+set plugcountrfxeff=
+set plugcountbfxsaphAlr=
+set plugcountbfxmochaAlr=
+set plugcountbfxcontinAlr=
+set plugcountbfxsilhoAlr=
+set plugcountigniteAlr=
+set plugcountmblAlr=
+set plugcountuniAlr=
+set plugcountnfxtitlerAlr=
+set plugcountnfxtotalAlr=
+set plugcountrfxeffAlr=
+set PlugQueueCounterFinal=
+set PlugQueueCounter=
+set PlugQueueInstallCounter=
+set PlugQueueInstallCounterFinal=
+set Mocha-veg-ofx=
+set getOptionsPlugCountCheck=
 GOTO SelectPlugins
 
 
 :::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 6
-:26
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\FXHOME Ign*" GOTO alrDown-26
-echo Plugin isn't downloaded, continuing to download
-GOTO down-26
-:alrDown-26
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-26
-echo.
-:down-26
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1RTzgwdYPiaTCjGosGJzY1w7LUPsvI_Gt -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-26-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-26-szip
-:down-26-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%FXH-Ignite%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP26
-:down-26-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%FXH-Ignite%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE26
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP26
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE26
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP26
-)
-:CONTINUE26
-del "%~dp0\Installer-files\%FXH-Ignite%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\FXHOME Ign*") do if exist "%%~I\INSTALL.cmd" GOTO auto-26
-GOTO SelectPlugins
-
-:auto-26
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-26
-IF ERRORLEVEL 1  GOTO autoinst-26
-echo.
-:manual-26
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-26
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\FXHOME Ign*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Option 7
-:27
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\MAXON Red Giant Magic Bull*" GOTO alrDown-27
-echo Plugin isn't downloaded, continuing to download
-GOTO down-27
-:alrDown-27
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins
-IF ERRORLEVEL 1  GOTO down-27
-echo.
-:down-27
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1Khgki2-aJkTfMZx-9Sqn-ejbxhHDQZ4x -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-27-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-27-szip
-:down-27-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%MXN-MBL%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP27
-:down-27-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%MXN-MBL%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE27
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP27
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE27
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP27
-)
-:CONTINUE27
-del "%~dp0\Installer-files\%MXN-MBL%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do if exist "%%~I\INSTALL.cmd" GOTO auto-27
-GOTO SelectPlugins
-
-:auto-27
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-27
-IF ERRORLEVEL 1  GOTO autoinst-27
-echo.
-:manual-27
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-:autoinst-27
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Magic Bull*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Page 2 Option 1
-:221
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\MAXON Red Giant Uni*" GOTO alrDown-221
-echo Plugin isn't downloaded, continuing to download
-GOTO down-221
-:alrDown-221
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins2
-IF ERRORLEVEL 1  GOTO down-221
-echo.
-:down-221
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1yhBAYDwoQ4XB9mbjno4hWLsC49hqmx9c -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-221-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-221-szip
-:down-221-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%MXN-Universe%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP221
-:down-221-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%MXN-Universe%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE221
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP221
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE221
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP221
-)
-:CONTINUE221
-del "%~dp0\Installer-files\%MXN-Universe%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\MAXON Red Giant Uni*") do if exist "%%~I\INSTALL.cmd" GOTO auto-221
-GOTO SelectPlugins2
-
-:auto-221
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-221
-IF ERRORLEVEL 1  GOTO autoinst-221
-echo.
-:manual-221
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-:autoinst-221
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\MAXON Red Giant Uni*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Page 2 Option 2
-:222
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\NewBlueFX Titler*" GOTO alrDown-222
-echo Plugin isn't downloaded, continuing to download
-GOTO down-222
-:alrDown-222
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins2
-IF ERRORLEVEL 1  GOTO down-222
-echo.
-:down-222
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1rFWk-RHqOLEel5rb_MUL4Xe9QUiy9HEb -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-222-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-222-szip
-:down-222-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%NFX-Titler%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP222
-:down-222-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%NFX-Titler%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE222
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP222
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE222
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP222
-)
-:CONTINUE222
-del "%~dp0\Installer-files\%NFX-Titler%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\NewBlueFX Titler*") do if exist "%%~I\INSTALL.cmd" GOTO auto-222
-GOTO SelectPlugins2
-
-:auto-222
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-222
-IF ERRORLEVEL 1  GOTO autoinst-222
-echo.
-:manual-222
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-:autoinst-222
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Titler*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Page 2 Option 3
-:223
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\NewBlueFX Total*" GOTO alrDown-223
-echo Plugin isn't downloaded, continuing to download
-GOTO down-223
-:alrDown-223
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins2
-IF ERRORLEVEL 1  GOTO down-223
-echo.
-:down-223
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1W-T_Yqra8kwOO_ZDmKJxCTKukmGwrQ1i -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-223-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-223-szip
-:down-223-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%NFX-TotalFX%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP223
-:down-223-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%NFX-TotalFX%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE223
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP223
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE223
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP223
-)
-:CONTINUE223
-del "%~dp0\Installer-files\%NFX-TotalFX%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\NewBlueFX Total*") do if exist "%%~I\INSTALL.cmd" GOTO auto-223
-GOTO SelectPlugins2
-
-:auto-223
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-223
-IF ERRORLEVEL 1  GOTO autoinst-223
-echo.
-:manual-223
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-:autoinst-223
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\NewBlueFX Total*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-
-:::::::::::::::::::::::::::::::::::::::
-:: Download & Extract Page 2 Option 4
-:224
-color 0C
-cls
-Echo.
-:: Check if plugin is already downloaded
-echo Checking if plugin is already downloaded
-if exist ".\Installer-files\Plugins\REVisionFX Eff*" GOTO alrDown-224
-echo Plugin isn't downloaded, continuing to download
-GOTO down-224
-:alrDown-224
-cls
-echo Plugin is already downloaded
-echo Do you want to download it again?
-echo.
-echo 1 = Yes
-echo 2 = No
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO SelectPlugins2
-IF ERRORLEVEL 1  GOTO down-224
-echo.
-:down-224
-cls
-echo Initializing Download...
-:: gdown command
-gdown --folder 1dLsCdncK5u9SpvT-zOCd6S4Pr1oIUC-f -O ".\Installer-files"
-color 0C
-echo Download Finished!
-echo Renaming rar file
-REN ".\Installer-files\Boris FX Sapph*" "%BFX-Sapphire%" 2>nul
-REN ".\Installer-files\Boris FX Cont*" "%BFX-Continuum%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Pro*" "%BFX-Mocha%" 2>nul
-REN ".\Installer-files\Boris FX Mocha Vegas*" "%BFX-Mocha-Vegas%" 2>nul
-REN ".\Installer-files\Boris FX Silho*" "%BFX-Silhouette%" 2>nul
-REN ".\Installer-files\FXHOME Ign*" "%FXH-Ignite%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Magic Bull*" "%MXN-MBL%" 2>nul
-REN ".\Installer-files\MAXON Red Giant Uni*" "%MXN-Universe%" 2>nul
-REN ".\Installer-files\NewBlueFX Titler*" "%NFX-Titler%" 2>nul
-REN ".\Installer-files\NewBlueFX Total*" "%NFX-TotalFX%" 2>nul
-REN ".\Installer-files\REVisionFX Eff*" "%RFX-Effections%" 2>nul
-echo Extracting zipped File
-:: Creates directory for Plugins, if not already made. Checks for what file archiver method to use.
-if not exist ".\Installer-files\Plugins" mkdir ".\Installer-files\Plugins" 
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO down-224-win
-if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO down-224-szip
-:down-224-win
-:: Closes all instances of WinRAR, so any already opened instances wont mess up the script
-echo Closing all instances of WinRAR
-@echo OFF
-taskkill /f /im WinRAR.exe 2>nul
-%winrar% x -o+ ".\Installer-files\%RFX-Effections%" ".\Installer-files\Plugins"
-timeout /T 6 /nobreak >nul
-GOTO LOOP224
-:down-224-szip
-cd /d "%~dp0\Installer-files"
-%szip% x -aoa "%RFX-Effections%" -o"%~dp0\Installer-files\Plugins" 2>nul | FINDSTR /V /R /C:"^Compressing  " /C:"Igor Pavlov" /C:"^Scanning$" /C:"^$" /C:"^Everything is Ok$"
-timeout /T 6 /nobreak >nul
-cd /d "%~dp0"
-cls
-GOTO CONTINUE224
-:: Checks for when WinRAR closes, then deletes the old rar file after it's been extracted
-:LOOP224
-tasklist | find /i "WinRAR" >nul 2>&1
-IF ERRORLEVEL 1 (
-  GOTO CONTINUE224
-) ELSE (
-  ECHO WinRAR is still running
-  Timeout /T 5 /Nobreak >nul
-  GOTO LOOP224
-)
-:CONTINUE224
-del "%~dp0\Installer-files\%RFX-Effections%"
-echo.
-echo Finished, Extracted to "\Installer-files\Plugins"
-Timeout /T 5 /Nobreak >nul
-for /D %%I in (".\Installer-files\Plugins\REVisionFX Eff*") do if exist "%%~I\INSTALL.cmd" GOTO auto-224
-GOTO SelectPlugins2
-
-:auto-224
-cls
-echo There is an auto installer script for this plugin.
-echo How do you want to install the plugin?
-echo 1 = Auto Install
-echo 2 = Manual Install
-echo.
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 2  GOTO manual-224
-IF ERRORLEVEL 1  GOTO autoinst-224
-echo.
-:manual-224
-cls
-echo For manual installation, please open this directory
-echo Installer-files > Plugins > (Plugin Name)
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
-:autoinst-224
-cls
-echo Launching auto install script...
-for /D %%I in ("%~dp0\Installer-files\Plugins\REVisionFX Eff*") do start "" cmd /c "%%~I\INSTALL.cmd"
-Timeout /T 5 /Nobreak >nul
-GOTO SelectPlugins2
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -3525,18 +3208,23 @@ echo.
 if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{0;255;50} [Enabled] \n
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{255;0;50} [Disabled] \n
 echo.
-%Print%{231;72;86}            3) Clean Installer Files \n
+%Print%{231;72;86}            3) Toggle System Checks:
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" %Print%{255;0;50} [Disabled] \n
+if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" %Print%{0;255;50} [Enabled] \n
 echo.
-%Print%{231;72;86}            4) Preferences \n
+%Print%{231;72;86}            4) Clean Installer Files \n
 echo.
-%Print%{255;112;0}            5) Main Menu \n
+%Print%{231;72;86}            5) Preferences \n
 echo.
-C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what you want to Select." /N
+%Print%{255;112;0}            6) Main Menu \n
+echo.
+C:\Windows\System32\CHOICE /C 123456 /M "Type the number (1-6) of what you want to Select." /N
 cls
 echo.
-IF ERRORLEVEL 5  GOTO Main
-IF ERRORLEVEL 4  GOTO 34
-IF ERRORLEVEL 3  GOTO 33
+IF ERRORLEVEL 6  GOTO Main
+IF ERRORLEVEL 5  GOTO 34
+IF ERRORLEVEL 4  GOTO 33
+IF ERRORLEVEL 3  GOTO 33-syscheck
 IF ERRORLEVEL 2  GOTO 32
 IF ERRORLEVEL 1  GOTO 31
 echo.
@@ -3632,6 +3320,21 @@ echo No Backup patched files found.
 echo Please run the patch through the Main Menu under Vegas Pro
 timeout /T 6 /nobreak >nul
 GOTO 3-Main
+:::::::::::::::::::::::::::::::::::::::
+
+:33-syscheck
+if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check*.txt" break>".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt"
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" GOTO 33-syscheck-disable
+if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" GOTO 33-syscheck-enable
+
+:33-syscheck-disable
+REN ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" "System-Check-0.txt" 2>nul
+GOTO 3-Main
+
+:33-syscheck-enable
+REN ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" "System-Check-1.txt" 2>nul
+GOTO 3-Main
+
 
 
 
