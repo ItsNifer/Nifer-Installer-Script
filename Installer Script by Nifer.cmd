@@ -424,7 +424,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.2.10 \n
+%Print%{244;255;0}                        Version - 6.2.11 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -3002,7 +3002,7 @@ IF %plugin8results% EQU 1 set PLUGKEY3=1
 IF %plugin9results% EQU 1 set PLUGKEY3=1
 IF %plugin10results% EQU 1 set PLUGKEY3=1
 IF defined PLUGKEY3 (
-%Print%{0;255;50}             Downloaded & Installed \n
+%Print%{0;255;50}             Downloaded ^& Installed \n
 %Print%{0;255;50}        -------------------------------- \n
 )
 echo.
@@ -3039,7 +3039,7 @@ IF %plugin8results% EQU 2 set PLUGKEY6=1
 IF %plugin9results% EQU 2 set PLUGKEY6=1
 IF %plugin10results% EQU 2 set PLUGKEY6=1
 IF defined PLUGKEY6 (
-%Print%{244;255;0}           Downloaded & Not Installed \n
+%Print%{244;255;0}           Downloaded ^& Not Installed \n
 %Print%{244;255;0}        -------------------------------- \n
 )
 if %plugin1results% GEQ 3 %Print%{244;255;0}            BORIS FX - Sapphire 
@@ -3075,7 +3075,7 @@ IF %plugin8results% GEQ 3 set PLUGKEY7=1
 IF %plugin9results% GEQ 3 set PLUGKEY7=1
 IF %plugin10results% GEQ 3 set PLUGKEY7=1
 IF defined PLUGKEY7 (
-%Print%{231;72;86}         Not Downloaded & Not Installed \n
+%Print%{231;72;86}         Not Downloaded ^& Not Installed \n
 %Print%{231;72;86}        -------------------------------- \n
 )
 if %plugin1results% EQU 2 %Print%{231;72;86}            BORIS FX - Sapphire 
