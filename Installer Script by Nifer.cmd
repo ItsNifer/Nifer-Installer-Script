@@ -424,7 +424,7 @@ color 0C
 Echo.                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.2.9 \n
+%Print%{244;255;0}                        Version - 6.2.10 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -1988,6 +1988,16 @@ echo.
 
 
 :getOptionsPlug
+set plugcountbfxsaphfinal=0
+set plugcountbfxmochafinal=0
+set plugcountbfxcontinfinal=0
+set plugcountbfxsilhofinal=0
+set plugcountignitefinal=0
+set plugcountmblfinal=0
+set plugcountunifinal=0
+set plugcountnfxtitlerfinal=0
+set plugcountnfxtotalfinal=0
+set plugcountrfxefffinal=0
 :: This entire process is for multi-selection when user chooses to install desired plugins
 :: Deletes text preference for selection, if made previously
 ::set Plug-Inst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Install-Selection.txt"
@@ -2005,14 +2015,13 @@ if not defined choices (
     goto getOptionsPlug
     )
 
-for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%a in (%choices%) do if %%a EQU 11 set choices=1 2 3 4 5 6 7 8 9 10
 for %%i in (%choices%) do call :optionPlug-%%i 2>nul
 IF ERRORLEVEL 1 GOTO optionErrorPlug
 GOTO getOptionPlug-Confirm-Prompt
 exit
 
 :optionErrorPlug
-color 0C
 echo.
 echo Exceeded max number of selections.
 echo Selections (1-10)
@@ -2044,7 +2053,7 @@ set plugcountmblfinal=1
 exit /B
 
 :optionPlug-7
-et plugcountunifinal=1
+set plugcountunifinal=1
 exit /B
 
 :optionPlug-8
@@ -2075,16 +2084,6 @@ GOTO getOptionPlug-Confirm-Prompt
 
 :getOptionPlug-Confirm-Prompt
 if not defined plugcountall set plugcountall=0
-if not defined plugcountbfxsaphfinal set plugcountbfxsaphfinal=0
-if not defined plugcountbfxmochafinal set plugcountbfxmochafinal=0
-if not defined plugcountbfxcontinfinal set plugcountbfxcontinfinal=0
-if not defined plugcountbfxsilhofinal set plugcountbfxsilhofinal=0
-if not defined plugcountignitefinal set plugcountignitefinal=0
-if not defined plugcountmblfinal set plugcountmblfinal=0
-if not defined plugcountunifinal set plugcountunifinal=0
-if not defined plugcountnfxtitlerfinal set plugcountnfxtitlerfinal=0
-if not defined plugcountnfxtotalfinal set plugcountnfxtotalfinal=0
-if not defined plugcountrfxefffinal set plugcountrfxefffinal=0
 color 0C
 cls
 echo.
