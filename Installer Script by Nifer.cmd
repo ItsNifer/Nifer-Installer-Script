@@ -425,7 +425,7 @@ color 0C
 echo/                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.3.2 \n
+%Print%{244;255;0}                        Version - 6.3.3 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -648,7 +648,9 @@ setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-(for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-11 || GOTO install-11
+for /f %%i in ("%LOGFILE%") do set size=%%~zi
+if %size% EQU 0 GOTO install-11
+GOTO alrDown-11
 
 :alrDown-11
 cls
@@ -948,7 +950,9 @@ setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-(for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-12 || GOTO install-12
+for /f %%i in ("%LOGFILE%") do set size=%%~zi
+if %size% EQU 0 GOTO install-12
+GOTO alrDown-12
 
 :alrDown-12
 cls
@@ -1206,7 +1210,9 @@ setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-(for /f usebackq^ eol^= %%a in ("%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt") do break) && echo GOTO alrDown-13 || GOTO install-13
+for /f %%i in ("%LOGFILE%") do set size=%%~zi
+if %size% EQU 0 GOTO install-13
+GOTO alrDown-13
 
 :alrDown-13
 cls
@@ -2119,6 +2125,11 @@ IF %PlugUninstnumber% GEQ 1 GOTO Plug-uninstall-selection-start11-1
 :Plug-uninstall-selection-start11-1
 color 0C
 @echo off
+cd /d "%~dp0"
+set "PLUGKEY10="
+if %MaxonMBLUninst% EQU 1 set PLUGKEY10=1
+if %MaxonUNIUninst% EQU 1 set PLUGKEY10=1
+IF defined PLUGKEY10 > ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo If the uninstaller stopped or is frozen: & >> ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo manually close the uninstaller CMD window. & >> ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo Go back to my auto-installer script and type "n" and & >> ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo press enter when it asks to "terminate batch job" & start "" ".\Installer-files\Installer-Scripts\uninstall-prompt.txt"
 %Print%{244;255;0} !Line_PlugUninstSelect_%PlugUninstnumber%! 2>nul \n
 For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_PlugUninstSelect_%PlugUninstnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && start "" /wait !MsiStr!
 if %MaxonMBLUninst% EQU 1 forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M Magic Bullet Suite /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul & set MaxonMBLUninst=0
@@ -2128,6 +2139,7 @@ GOTO Plug-Uninstall-Selection-loopcheck11
 @pause
 
 :Plug-uninstall-selection-fin-11
+if exist ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" del "".\Installer-files\Installer-Scripts\uninstall-prompt.txt""
 echo Finished all tasks
 echo Returning to main menu...
 cd /d "%~dp0"
