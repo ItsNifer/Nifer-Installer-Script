@@ -65,7 +65,7 @@ if errorlevel 1 GOTO errorNoPython
 GOTO InstallGDown1
 
 :errorNoPython
-echo.
+echo/
 echo Error^: Python not installed
 GOTO req-Install
 :req-Install
@@ -76,16 +76,16 @@ echo Do you want to install the Required software?
 %Print%{0;255;50} - Python 3.11.4 \n
 %Print%{0;255;50} - GDown (Google Drive Downloader) \n
 %Print%{0;255;50} - WinRAR or 7Zip \n
-echo.
+echo/
 %Print%{231;72;86} 1) Yes \n
 %Print%{231;72;86} 2) No \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO Main
 IF ERRORLEVEL 1  GOTO pre-autoup-prompt1
-echo.
+echo/
 
 :pre-autoup-prompt1
 if not defined pre-autoup set pre-autoup=0
@@ -94,23 +94,23 @@ if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" del ".
 if %pre-autoup% EQU 2 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" del ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" >nul
 IF NOT EXIST ".\Installer-files\Installer-Scripts\Settings" mkdir ".\Installer-files\Installer-Scripts\Settings"
 color 0C
-echo.
+echo/
 echo Do you want to enable Auto Updates for this Installer Script?
 echo This will only check for updates when you launch the Installer Script.
 %Print%{244;255;0}This will install (if you don't already have): \n
 %Print%{0;255;50} - Git 2.41 \n
-echo.
+echo/
 %Print%{231;72;86} 1) Yes \n
 %Print%{231;72;86} 2) No \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  if %pre-autoup% EQU 2 GOTO auto-update-no
 IF ERRORLEVEL 2  if %pre-autoup% EQU 0 break>".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" & GOTO errorNoPython2
 IF ERRORLEVEL 1  if %pre-autoup% EQU 2 GOTO check-auto-1
 IF ERRORLEVEL 1  if %pre-autoup% EQU 0 break>".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" & GOTO errorNoPython2
-echo.
+echo/
 
 
 :errorNoPython2
@@ -121,7 +121,7 @@ echo This is a silent install, this means you won't see anything popup on your s
 echo Please wait patiently until the script continues.
 ".\Installer-files\Installer-Scripts\python-3.11.4-amd64.exe" /q InstallAllUsers=1 PrependPath=1
 echo Python 3.11.4 has installed successfully
-echo.
+echo/
 timeout /T 3 /nobreak >nul
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO errorNoGit-pre
 %Print%{244;255;0} Please restart the installer script. \n
@@ -132,7 +132,7 @@ pause >nul
 
 :InstallGDown1
 color 0C
-echo.
+echo/
 echo Checking GDown
 :: Check for GDown Installation
 gdown --version 2>NUL
@@ -159,7 +159,7 @@ GOTO check-extract
 set winrar="C:\Program Files\WinRAR\WinRAR.exe"
 set szip="C:\Program Files\7-Zip\7z.exe"
 color 0C
-echo.
+echo/
 echo Checking Archiving Method
 if EXIST ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO WRAR-Installed1
 if EXIST ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO SZip-Installed1
@@ -172,29 +172,29 @@ GOTO Prompt-Archiver
 cls
 echo File Archiver is not detected
 echo Select which archiver that you'd prefer to install:
-echo.
+echo/
 echo 1) WinRAR
 echo 2) 7Zip
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO SZip-Install1
 IF ERRORLEVEL 1  GOTO WRAR-Install1
-echo.
+echo/
 :Choose-Archive
 cls
 echo Multiple File Archivers were detected
 echo Select which archiver that you'd prefer to use for the Installer Script:
 echo 1 - WinRAR
 echo 2 - 7Zip
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO SZip-Installed1
 IF ERRORLEVEL 1  GOTO WRAR-Installed1
-echo.
+echo/
 :SZip-Installed1
 IF NOT EXIST "C:\Program Files\7-Zip\7z.exe" GOTO SZip-Install1
 color 0C
@@ -237,7 +237,7 @@ GOTO check-auto-up
 
 :: 1=yes, 0=default, 2=no
 :check-auto-up
-echo.
+echo/
 echo Checking for auto updates.
 if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" break>".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt"
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO check-auto-1
@@ -258,7 +258,7 @@ GOTO pre-autoup-prompt1
 :git-install
 cls
 color 0C
-echo.
+echo/
 echo Checking for Git
 git --version 2>NUL
 if errorlevel 1 GOTO errorNoGit
@@ -266,13 +266,13 @@ GOTO git-installed1
 
 :errorNoGit-pre
 color 0C
-echo.
+echo/
 echo Git is not installed
 ::echo Downloading the installer for Git 2.41
 ::%Print%{244;255;0}This may take a while... \n
 ::%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
 :: download git with gdown
-::echo.
+::echo/
 ::gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
 ::cls
 ::color 0C
@@ -282,7 +282,7 @@ echo Launching the installer for Git 2.41
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 ::echo Cleaning up extra files...
 ::del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
-echo.
+echo/
 %Print%{244;255;0} Please restart the installer script to initialize Python and Git. \n
 %Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
 timeout /T 3 /nobreak >nul
@@ -295,7 +295,7 @@ echo Git is not installed
 ::%Print%{244;255;0}This may take a while... \n
 ::%Print%{244;255;0}If the script seems to be stuck and not progressing, wait patiently. It will continue eventually. \n
 :: download git with gdown
-::echo.
+::echo/
 ::gdown --folder 1N0qd0b77UqqrYFzEyXOf1uKQufHOla0e -O ".\Installer-files\Installer-Scripts"
 ::cls
 ::color 0C
@@ -305,7 +305,7 @@ echo Launching the installer for Git 2.41
 start "" /wait ".\Installer-files\Installer-Scripts\Install-Git.cmd"
 echo Cleaning up extra files...
 ::del ".\Installer-files\Installer-Scripts\Git*.exe" 2>nul
-echo.
+echo/
 %Print%{244;255;0} Please restart the installer script. \n
 %Print%{244;255;0} Close out of this CMD window, and re-run the installer script. \n
 timeout /T 3 /nobreak >nul
@@ -314,7 +314,7 @@ pause >nul
 :git-installed1
 color 0C
 echo Git is installed
-echo.
+echo/
 REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-1.txt" 2>nul
 git --version 2>1 1>NUL
 if errorlevel 1 GOTO errorNoGit
@@ -333,7 +333,7 @@ GOTO Main
 cls
 echo Downloading Auto Update Script
 gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
-echo.
+echo/
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
 timeout /T 5 /nobreak >nul
@@ -376,7 +376,7 @@ if %ERRORLEVEL% == 1 GOTO git-pull-error
 cls
 echo Downloading Auto Update Script
 gdown --folder 1gXrwTtmrqNo8n_igHaEZykUI93wWqF9_ -O ".\Installer-files\Installer-Scripts"
-echo.
+echo/
 echo Initializing Auto Update Script
 start "" ".\Installer-files\Installer-Scripts\autoup.cmd"
 timeout /T 5 /nobreak >nul
@@ -388,16 +388,16 @@ if %ERRORLEVEL% == 0 GOTO git-stash2-cont
 if %ERRORLEVEL% == 1 GOTO git-stash2-error
 :git-stash2-cont
     echo Pushed any known local changes to directory.
-	echo.
-	echo.
+	echo/
+	echo/
 	git checkout HEAD^ "Installer Script by Nifer.cmd"
 	echo Finished checking for updates.
 	timeout /T 3 /nobreak >nul
     GOTO Main
 :git-stash2-error
     echo no local changes
-	echo.
-	echo.
+	echo/
+	echo/
 	git checkout HEAD^ "Installer Script by Nifer.cmd"
 	echo Finished checking for updates.
 	timeout /T 3 /nobreak >nul
@@ -405,8 +405,9 @@ if %ERRORLEVEL% == 1 GOTO git-stash2-error
 :::::::::::::::::::::::::::::::::::::::::::::
 :auto-update-no
 color 0C
-echo.
+echo/
 echo Disabling auto Updates
+if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" break>".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt"
 REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-2.txt" 2>nul
 echo The Installer will no longer ask you for auto updates.
 timeout /T 3 /nobreak >nul
@@ -421,10 +422,10 @@ GOTO Main
 @Title Installer Script by Nifer
 cls
 color 0C
-Echo.                                                        
+echo/                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.2.11 \n
+%Print%{244;255;0}                        Version - 6.3.2 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -437,16 +438,16 @@ Echo.
 %Print%{0;185;255}            4) Donate to support (Paypal) \n
 %Print%{231;72;86}\n
 %Print%{255;112;0}            5) Quit \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what option you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 5  GOTO Quit
 IF ERRORLEVEL 4  GOTO Donate
 IF ERRORLEVEL 3  GOTO 3
 IF ERRORLEVEL 2  GOTO 2
 IF ERRORLEVEL 1  GOTO 1
-echo.
+echo/
 
 :1
 color 0C
@@ -456,25 +457,25 @@ color 0C
 Echo *******************************************************
 Echo ***    (Option #1) Choose Magix Vegas Software      ***
 Echo *******************************************************
-Echo.
+echo/
 %Print%{255;255;255}		 Select what to Download and Install \n
-echo.
+echo/
 %Print%{231;72;86}            1) Vegas Pro \n
-echo.
+echo/
 %Print%{231;72;86}            2) Vegas Effects \n
-echo.
+echo/
 %Print%{231;72;86}            3) Vegas Image \n
-echo.
+echo/
 %Print%{255;112;0}            4) Main Menu \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 1234 /M "Type the number (1-4) of what you want to Select." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 4  GOTO Main
 IF ERRORLEVEL 3  GOTO SelectImage
 IF ERRORLEVEL 2  GOTO SelectEffects
 IF ERRORLEVEL 1  GOTO SelectVegas
-echo.
+echo/
 
 :SelectEffects
 color 0C
@@ -487,19 +488,19 @@ Echo ***    (Option #2) Vegas Effects      ***
 %Print%{244;255;0}Current Build: v5.0.2
 %Print%{231;72;86}        *** \n
 %Print%{231;72;86}***************************************** \n
-Echo.
+echo/
 %Print%{231;72;86}  Are you sure you want to download and install Vegas Effects? \n
-echo.
+echo/
 %Print%{231;72;86}            1) Yes \n
-echo.
+echo/
 %Print%{231;72;86}            2) No \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want to Select." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO 1
 IF ERRORLEVEL 1  GOTO VegasEffects1
-echo.
+echo/
 :VegasEffects1
 cls
 color 0c
@@ -517,7 +518,7 @@ for /r ".\Installer-files\Vegas Effects" %%a in (VEGAS_Effects*.msi) do "%%~fa" 
 echo Installation is finished
 echo Patching is finished
 echo Vegas Effects is now installed and patched
-echo.
+echo/
 %Print%{244;255;0}Please reboot your PC for the patch to take effect. \n
 timeout /T 7 /nobreak >nul
 GOTO 1
@@ -533,19 +534,19 @@ Echo ***    (Option #3) Vegas Image      ***
 %Print%{244;255;0}Current Build: v5.0.0
 %Print%{231;72;86}      *** \n
 %Print%{231;72;86}***************************************** \n
-Echo.
+echo/
 %Print%{231;72;86}  Are you sure you want to download and install Vegas Image? \n
-echo.
+echo/
 %Print%{231;72;86}            1) Yes \n
-echo.
+echo/
 %Print%{231;72;86}            2) No \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want to Select." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO 1
 IF ERRORLEVEL 1  GOTO VegasImage1
-echo.
+echo/
 :VegasImage1
 cls
 color 0c
@@ -563,7 +564,7 @@ for /r ".\Installer-files\Vegas Image" %%a in (VEGAS_Image*.exe) do "%%~fa" /wai
 echo Installation is finished
 echo Patching is finished
 echo Vegas Image is now installed and patched
-echo.
+echo/
 %Print%{244;255;0}Please reboot your PC for the patch to take effect. \n
 timeout /T 7 /nobreak >nul
 GOTO 1
@@ -583,38 +584,34 @@ Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
 %Print%{244;255;0}Current Build: Vegas Pro 21 Build 108
 %Print%{231;72;86}             *** \n
 %Print%{231;72;86}**************************************************************** \n
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" echo.
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{255;0;50}                [Auto Updates are Disabled] \n
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{244;255;0}Auto Updates must be enabled for any patch updates for VEGAS Pro. \n
-if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" %Print%{255;0;50}   Please restart the script to initialize some settings. \n
-Echo.
-echo.
+echo/
+echo/
 %Print%{255;255;255}		 Select what to Download and Install \n
-echo.
+echo/
 %Print%{231;72;86}            1) Vegas Pro + Deep Learning Modules + Patch 
 %Print%{244;255;0}(1.6 GB) \n
-echo.
+echo/
 %Print%{231;72;86}            2) Vegas Pro + Patch Only 
 %Print%{244;255;0}(630 MB) \n
-echo.
+echo/
 %Print%{231;72;86}            3) Deep Learning Modules Only 
 %Print%{244;255;0}(1 GB) \n
-echo.
+echo/
 %Print%{231;72;86}            4) Patch Only 
 %Print%{244;255;0}(18 MB) \n
-echo.
-echo.
+echo/
+echo/
 %Print%{255;112;0}            5) Main Menu \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what you want to Select." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 5  GOTO 1
 IF ERRORLEVEL 4  GOTO 14
 IF ERRORLEVEL 3  GOTO 13
 IF ERRORLEVEL 2  GOTO 12
 IF ERRORLEVEL 1  GOTO 11
-echo.
+echo/
 
 
 :::::::::::::::::::::::::::::::::::::::
@@ -623,7 +620,7 @@ echo.
 cls
 color 0C
 if %getOptionPlugSkip% EQU 1 GOTO install-11
-Echo.
+echo/
 :: Check if vegas is already installed
 echo Checking for other installations...
 GOTO VP-Install-Check-11
@@ -655,7 +652,7 @@ call :LogVPVers > %LOGFILE%
 
 :alrDown-11
 cls
-echo.
+echo/
 color 0C
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 type nul>VP-Installations-found-output.txt
@@ -663,10 +660,10 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
 )
 cls
-echo.
+echo/
 %Print%{231;72;86} Found installations of the following: \n
 echo ---------------------------------
-echo.
+echo/
 setLocal
 :: Trims down output and removes duplicate entries
 for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
@@ -676,31 +673,31 @@ for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-foun
 )
 endlocal
 cd /d "%~dp0"
-echo.
+echo/
 echo ---------------------------------
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
 %Print%{255;112;0} 3 = Cancel and return to Main Menu \n
-echo.
-echo.
+echo/
+echo/
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 3  GOTO SelectVegas
 IF ERRORLEVEL 2  GOTO install-11
 IF ERRORLEVEL 1  GOTO select-vp-uninstall-11
-echo.
+echo/
 :select-vp-uninstall-11
 color 0C
 cls
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
-echo.
+echo/
 %Print%{231;72;86} Select which program(s) you want to uninstall \n
 echo ---------------------------------
-echo.
+echo/
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is to delete any leading spaces for each line in a text file.
 :: Calls JREPL to remove leading spaces and append to input file.
@@ -720,7 +717,8 @@ for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
 set /a NumLines=Counter - 1
 rem or, for arbitrary file lengths:
 for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
-echo.
+%Print%{0;185;255} %Counter% - ALL OPTIONS \n
+echo/
 echo ---------------------------------
 GOTO getOptions11
 :: Prompt user choices of all detected VP installations, and asks for multi-choice input
@@ -735,7 +733,7 @@ if not defined choices (
     goto getOptions11
     )
 
-for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%a in (%choices%) do if %%a EQU %Counter% set choices=1 2 3 4 5 6 7 8 9 10
 for %%i in (%choices%) do call :option-%%i 2>nul
 IF ERRORLEVEL 1 GOTO optionError11
 GOTO vp-uninstall-selection-prompt11
@@ -743,7 +741,7 @@ exit
 
 :optionError11
 color 0C
-echo.
+echo/
 echo Exceeded max number of selections.
 echo Selections (1-10)
 @pause
@@ -792,22 +790,22 @@ exit /B
 :vp-uninstall-selection-prompt11
 color 0C
 cls
-echo.
+echo/
 %Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
 echo ---------------------------------
-echo.
+echo/
 type %VP-Uninst-Select1%
-echo.
+echo/
 echo ---------------------------------
 %Print%{231;72;86} 1 = Yes, Uninstall these programs \n
 %Print%{255;112;0} 2 = No, Cancel and Go back \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO alrDown-11
 IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue11
-echo.
+echo/
 
 :vp-uninstall-selection-continue11
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
@@ -856,18 +854,18 @@ GOTO install-11
 :install-prompt-11
 cls
 color 0C
-echo.
+echo/
 echo You already have VEGAS Pro downloaded
-echo.
+echo/
 echo       1 = Download it again
 echo       2 = Cancel and go back
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO alrDown-11
 IF ERRORLEVEL 1  GOTO install-11
-echo.
+echo/
 
 :install-11
 cd /d "%~dp0"
@@ -900,7 +898,7 @@ echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS 
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
-echo.
+echo/
 echo Patching Vegas Pro
 xcopy ".\Installer-files\Vegas Pro\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
 xcopy ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
@@ -939,7 +937,7 @@ GOTO install-11
 cls
 color 0C
 if %getOptionPlugSkip% EQU 1 GOTO install-12
-Echo.
+echo/
 :: Check if vegas is already installed
 echo Checking for other installations...
 GOTO VP-Install-Check-12
@@ -954,7 +952,7 @@ call :LogVPVers > %LOGFILE%
 
 :alrDown-12
 cls
-echo.
+echo/
 color 0C
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 type nul>VP-Installations-found-output.txt
@@ -964,7 +962,7 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
 cls
 %Print%{231;72;86} Found installations of the following: \n
 echo ---------------------------------
-echo.
+echo/
 setLocal
 :: Trims down output and removes duplicate entries
 for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
@@ -974,31 +972,31 @@ for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-foun
 )
 endlocal
 cd /d "%~dp0"
-echo.
+echo/
 echo ---------------------------------
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
 %Print%{255;112;0} 3 = Cancel and return to Main Menu \n
-echo.
-echo.
+echo/
+echo/
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 3  GOTO SelectVegas
 IF ERRORLEVEL 2  GOTO install-12
 IF ERRORLEVEL 1  GOTO select-vp-uninstall-12
-echo.
+echo/
 :select-vp-uninstall-12
 color 0C
 cls
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
-echo.
+echo/
 %Print%{231;72;86} Select which program(s) you want to uninstall \n
 echo ---------------------------------
-echo.
+echo/
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is to delete any leading spaces for each line in a text file.
 :: Calls JREPL to remove leading spaces and append to input file.
@@ -1018,7 +1016,8 @@ for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
 set /a NumLines=Counter - 1
 rem or, for arbitrary file lengths:
 for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
-echo.
+%Print%{0;185;255} %Counter% - ALL OPTIONS \n
+echo/
 echo ---------------------------------
 GOTO getOptions12
 :: Prompt user choices of all detected VP installations, and asks for multi-choice input
@@ -1033,7 +1032,7 @@ if not defined choices (
     goto getOptions12
     )
 
-for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
+for %%a in (%choices%) do if %%a EQU %Counter% set choices=1 2 3 4 5 6 7 8 9 10
 for %%i in (%choices%) do call :option-%%i 2>nul
 IF ERRORLEVEL 1 GOTO optionError12
 GOTO vp-uninstall-selection-prompt12
@@ -1041,71 +1040,32 @@ exit
 
 :optionError12
 color 0C
-echo.
+echo/
 echo Exceeded max number of selections.
 echo Selections (1-10)
 @pause
 GOTO getOptions12
 
-:option-1
->> %VP-Uninst-Select1% echo !Line_1!
-exit /B
-
-:option-2
->> %VP-Uninst-Select1% echo !Line_2!
-exit /B
-
-:option-3
->> %VP-Uninst-Select1% echo !Line_3!
-exit /B
-
-:option-4
->> %VP-Uninst-Select1% echo !Line_4!
-exit /B
-
-:option-5
->> %VP-Uninst-Select1% echo !Line_5!
-exit /B
-
-:option-6
->> %VP-Uninst-Select1% echo !Line_6!
-exit /B
-
-:option-7
->> %VP-Uninst-Select1% echo !Line_7!
-exit /B
-
-:option-8
->> %VP-Uninst-Select1% echo !Line_8!
-exit /B
-
-:option-9
->> %VP-Uninst-Select1% echo !Line_9!
-exit /B
-
-:option-10
->> %VP-Uninst-Select1% echo !Line_10!
-exit /B
 
 :vp-uninstall-selection-prompt12
 color 0C
 cls
-echo.
+echo/
 %Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
 echo ---------------------------------
-echo.
+echo/
 type %VP-Uninst-Select1%
-echo.
+echo/
 echo ---------------------------------
 %Print%{231;72;86} 1 = Yes, Uninstall these programs \n
 %Print%{255;112;0} 2 = No, Cancel and Go back \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO alrDown-12
 IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue12
-echo.
+echo/
 
 :vp-uninstall-selection-continue12
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
@@ -1154,18 +1114,18 @@ GOTO install-12
 :install-prompt-12
 cls
 color 0C
-echo.
+echo/
 echo You already have VEGAS Pro downloaded
-echo.
+echo/
 echo       1 = Download it again
 echo       2 = Cancel and go back
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO alrDown-12
 IF ERRORLEVEL 1  GOTO install-12
-echo.
+echo/
 
 :install-12
 cd /d "%~dp0"
@@ -1197,7 +1157,7 @@ echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS 
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
-echo.
+echo/
 echo Patching Vegas Pro
 xcopy ".\Installer-files\Vegas Pro\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
 xcopy ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
@@ -1235,7 +1195,7 @@ GOTO install-12
 color 0C
 cls
 if %getOptionPlugSkip% EQU 1 GOTO install-13
-Echo.
+echo/
 :: Check if vegas deep learning modules is already installed
 echo Checking if Vegas Pro Deep Learning Modules is already installed
 GOTO VP-Install-Check-13
@@ -1250,7 +1210,7 @@ call :LogVPVers > %LOGFILE%
 
 :alrDown-13
 cls
-echo.
+echo/
 color 0C
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 type nul>VP-Installations-found-output.txt
@@ -1260,7 +1220,7 @@ for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
 cls
 %Print%{231;72;86} Found installations of the following: \n
 echo ---------------------------------
-echo.
+echo/
 GOTO vp-dlm-parse-continue13
 
 :: Subroutine to write later during the script.
@@ -1285,21 +1245,21 @@ for /f "eol=- tokens=* delims= " %%T in ('find "Deep Learning Models" VP-Install
 )
 endlocal
 cd /d "%~dp0"
-echo.
+echo/
 echo ---------------------------------
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall \n
 %Print%{231;72;86} 2 = Don't uninstall anything and Install the latest version \n
 %Print%{255;112;0} 3 = Cancel and return to Main Menu \n
-echo.
-echo.
+echo/
+echo/
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 3  GOTO SelectVegas
 IF ERRORLEVEL 2  GOTO install-13
 IF ERRORLEVEL 1  GOTO select-vp-uninstall-13
-echo.
+echo/
 
 :select-vp-uninstall-13
 color 0C
@@ -1308,10 +1268,10 @@ cls
 :: Changing directory is needed
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
 call :vp-dlm-parse13 > "VP-Uninstall-DLM-Selection.txt"
-echo.
+echo/
 %Print%{231;72;86} Select which program(s) you want to uninstall \n
 echo ---------------------------------
-echo.
+echo/
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is to delete any leading spaces for each line in a text file.
 :: Calls JREPL to remove leading spaces and append to input file.
@@ -1331,7 +1291,8 @@ for /f "tokens=* delims=" %%x in (VP-Uninstall-DLM-Selection.txt) do (
 set /a NumLines=Counter - 1
 rem or, for arbitrary file lengths:
 for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
-echo.
+%Print%{0;185;255} %Counter% - ALL OPTIONS \n
+echo/
 echo ---------------------------------
 GOTO getOptions13
 :: Prompt user choices of all detected VP installations, and asks for multi-choice input
@@ -1346,78 +1307,78 @@ if not defined choices (
     goto getOptions13
     )
 
-for %%a in (%choices%) do if %%a EQU 20 set choices=1 2 3 4 5 6 7 8 9 10
-for %%i in (%choices%) do call :option-%%i 2>nul
+for %%a in (%choices%) do if %%a EQU %Counter% set choices=1 2 3 4 5 6 7 8 9 10
+for %%i in (%choices%) do call :option13-%%i 2>nul
 IF ERRORLEVEL 1 GOTO optionError13
 GOTO vp-uninstall-selection-prompt13
 exit
 
 :optionError13
 color 0C
-echo.
+echo/
 echo Exceeded max number of selections.
 echo Selections (1-10)
 @pause
 GOTO getOptions13
 
-:option-1
+:option13-1
 >> %VP-Uninst-Select2% echo !Line_1!
 exit /B
 
-:option-2
+:option13-2
 >> %VP-Uninst-Select2% echo !Line_2!
 exit /B
 
-:option-3
+:option13-3
 >> %VP-Uninst-Select2% echo !Line_3!
 exit /B
 
-:option-4
+:option13-4
 >> %VP-Uninst-Select2% echo !Line_4!
 exit /B
 
-:option-5
+:option13-5
 >> %VP-Uninst-Select2% echo !Line_5!
 exit /B
 
-:option-6
+:option13-6
 >> %VP-Uninst-Select2% echo !Line_6!
 exit /B
 
-:option-7
+:option13-7
 >> %VP-Uninst-Select2% echo !Line_7!
 exit /B
 
-:option-8
+:option13-8
 >> %VP-Uninst-Select2% echo !Line_8!
 exit /B
 
-:option-9
+:option13-9
 >> %VP-Uninst-Select2% echo !Line_9!
 exit /B
 
-:option-10
+:option13-10
 >> %VP-Uninst-Select2% echo !Line_10!
 exit /B
 
 :vp-uninstall-selection-prompt13
 cls
-echo.
+echo/
 %Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
 echo ---------------------------------
-echo.
+echo/
 type %VP-Uninst-Select2%
-echo.
+echo/
 echo ---------------------------------
 %Print%{231;72;86} 1 = Yes, Uninstall these programs \n
 %Print%{255;112;0} 2 = No, Cancel and Go back \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO VP-Install-Check-13
 IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue13
-echo.
+echo/
 
 :vp-uninstall-selection-continue13
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
@@ -1466,18 +1427,18 @@ GOTO install-13
 :install-prompt-13
 cls
 color 0C
-echo.
+echo/
 echo You already have VEGAS Pro Deep Learning Models downloaded
-echo.
+echo/
 echo       1 = Download it again
 echo       2 = Cancel and go back
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO alrDown-13
 IF ERRORLEVEL 1  GOTO install-13
-echo.
+echo/
 
 :install-13
 cls
@@ -1515,7 +1476,7 @@ GOTO install-13
 :: Download & Extract Option 4
 :14
 cls
-Echo.
+echo/
 :: Check if vegas is already installed
 echo Checking if Vegas Pro is already installed
 if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\" GOTO install-14
@@ -1545,7 +1506,7 @@ echo Created "Protein_x64.4.2.dll.BAK" in "C:\Program Files\VEGAS\Protein\VEGAS 
 if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK*" /I /Q /Y /F
 echo Created "TransitionWPFLibrary.dll.BAK" in "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 timeout /T 5 /nobreak >nul
-echo.
+echo/
 echo Patching Vegas Pro
 xcopy ".\Installer-files\Vegas Pro\vegas210.exe" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F >nul
 xcopy ".\Installer-files\Vegas Pro\ScriptPortal.Vegas.dll" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul
@@ -1571,7 +1532,7 @@ GOTO Main
 Echo *****************************************************************
 Echo ***    (Option #2) Downloading 3rd Party Plugins for OFX      ***
 Echo *****************************************************************
-echo.
+echo/
 GOTO SelectPlugins
 
 :SelectPlugins
@@ -1599,44 +1560,6 @@ if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" set g
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" set getOptionPlugSkip=0
 if not defined getOptionPlugSkip set getOptionPlugSkip=0
 GOTO Plugin-Select-Start
-
-cls
-@ECHO OFF
-color 0C
-Echo *****************************************************************
-Echo ***    (Option #2) Downloading 3rd Party Plugins for OFX      ***
-Echo *****************************************************************
-Echo.
-%Print%{255;255;255}	 Available plugins to Download: \n
-echo         --------------------------------
-echo.
-%Print%{231;72;86}            BORIS FX - Sapphire \n
-%Print%{231;72;86}            BORIS FX - Mocha Pro \n
-%Print%{231;72;86}            BORIS FX - Continuum \n
-%Print%{231;72;86}            BORIS FX - Silhouette \n
-%Print%{231;72;86}            FXHOME - Ignite Pro \n
-%Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite \n
-%Print%{231;72;86}            MAXON - Red Giant Universe \n
-%Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 \n
-%Print%{231;72;86}            NEWBLUEFX - TotalFX 7 \n
-%Print%{231;72;86}            REVISIONFX - Effections \n
-echo.
-echo         --------------------------------
-echo.
-%Print%{204;204;204}            1) Download all plugins \n
-echo.
-%Print%{204;204;204}            2) Select which plugins to download \n
-echo.
-%Print%{255;112;0}            3) Main Menu \n
-echo.
-C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
-cls
-echo.
-IF ERRORLEVEL 3  GOTO Main
-::IF ERRORLEVEL 2  set getOptionPlugSkip=1 & GOTO Plug-Select-Continue-1
-IF ERRORLEVEL 2  GOTO Plugin-Select-Start
-IF ERRORLEVEL 1  GOTO 21
-echo.
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :LogPlugList
 :: Reg Query for all supported plugins, output to logfile3.
@@ -1742,18 +1665,12 @@ exit /b
 setlocal ENABLEDELAYEDEXPANSION
 color 0C
 if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Continue-1
-echo.
-echo.
+echo/
+echo/
 echo                 Loading...
 SET LOGFILE3=".\Installer-files\Installer-Scripts\Settings\Plug-Installations-found.txt"
 call :LogPlugList > %LOGFILE3%
-:: Trims down outputs to only plugin names and removes leading space for each line in a text file.
 cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-for %%i in ("Plug-Installations-found.txt") do (
-    call %jrepl% "by Nifer|for OFX|Fusion|Plug-ins for OpenFX and Compatible Products|VEGAS Pro 21.0 " "" /m /f "Plug-Installations-found.txt" /o -
-    call %jrepl% "[ \t]+(?=\||$)" "" /f "Plug-Installations-found.txt" /o -
-)
-:: Parses each line in Plug-Installations-found.txt to a variable
 setlocal enabledelayedexpansion
 set Counter=1
 for /f "tokens=* delims=" %%x in (Plug-Installations-found.txt) do (
@@ -1764,12 +1681,15 @@ for /f "tokens=* delims=" %%x in (Plug-Installations-found.txt) do (
 :: sets variables for each plugin to 0, counts later when checked.
 set "cmd3=findstr /R /N "^^" Plug-Installations-found.txt | find /C ":""
 for /f %%U in ('!cmd3!') do set PlugNumber=%%U
+set PlugNumberFinal=%PlugNumber%
 set getOptionsPlugCountCheck=0
 set plugcountbfxsaph=0
 set plugcountbfxmocha=0
+set plugcountvpbfxmocha=0
 set plugcountbfxcontin=0
 set plugcountbfxsilho=0
 set plugcountignite=0
+set plugcountignitenifer=0
 set plugcountmbl=0
 set plugcountuni=0
 set plugcountnfxtitler=0
@@ -1782,10 +1702,11 @@ IF %PlugNumber% GEQ 1 GOTO Plug-Select-Loop-1
 :Plug-Select-Loop-1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,26!" == "Boris FX Sapphire Plug-ins" set /a plugcountbfxsaph+=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,23!" == "Boris FX Mocha Plug-ins" set /a plugcountbfxmocha+=1
-if /I "!Line_Plug_Select_%PlugNumber%:~0,13!" == "(Mocha VEGAS)" set plugcountvpbfxmocha=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,28!" == "VEGAS Pro 21.0 (Mocha VEGAS)" set plugcountvpbfxmocha=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Boris FX Continuum" set /a plugcountbfxcontin+=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Boris FX Silhouette" set /a plugcountbfxsilho+=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,10!" == "Ignite Pro" set /a plugcountignite+=1
+if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Ignite Pro by Nifer" set /a plugcountignitenifer+=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Magic Bullet Suite" set /a plugcountmbl+=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,8!" == "Universe" set /a plugcountuni+=1
 if /I "!Line_Plug_Select_%PlugNumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" set /a plugcountnfxtitler+=1
@@ -1803,6 +1724,7 @@ if not defined plugcountvpbfxmocha set plugcountvpbfxmocha=0
 if not defined plugcountbfxcontin set plugcountbfxcontin=0
 if not defined plugcountbfxsilho set plugcountbfxsilho=0
 if not defined plugcountignite set plugcountignite=0
+if not defined plugcountignitenifer set plugcountignitenifer=0
 if not defined plugcountmbl set plugcountmbl=0
 if not defined plugcountuni set plugcountuni=0
 if not defined plugcountnfxtitler set plugcountnfxtitler=0
@@ -1824,15 +1746,15 @@ if defined plugcountnfxtitlerfinal set plugcountnfxtitlerfinal=0
 if defined plugcountnfxtotalfinal set plugcountnfxtotalfinal=0
 if defined plugcountrfxefffinal set plugcountrfxefffinal=0
 cls
-echo.
+echo/
 color 0C
 Echo ***************************************************************
 Echo ***    (Option #2) Selecting 3rd Party Plugins for OFX      ***
 Echo ***************************************************************
-Echo.
+echo/
 %Print%{255;255;255}	 Available plugins to Download: \n
 echo         --------------------------------
-echo.
+echo/
 if %plugcountbfxsaph% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Sapphire 
 if %plugcountbfxsaph% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Sapphire 
 if %plugcountbfxsaph% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Sapphire 
@@ -1924,7 +1846,10 @@ if %plugcountrfxeff% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86
 if %plugcountrfxeff% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            10) REVISIONFX - Effections 
 if %plugcountrfxeff% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            10) REVISIONFX - Effections 
 if %plugcountrfxeff% GEQ 0 %Print%{0;185;255}(50 MB) \n
-echo.
+echo/
+If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;185;255}            11) ALL PLUGINS 
+If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;185;255}(7 GB) \n
+echo/
 If %getOptionPlugSkip% EQU 0 echo         --------------------------------
 set "PLUGKEY0="
 IF %plugcountbfxsaph% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
@@ -1968,23 +1893,249 @@ IF %plugcountrfxeff% GEQ 2 set PLUGKEY2=1
 IF defined PLUGKEY2 (
 %Print%{244;255;0}        Yellow =     multiple installed [May detect AE plugins] \n
 )
-IF %getOptionsPlugCountCheck% GEQ 1 GOTO getOptionsPlug
+IF %getOptionsPlugCountCheck% EQU 1 GOTO getOptionsPlug
 echo         --------------------------------
-echo.
-echo.
-%Print%{204;204;204}            1) Download all plugins \n
-echo.
-%Print%{204;204;204}            2) Select which plugins to download \n
-echo.
+echo/
+%Print%{204;204;204}            1) Download plugins \n
+%Print%{204;204;204}            2) Uninstall plugins \n
 %Print%{255;112;0}            3) Main Menu \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 3  GOTO Main
-IF ERRORLEVEL 2  set getOptionsPlugCountCheck=1 & GOTO Plug-Select-Continue-1
-IF ERRORLEVEL 1  GOTO Plug-Select-All
-echo.
+IF ERRORLEVEL 2  GOTO getOptionsPlugUninstall
+IF ERRORLEVEL 1  set getOptionsPlugCountCheck=1 & GOTO Plug-Select-Continue-1
+echo/
+
+:getOptionsPlugUninstall-Error
+cls
+color 0C
+echo/
+%Print%{231;72;86}To Uninstall plugins with the script, you need
+%Print%{244;255;0} System Checks enabled
+%Print%{231;72;86} under the script settings. \n
+echo/
+echo/
+%Print%{231;72;86}Returning back to the Main Menu...
+timeout /T 6 /nobreak >nul
+GOTO Plug-Select-Continue-1
+
+:getOptionsPlugUninstall
+cls
+if %getOptionPlugSkip% EQU 1 GOTO getOptionsPlugUninstall-Error
+color 0c
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: Changing directory is needed
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+echo/
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: loops through and trims duplicate entires.
+type nul>Plug-Uninstall-found.txt
+for /f "tokens=* delims=" %%a in (Plug-Installations-found.txt) do (
+  findstr /ixc:"%%a" Plug-Uninstall-found.txt >nul || >>Plug-Uninstall-found.txt echo.%%a
+)
+:: Parses each line and puts into into a counter variable.
+setlocal EnableDelayedExpansion
+set "cmd=findstr /R /N "^^" Plug-Uninstall-found.txt | find /C ":""
+for /f %%U in ('!cmd!') do set PlugUninstnumberCounter=%%U
+::::::::::::::::::::::::::::::::::::::::::::::::
+:: This entire process is for multi-selection when user chooses to uninstall VP
+:: Deletes text preference for selection, if made previously
+set Plug-Uninst-Select1="%~dp0\Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection.txt"
+set Plug-Uninstall-found="%~dp0\Installer-files\Installer-Scripts\Settings\Plug-Uninstall-found-output.txt"
+set Plug-Uninstall-Select="%~dp0\Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection-output.txt"
+if exist %Plug-Uninst-Select1% del %Plug-Uninst-Select1%
+if exist %Plug-Uninstall-found% del %Plug-Uninstall-found%
+if exist %Plug-Uninstall-Select% del %Plug-Uninstall-Select%
+:: Set plugin list variables for reg query
+set Counter=1
+for /f "tokens=* delims=" %%x in (Plug-Uninstall-found.txt) do (
+  set "Line_PlugUninst_!Counter!=%%x"
+  set /a Counter+=1
+)
+set /a NumLines=Counter - 1
+set PlugUninstnumber=1
+set PlugUninstall1=0
+set PlugUninstall2=0
+set PlugUninstall3=0
+set PlugUninstall4=0
+set PlugUninstall5=0
+set PlugUninstall6=0
+set PlugUninstall7=0
+set PlugUninstall8=0
+set PlugUninstall9=0
+set PlugUninstall10=0
+set PlugUninstall11=0
+set PlugUninstall12=0
+GOTO Plug-Uninst-loopcheck
+:Plug-Uninst-loopcheck
+if %PlugUninstnumber% LEQ %PlugUninstnumberCounter% GOTO Plug-Uninst-Loop
+if %PlugUninstnumber% GTR %PlugUninstnumberCounter% GOTO Plug-Uninst-Continue1
+@pause
+
+:Plug-Uninst-Loop
+:: If plugin detected, echo the name into another logfile. Doing this so I can echo my own text and not the reg display names.
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,26!" == "Boris FX Sapphire Plug-ins" >> %Plug-Uninstall-found% echo BORIS FX - Sapphire & set "PlugUninstall1=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,23!" == "Boris FX Mocha Plug-ins" >> %Plug-Uninstall-found% echo BORIS FX - Mocha Pro & set "PlugUninstall2=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,18!" == "Boris FX Continuum" >> %Plug-Uninstall-found% echo BORIS FX - Continuum Complete & set "PlugUninstall3=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,19!" == "Boris FX Silhouette" >> %Plug-Uninstall-found% echo BORIS FX - Silhouette & set "PlugUninstall4=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,28!" == "VEGAS Pro 21.0 (Mocha VEGAS)" >> %Plug-Uninstall-found% echo BORIS FX - Mocha VEGAS & set "PlugUninstall5=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%!" == "Ignite Pro " >> %Plug-Uninstall-found% echo FXHOME - Ignite Pro & set "PlugUninstall6=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%!" == "Ignite Pro by Nifer " >> %Plug-Uninstall-found% echo FXHOME - Ignite Pro by Nifer & set "PlugUninstall7=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,18!" == "Magic Bullet Suite" >> %Plug-Uninstall-found% echo MAXON - Red Giant Magic Bullet Looks & set "PlugUninstall8=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,8!" == "Universe" >> %Plug-Uninstall-found% echo MAXON - Red Giant Universe & set "PlugUninstall9=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" >> %Plug-Uninstall-found% echo NEWBLUEFX - Titler Pro 7 Ultimate & set "PlugUninstall10=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,17!" == "NewBlue TotalFX 7" >> %Plug-Uninstall-found% echo NEWBLUEFX - TotalFX 7 & set "PlugUninstall11=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,20!" == "RE:Vision Effections" >> %Plug-Uninstall-found% echo REVISIONFX - Effections & set "PlugUninstall12=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+GOTO Plug-Uninst-loopcheck
+
+:Plug-Uninst-Continue1
+:: Set Plug-Uninstall-found logfile to a counter, display each line for user input
+set Counter=1
+for /f "tokens=* delims=" %%x in (Plug-Uninstall-found-output.txt) do (
+  set "Line_PlugUninstList_!Counter!=%%x"
+  set /a Counter+=1
+)
+set /a NumLines=Counter - 1
+%Print%{231;72;86} Select which program(s) you want to uninstall \n
+echo ---------------------------------
+echo/
+for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_PlugUninstList_%%x!
+%Print%{0;185;255} %Counter% - ALL OPTIONS \n
+echo/
+echo ---------------------------------
+echo/
+echo/
+set MaxonMBLUninst=0
+set MaxonUNIUninst=0
+set CounterMax=%Counter%
+set CounterPre=0
+set CounterFinish=
+GOTO Counter-loop
+:Counter-loop
+if %CounterPre% LSS %CounterMax% set /a CounterPre+=1 & set "CounterFinish=!CounterFinish!%CounterPre% " & GOTO Counter-loop
+if %CounterPre% GTR %CounterMax% GOTO counter-finish
+:counter-finish
+:: Prompt user choices of all detected VP installations, and asks for multi-choice input
+%Print%{231;72;86}Type your choices with a space after each choice 
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "choices="
+set /p "choices=Type and press Enter when finished: "
+
+if not defined choices ( 
+    echo Please enter a valid option
+    goto getOptions11
+    )
+
+::2=1 set 3, if fail-2/a+1) 1=optionPlugTest 2=optionPlugTestPre 3=optionPlugNumber
+for %%a in (%choices%) do if %%a EQU %Counter% set "choices=!CounterFinish!"
+for %%i in (%choices%) do set optionPlugTest=%%i & call :optionPlugUninst-1 2>nul
+IF ERRORLEVEL 1 GOTO optionPlugUninstError11
+GOTO Plug-uninstall-selection-prompt
+exit
+
+:optionPlugUninstError11
+echo/
+echo Exceeded max number of selections.
+echo Selections (1-13)
+@pause
+GOTO getOptions11
+
+:optionPlugUninst-1
+set "optionPlugTestPre=1"
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=1" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=2" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=3" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=4" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=5" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=6" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=7" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=8" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=9" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=10" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=11" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=12" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
+:optionPlugUninst-1-Continue
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Sapphire " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall1%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Mocha Pro " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall2%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Continuum Complete " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall3%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Silhouette " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall4%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Mocha VEGAS " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall5%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "FXHOME - Ignite Pro " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall6%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "FXHOME - Ignite Pro by Nifer " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall7%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "MAXON - Red Giant Magic Bullet Looks " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall8% & set MaxonMBLUninst=1
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "MAXON - Red Giant Universe " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall9% & set MaxonUNIUninst=1
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - Titler Pro 7 Ultimate " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall10%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - TotalFX 7 " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall11%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "REVISIONFX - Effections " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall12%
+exit /B
+
+:Plug-uninstall-selection-prompt
+color 0C
+cls
+echo/
+%Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
+echo ---------------------------------
+echo/
+type %Plug-Uninst-Select1%
+echo/
+echo ---------------------------------
+%Print%{231;72;86} 1 = Yes, Uninstall these programs \n
+%Print%{255;112;0} 2 = No, Cancel and Go back \n
+echo/
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo/
+IF ERRORLEVEL 2  GOTO Plug-Select-Continue-1
+IF ERRORLEVEL 1  GOTO Plug-uninstall-selection-continue11
+echo/
+
+:Plug-uninstall-selection-continue11
+:: This entire process is to delete any leading spaces for each line in a text file.
+:: Calls JREPL to remove leading spaces and append to input file.
+:: Otherwise, leading white space will conflict when we reg query for display name.
+call %jrepl% "[ \t]+(?=\||$)" "" /f "Plug-Uninstall-Selection-output.txt" /o -
+:: Parses each line in Plug-Uninstall-Selection-output.txt to a variable
+setlocal enabledelayedexpansion
+set Counter=1
+for /f "tokens=* delims=" %%x in (Plug-Uninstall-Selection-output.txt) do (
+  set "Line_PlugUninstSelect_!Counter!=%%x"
+  set /a Counter+=1
+)
+
+:: Parses each line in Plug-Uninstall-Selection-output.txt to a variable number counter
+:: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
+:: Changing directory is needed
+cls
+cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+set "cmd=findstr /R /N "^^" Plug-Uninstall-Selection-output.txt | find /C ":""
+for /f %%U in ('!cmd!') do set PlugUninstnumber=%%U
+:Plug-Uninstall-Selection-loopcheck11
+:: Loop to check if VPnumber variable is 0 or not.
+%Print%{0;255;50} %PlugUninstnumber% Uninstalls Remaining \n
+IF %PlugUninstnumber% EQU 0 GOTO Plug-uninstall-selection-fin-11
+IF %PlugUninstnumber% GEQ 1 GOTO Plug-uninstall-selection-start11-1
+:Plug-uninstall-selection-start11-1
+color 0C
+@echo off
+%Print%{244;255;0} !Line_PlugUninstSelect_%PlugUninstnumber%! 2>nul \n
+For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_PlugUninstSelect_%PlugUninstnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && start "" /wait !MsiStr!
+if %MaxonMBLUninst% EQU 1 forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M Magic Bullet Suite /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul & set MaxonMBLUninst=0
+if %MaxonUNIUninst% EQU 1 forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M Red Giant Universe /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul & set MaxonUNIUninst=0
+set /a PlugUninstnumber-=1
+GOTO Plug-Uninstall-Selection-loopcheck11
+@pause
+
+:Plug-uninstall-selection-fin-11
+echo Finished all tasks
+echo Returning to main menu...
+cd /d "%~dp0"
+timeout /T 5 /nobreak >nul
+GOTO Pre-SelectPlugins
+pause
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 :getOptionsPlug
@@ -2003,8 +2154,8 @@ set plugcountrfxefffinal=0
 ::set Plug-Inst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Install-Selection.txt"
 ::if exist %Plug-Inst-Select1% del %Plug-Inst-Select1%
 echo         --------------------------------
-echo.
-echo.
+echo/
+echo/
 %Print%{204;204;204}Type your choices with a space after each choice 
 %Print%{255;112;0}(ie: 1 2 3 4) \n
 set "choices="
@@ -2022,7 +2173,7 @@ GOTO getOptionPlug-Confirm-Prompt
 exit
 
 :optionErrorPlug
-echo.
+echo/
 echo Exceeded max number of selections.
 echo Selections (1-10)
 @pause
@@ -2086,10 +2237,10 @@ GOTO getOptionPlug-Confirm-Prompt
 if not defined plugcountall set plugcountall=0
 color 0C
 cls
-echo.
+echo/
 %Print%{231;72;86} Are you sure you want to install these selected plugins? \n
 echo         --------------------------------
-echo.
+echo/
 if %plugcountbfxsaph% EQU 0 If %plugcountbfxsaphfinal% EQU 1 %Print%{231;72;86}            BORIS FX - Sapphire 
 if %plugcountbfxsaph% EQU 1 If %plugcountbfxsaphfinal% EQU 1 %Print%{0;255;50}            BORIS FX - Sapphire 
 if %plugcountbfxsaph% GEQ 2 If %plugcountbfxsaphfinal% EQU 1 %Print%{244;255;0}            BORIS FX - Sapphire 
@@ -2130,7 +2281,7 @@ if %plugcountrfxeff% EQU 0 If %plugcountrfxefffinal% EQU 1 %Print%{231;72;86}   
 if %plugcountrfxeff% EQU 1 If %plugcountrfxefffinal% EQU 1 %Print%{0;255;50}            REVISIONFX - Effections 
 if %plugcountrfxeff% GEQ 2 If %plugcountrfxefffinal% EQU 1 %Print%{244;255;0}            REVISIONFX - Effections 
 if %plugcountrfxeff% GEQ 0 If %plugcountrfxefffinal% EQU 1 %Print%{0;185;255}(50 MB) \n
-echo.
+echo/
 If %getOptionPlugSkip% EQU 0 echo         --------------------------------
 set "PLUGKEY0="
 IF %plugcountbfxsaph% EQU 0 if %plugcountbfxsaphfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
@@ -2176,27 +2327,27 @@ IF defined PLUGKEY2 (
 )
 
 echo         --------------------------------
-echo.
+echo/
 if %plugcountall% EQU 1 %Print%{231;72;86}         ALL plugins are around
 if %plugcountall% EQU 1 %Print%{244;255;0} 7 GB \n
-echo.
+echo/
 %Print%{204;204;204}            1) Yes, install these plugins \n
-echo.
+echo/
 %Print%{255;112;0}            2) No, Cancel and Go back \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  set getOptionsPlugCountCheck=0 & GOTO Plug-Select-Continue-1
 IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup
-echo.
+echo/
 
 :Plug-Already-Installed-Prompt
 cls
 color 0C
-echo.
+echo/
 %Print%{231;72;86} You already have these items downloaded \n
-echo.
+echo/
 if %plugcountbfxsaphAlr% EQU 1 %Print%{244;255;0}BORIS FX - Sapphire \n
 if %plugcountbfxmochaAlr% EQU 1 %Print%{244;255;0}BORIS FX - Mocha Pro \n
 if %plugcountbfxcontinAlr% EQU 1 %Print%{244;255;0}BORIS FX - Continuum Complete \n
@@ -2207,18 +2358,18 @@ if %plugcountuniAlr% EQU 1 %Print%{244;255;0}MAXON - Red Giant Universe \n
 if %plugcountnfxtitlerAlr% EQU 1 %Print%{244;255;0}NEWBLUEFX - Titler Pro 7 \n
 if %plugcountnfxtotalAlr% EQU 1 %Print%{244;255;0}NEWBLUEFX - TotalFX 7 \n
 if %plugcountrfxeffAlr% EQU 1 %Print%{244;255;0}REVISIONFX - Effections \n
-echo.
+echo/
 %Print%{231;72;86} Do you want to re-download? \n
-echo.
+echo/
 %Print%{231;72;86} 1) Yes, Re-download \n
 %Print%{231;72;86} 2) No, Back to Main Menu \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
 IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup-1
-echo.
+echo/
 
 
 :Plug-Select-Queue-Setup
@@ -2321,7 +2472,7 @@ if not defined plugin7results set plugin7results=0
 if not defined plugin8results set plugin8results=0
 if not defined plugin9results set plugin9results=0
 if not defined plugin10results set plugin10results=0
-echo.
+echo/
 set "PLUGKEY4="
 IF %plugin1queue% EQU 1 set PLUGKEY4=1
 IF %plugin2queue% EQU 1 set PLUGKEY4=1
@@ -2342,27 +2493,27 @@ cls
 color 0C
 echo  Before continuing...
 echo  There are two available verisons of Boris FX Mocha
-echo.
+echo/
 %Print%{204;204;204} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 ONLY. \n
 %Print%{244;255;0} has better tracking integration with Vegas Pro, and may be more updated. \n
 %Print%{0;185;255} Downlad size = (70 MB) \n
-echo.
+echo/
 %Print%{204;204;204} 2 is the OFX version of Mocha by Boris FX. \n
 %Print%{244;255;0} It works for ALL versions of Vegas Pro, \n
 %Print%{244;255;0} has more features like 3d camera tracker, and may be more outdated. \n
 %Print%{0;185;255} Downlad size = (270 MB) \n
-echo.
+echo/
 %Print%{231;72;86}  1) Mocha Vegas \n
 %Print%{231;72;86}  2) Mocha Pro OFX \n
 %Print%{231;72;86}  3) Comparison of both (Open's Web Browser) \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 3  start "" https://vfx.borisfx.com/mochavegas & GOTO Mocha-veg-ofx-prompt
 IF ERRORLEVEL 2  set Mocha-veg-ofx=2 & GOTO Plug-Select-Queue-Setup-1
 IF ERRORLEVEL 1  set Mocha-veg-ofx=1 & GOTO Plug-Select-Queue-Setup-1
-echo.
+echo/
 
 :Plug-Queue-Install
 cd /d "%~dp0"
@@ -2390,7 +2541,7 @@ set plugcountbfxsaphfinal=0
 set plugin1queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-1-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2409,7 +2560,7 @@ set plugcountbfxmochafinal=0
 set plugin2queue=0
 GOTO Plug-Select-Queu0-Setup-3
 :Plug-Queue-2-1-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2428,7 +2579,7 @@ set plugcountbfxmochafinal=0
 set plugin2queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-2-2-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2447,7 +2598,7 @@ set plugcountbfxcontinfinal=0
 set plugin3queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-3-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2466,7 +2617,7 @@ set plugcountbfxsilhofinal=0
 set plugin4queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-4-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2485,7 +2636,7 @@ set plugcountignitefinal=0
 set plugin5queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-5-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2504,7 +2655,7 @@ set plugcountmblfinal=0
 set plugin6queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-6-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2523,7 +2674,7 @@ set plugcountunifinal=0
 set plugin7queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-7-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2542,7 +2693,7 @@ set plugcountnfxtitlerfinal=0
 set plugin8queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-8-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2561,7 +2712,7 @@ set plugcountnfxtotalfinal=0
 set plugin9queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-9-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2580,7 +2731,7 @@ set plugcountrfxefffinal=0
 set plugin10queue=0
 GOTO Plug-Select-Queue-Setup-3
 :Plug-Queue-10-error
-echo.
+echo/
 %Print%{255;0;0}GDown download Failed!
 %Print%{231;72;86}Resetting GDown cache...
 if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
@@ -2672,7 +2823,7 @@ del "%~dp0\Installer-files\%NFX-Titler%" 2>nul
 del "%~dp0\Installer-files\%NFX-TotalFX%" 2>nul
 del "%~dp0\Installer-files\%RFX-Effections%" 2>nul
 del "%~dp0\Installer-files\*.rar" 2>nul
-echo.
+echo/
 echo Finished, Extracted to "\Installer-files\Plugins"
 set pluginresultsEcounter=0
 if %plugin1results% EQU 3 set /a pluginresultsEcounter+=1
@@ -2692,21 +2843,21 @@ GOTO Plug-Select-auto-prompt
 set PlugQueueCounterPre=1
 cls
 color 0C
-echo.
+echo/
 echo How do you want to install the plugins?
-echo.
+echo/
 echo 1) Auto Install
 echo 2) Manual Install
-echo.
+echo/
 if %pluginresultsEcounter% GEQ 1 %Print%{244;255;0} %pluginresultsEcounter% out of %PlugQueueCounter% plugins failed to download. \n
 if %pluginresultsEcounter% GEQ 1 %Print%{244;255;0} If you decide to Auto Install, failed plugins will be skipped. \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO Plug-Select-manualinst
 IF ERRORLEVEL 1  cls & color 0C & GOTO Plug-Select-autoinst0
-echo.
+echo/
 :Plug-Select-manualinst
 color 0c
 cls
@@ -2717,7 +2868,7 @@ Timeout /T 10 /Nobreak >nul
 GOTO Pre-SelectPlugins
 
 :Plug-Select-autoinst0
-echo.
+echo/
 set "PLUGKEY5="
 IF %plugin1queueInst% EQU 1 set PLUGKEY5=1
 IF %plugin2queueInst% EQU 1 set PLUGKEY5=1
@@ -2986,10 +3137,10 @@ GOTO Plug-Select-autoinst0
 :: Display results of plugin process
 :Plug-Queue-Results
 cls
-echo.
+echo/
 %Print%{204;204;204}           Plugin Process Results: \n
-echo.
-echo.
+echo/
+echo/
 set "PLUGKEY3="
 IF %plugin1results% EQU 1 set PLUGKEY3=1
 IF %plugin2results% EQU 1 set PLUGKEY3=1
@@ -3005,7 +3156,7 @@ IF defined PLUGKEY3 (
 %Print%{0;255;50}             Downloaded ^& Installed \n
 %Print%{0;255;50}        -------------------------------- \n
 )
-echo.
+echo/
 if %plugin1results% EQU 1 %Print%{0;255;50}            BORIS FX - Sapphire 
 if %plugin1results% EQU 1 %Print%{0;185;255}(670 MB) \n
 if %plugin2results% EQU 1 %Print%{0;255;50}            BORIS FX - Continuum Complete 
@@ -3026,7 +3177,7 @@ if %plugin9results% EQU 1 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7
 if %plugin9results% EQU 1 %Print%{0;185;255}(790 MB) \n
 if %plugin10results% EQU 1 %Print%{0;255;50}            REVISIONFX - Effections 
 if %plugin10results% EQU 1 %Print%{0;185;255}(50 MB) \n
-echo.
+echo/
 set "PLUGKEY6="
 IF %plugin1results% EQU 2 set PLUGKEY6=1
 IF %plugin2results% EQU 2 set PLUGKEY6=1
@@ -3062,7 +3213,7 @@ if %plugin9results% GEQ 3 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7
 if %plugin9results% GEQ 3 %Print%{0;185;255}(790 MB) \n
 if %plugin10results% GEQ 3 %Print%{244;255;0}            REVISIONFX - Effections 
 if %plugin10results% GEQ 3 %Print%{0;185;255}(50 MB) \n
-echo.
+echo/
 set "PLUGKEY7="
 IF %plugin1results% GEQ 3 set PLUGKEY7=1
 IF %plugin2results% GEQ 3 set PLUGKEY7=1
@@ -3098,15 +3249,15 @@ if %plugin9results% EQU 2 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7
 if %plugin9results% EQU 2 %Print%{0;185;255}(790 MB) \n
 if %plugin10results% EQU 2 %Print%{231;72;86}            REVISIONFX - Effections 
 if %plugin10results% EQU 2 %Print%{0;185;255}(50 MB) \n
-echo.
-echo.
+echo/
+echo/
 %Print%{204;204;204}        -------------------------------- \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 1 /M "        1) Return to the Main Menu" /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 1  GOTO Pre-SelectPlugins
-echo.
+echo/
 
 :Pre-SelectPlugins
 set plugin1results=
@@ -3216,35 +3367,42 @@ color 0C
 Echo            ************************************
 Echo            ***    (Option #3) Settings      ***
 Echo            ************************************
-Echo.
+echo/
 %Print%{255;255;255}		 Select what option you want. \n
-echo.
-%Print%{231;72;86}            1) Check Software Versions \n
-echo.
+echo/
+%Print%{244;255;0}            1) Check Software Versions \n
+echo/
 %Print%{231;72;86}            2) Toggle Vegas Pro Patch:
 if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{0;255;50} [Enabled] \n
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{255;0;50} [Disabled] \n
-echo.
+echo/
 %Print%{231;72;86}            3) Toggle System Checks:
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" %Print%{255;0;50} [Disabled] \n
 if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" %Print%{0;255;50} [Enabled] \n
-echo.
-%Print%{231;72;86}            4) Clean Installer Files \n
-echo.
-%Print%{231;72;86}            5) Preferences \n
-echo.
-%Print%{255;112;0}            6) Main Menu \n
-echo.
-C:\Windows\System32\CHOICE /C 123456 /M "Type the number (1-6) of what you want to Select." /N
+echo/
+%Print%{231;72;86}            4) Clear Vegas Pro Plugin Cache \n
+echo/
+%Print%{231;72;86}            5) Clear GDown Cache \n
+echo/
+%Print%{231;72;86}            6) Clean Installer Files \n
+echo/
+echo/
+%Print%{231;72;86}            7) Preferences \n
+echo/
+%Print%{255;112;0}            8) Main Menu \n
+echo/
+C:\Windows\System32\CHOICE /C 12345678 /M "Type the number (1-8) of what you want to Select." /N
 cls
-echo.
-IF ERRORLEVEL 6  GOTO Main
-IF ERRORLEVEL 5  GOTO 34
-IF ERRORLEVEL 4  GOTO 33
+echo/
+IF ERRORLEVEL 8  GOTO Main
+IF ERRORLEVEL 7  GOTO 34
+IF ERRORLEVEL 6  GOTO 33
+IF ERRORLEVEL 5  GOTO 33-Gdowncache
+IF ERRORLEVEL 4  GOTO 33-VPplugincache
 IF ERRORLEVEL 3  GOTO 33-syscheck
 IF ERRORLEVEL 2  GOTO 32
 IF ERRORLEVEL 1  GOTO 31
-echo.
+echo/
 
 :::::::::::::::::::::::::::::::::::::::
 :31
@@ -3332,7 +3490,7 @@ GOTO 3
 :32-disabled-prompt
 color 0C
 cls
-echo.
+echo/
 echo No Backup patched files found.
 echo Please run the patch through the Main Menu under Vegas Pro
 timeout /T 6 /nobreak >nul
@@ -3352,8 +3510,73 @@ GOTO 3-Main
 REN ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" "System-Check-1.txt" 2>nul
 GOTO 3-Main
 
+:::::::::::::::::::::::::::::::::::::::
 
+:33-VPplugincache
+cls
+color 0C
+echo/
+%Print%{231;72;86}Are you sure you want to delete your
+%Print%{244;255;0} VEGAS Pro Plugin Cache? \n
+%Print%{231;72;86}This will remove the plugin cache for 
+%Print%{244;255;0}all current installations of Vegas Pro 
+%Print%{231;72;86}on your system. \n
+%Print%{231;72;86}Upon re-opening VEGAS Pro, it will re-build your plugin cache \n
+%Print%{231;72;86}(may take a while depending on how many plugins you have installed) \n
+echo/
+%Print%{231;72;86}Re-building your plugin cache may resolve issues with \n
+%Print%{0;255;50} - Plugins not being detected by VP \n
+%Print%{0;255;50} - Plugins crashing VP \n
+%Print%{0;255;50} - Clearing up cache's of old or uninstalled plugins \n
+echo/
+echo/
+%Print%{231;72;86} 1) Yes \n
+%Print%{231;72;86} 2) No \n
+echo/
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo/
+IF ERRORLEVEL 2  GOTO 3-Main
+IF ERRORLEVEL 1  GOTO 33-VPplugincache-continue
+echo/
 
+:33-VPplugincache-continue
+for /r "%localappdata%\VEGAS Pro" %%a in (svfx_Ofx*.log) do del "%%~fa" 2>nul
+for /r "%localappdata%\VEGAS Pro" %%a in (plugin_manager_cache.bin) do del "%%~fa" 2>nul
+for /r "%localappdata%\VEGAS Pro" %%a in (svfx_plugin_cache.bin) do del "%%~fa" 2>nul
+%Print%{0;255;50} Finished clearing your VEGAS Pro Plugin Cache \n
+timeout /T 5 /nobreak >nul
+GOTO 3-Main
+:::::::::::::::::::::::::::::::::::::::
+
+:33-Gdowncache
+cls
+color 0C
+echo/
+%Print%{231;72;86}Are you sure you want to delete your
+%Print%{244;255;0} GDown Cache? \n
+echo/
+%Print%{231;72;86}Re-building your GDown cache may resolve issues with \n
+%Print%{0;255;50} - Downloads not starting \n
+%Print%{0;255;50} - GDown not initializing \n
+%Print%{0;255;50} - Clearing up cache's of old GDown versions \n
+echo/
+echo/
+%Print%{231;72;86} 1) Yes \n
+%Print%{231;72;86} 2) No \n
+echo/
+C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+cls
+echo/
+IF ERRORLEVEL 2  GOTO 3-Main
+IF ERRORLEVEL 1  GOTO 33-Gdowncache-continue
+echo/
+
+:33-Gdowncache-continue
+if exist "%userprofile%\.cache\gdown\cookies.json" del "%userprofile%\.cache\gdown\cookies.json" 2>nul
+%Print%{0;255;50} Finished clearing your GDown Cache \n
+timeout /T 5 /nobreak >nul
+GOTO 3-Main
 
 :::::::::::::::::::::::::::::::::::::::
 :33
@@ -3363,13 +3586,13 @@ echo Are you sure you want to clean all files from the installer?
 echo This will remove all downloaded files, but will not uninstall any Vegas software or any Plugin.
 echo 1 = Yes
 echo 2 = No
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO Main
 IF ERRORLEVEL 1  GOTO clean-33
-echo.
+echo/
 :clean-33
 cd /d "%~dp0"
 cls
@@ -3394,31 +3617,31 @@ color 0C
 Echo            ***************************
 Echo            ***    Preferences      ***
 Echo            ***************************
-Echo.
+echo/
 %Print%{255;255;255}		 Select what option you want. \n
-echo.
+echo/
 %Print%{231;72;86}            1) Toggle Auto Updating:
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" %Print%{0;255;50} [Enabled] \n
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{255;0;50} [Disabled] \n
 if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" %Print%{255;0;50} [N/A] \n
-echo.
+echo/
 %Print%{231;72;86}            2) Toggle Archiving Method:
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" %Print%{0;255;50} [WinRAR] \n
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" %Print%{0;255;50} [7Zip] \n
 if not exist ".\Installer-files\Installer-Scripts\Settings\archive*.txt" %Print%{255;0;50} [N/A] \n
-echo.
+echo/
 %Print%{231;72;86}            3) Reset All Preferences \n
-echo.
+echo/
 %Print%{255;112;0}            4) Main Menu \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-4) of what you want to Select." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 4  GOTO Python-check
 IF ERRORLEVEL 3  GOTO 333
 IF ERRORLEVEL 2  GOTO 332
 IF ERRORLEVEL 1  GOTO 331
-echo.
+echo/
 :::::::::::::::::::::::::::::::::::::::
 
 :331
@@ -3446,24 +3669,24 @@ GOTO 34
 :333
 cls
 color 0C
-Echo.
+echo/
 %Print%{231;72;86}Are you sure you want to delete
 %Print%{244;255;0} ALL
 %Print%{231;72;86} preferences? \n
 %Print%{231;72;86}The script will ask you for these preferences when opened again. \n
-echo.
+echo/
 %Print%{231;72;86}1 = Yes \n
 %Print%{231;72;86}2 = No \n
-echo.
+echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
-echo.
+echo/
 IF ERRORLEVEL 2  GOTO 34
 IF ERRORLEVEL 1  GOTO 333-cont
-echo.
+echo/
 :333-cont
 color 0C
-echo.
+echo/
 echo Deleting all user-made preferences
 del ".\Installer-files\Installer-Scripts\Settings\*.txt" 2>nul
 echo Finished.
