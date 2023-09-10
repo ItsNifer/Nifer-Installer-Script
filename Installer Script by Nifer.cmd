@@ -425,7 +425,7 @@ color 0C
 echo/                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.3.3 \n
+%Print%{244;255;0}                        Version - 6.3.4 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -859,13 +859,15 @@ color 0C
 echo/
 echo You already have VEGAS Pro downloaded
 echo/
-echo       1 = Download it again
-echo       2 = Cancel and go back
+echo       1) Download it again
+echo       2) Install the downloaded version (patch is not gauranteed)
+echo       3) Cancel and go back
 echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo/
-IF ERRORLEVEL 2  GOTO alrDown-11
+IF ERRORLEVEL 3  GOTO alrDown-11
+IF ERRORLEVEL 2  GOTO install-11-skip
 IF ERRORLEVEL 1  GOTO install-11
 echo/
 
@@ -881,6 +883,8 @@ gdown --folder 1CfHOmkla8pim4jH2xBFLeBdUFCLHWVh4 -O ".\Installer-files\Vegas Pro
 cls
 color 0c
 echo Download is finished
+GOTO install-11-skip
+:install-11-skip
 echo Installing Vegas Pro
 echo Please follow through the installation
 timeout /T 2 /nobreak >nul
@@ -1121,13 +1125,15 @@ color 0C
 echo/
 echo You already have VEGAS Pro downloaded
 echo/
-echo       1 = Download it again
-echo       2 = Cancel and go back
+echo       1) Download it again
+echo       2) Install the downloaded version (patch is not gauranteed)
+echo       3) Cancel and go back
 echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo/
-IF ERRORLEVEL 2  GOTO alrDown-12
+IF ERRORLEVEL 3  GOTO alrDown-12
+IF ERRORLEVEL 2  GOTO install-12-skip
 IF ERRORLEVEL 1  GOTO install-12
 echo/
 
@@ -1143,6 +1149,8 @@ gdown --folder 12DW0zJtyAb_YR7W9Y43CGwAqAH60YblD -O ".\Installer-files\Vegas Pro
 cls
 color 0c
 echo Download is finished
+GOTO install-12-skip
+:install-12-skip
 echo Installing Vegas Pro
 echo Please follow through the installation
 timeout /T 2 /nobreak >nul
@@ -1436,13 +1444,15 @@ color 0C
 echo/
 echo You already have VEGAS Pro Deep Learning Models downloaded
 echo/
-echo       1 = Download it again
-echo       2 = Cancel and go back
+echo       1) Download it again
+echo       2) Install the downloaded version
+echo       3) Cancel and go back
 echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo/
-IF ERRORLEVEL 2  GOTO alrDown-13
+IF ERRORLEVEL 3  GOTO alrDown-13
+IF ERRORLEVEL 2  GOTO install-13-skip
 IF ERRORLEVEL 1  GOTO install-13
 echo/
 
@@ -1456,6 +1466,8 @@ gdown --folder 1g3jkCxUS87uylAvzxl0EL8dwUAlN7PCO -O ".\Installer-files\Vegas Pro
 cls
 color 0c
 echo Download is finished
+GOTO install-13-skip
+:install-13-skip
 echo Installing Deep Learning Modules
 echo Please follow through the installation
 timeout /T 2 /nobreak >nul
@@ -1927,6 +1939,14 @@ echo/
 timeout /T 6 /nobreak >nul
 GOTO Plug-Select-Continue-1
 
+:getOptionsPlugUninstall-error
+cls
+color 0C
+echo Plugin Queue is empty
+echo Returning to main menu...
+timeout /T 5 /nobreak >nul
+GOTO Plug-Select-Continue-1
+
 :getOptionsPlugUninstall
 cls
 if %getOptionPlugSkip% EQU 1 GOTO getOptionsPlugUninstall-Error
@@ -1934,6 +1954,9 @@ color 0c
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
 cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+:: If logfile is blank - continues to install. If data found, prompt user to uninstall
+for /f %%i in ("Plug-Uninstall-found.txt") do set size=%%~zi
+if %size% EQU 0 GOTO getOptionsPlugUninstall-error
 echo/
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: loops through and trims duplicate entires.
@@ -2373,16 +2396,52 @@ if %plugcountrfxeffAlr% EQU 1 %Print%{244;255;0}REVISIONFX - Effections \n
 echo/
 %Print%{231;72;86} Do you want to re-download? \n
 echo/
-%Print%{231;72;86} 1) Yes, Re-download \n
-%Print%{231;72;86} 2) No, Back to Main Menu \n
+%Print%{231;72;86} 1) Re-download all items \n
+%Print%{231;72;86} 2) Skip these items \n
+%Print%{231;72;86} 3) No, Back to Main Menu \n
 echo/
 C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
 cls
 echo/
-IF ERRORLEVEL 2  set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
+IF ERRORLEVEL 3  set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
+IF ERRORLEVEL 2  GOTO Plug-Already-Installed-skip
 IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup-1
 echo/
 
+:Plug-Already-Installed-skip
+IF %plugcountbfxsaphAlr% EQU 1 set plugcountbfxsaphfinal=0
+IF %plugcountbfxmochaAlr% EQU 1 set plugcountbfxmochafinal=0
+IF %plugcountbfxcontinAlr% EQU 1 set plugcountbfxcontinfinal=0
+IF %plugcountbfxsilhoAlr% EQU 1 set plugcountbfxsilhofinal=0
+IF %plugcountigniteAlr% EQU 1 set plugcountignitefinal=0
+IF %plugcountmblAlr% EQU 1 set plugcountmblfinal=0
+IF %plugcountuniAlr% EQU 1 set plugcountunifinal=0
+IF %plugcountnfxtitlerAlr% EQU 1 set plugcountnfxtitlerfinal=0
+IF %plugcountnfxtotalAlr% EQU 1 set plugcountnfxtotalfinal=0
+IF %plugcountrfxeffAlr% EQU 1 set plugcountrfxefffinal=0
+
+set "PLUGKEY11="
+IF %plugcountbfxsaphfinal% EQU 1 set PLUGKEY11=1
+IF %plugcountbfxmochafinal% EQU 1 set PLUGKEY11=1
+IF %plugcountbfxcontinfinal% EQU 1 set PLUGKEY11=1
+IF %plugcountbfxsilhofinal% EQU 1 set PLUGKEY11=1
+IF %plugcountignitefinal% EQU 1 set PLUGKEY11=1
+IF %plugcountmblfinal% EQU 1 set PLUGKEY11=1
+IF %plugcountunifinal% EQU 1 set PLUGKEY11=1
+IF %plugcountnfxtitlerfinal% EQU 1 set PLUGKEY11=1
+IF %plugcountnfxtotalfinal% EQU 1 set PLUGKEY11=1
+IF %plugcountrfxefffinal% EQU 1 set PLUGKEY11=1
+IF defined PLUGKEY11 (
+GOTO Plug-Select-Queue-Setup-1
+)
+GOTO Plug-Select-error
+:Plug-Select-error
+cls
+color 0C
+echo Plugin Queue is empty
+echo Returning to main menu...
+timeout /T 5 /nobreak >nul
+set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
 
 :Plug-Select-Queue-Setup
 cd /d "%~dp0"
