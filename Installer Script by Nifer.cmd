@@ -425,7 +425,7 @@ color 0C
 echo/                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.3.4 \n
+%Print%{244;255;0}                        Version - 6.3.5 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -571,6 +571,7 @@ GOTO 1
 
 
 :SelectVegas
+cd /d "%~dp0"
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" set getOptionPlugSkip=1
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" set getOptionPlugSkip=0
 if not defined getOptionPlugSkip set getOptionPlugSkip=0
@@ -645,7 +646,7 @@ exit /b
 :VP-Install-Check-11
 @ECHO OFF
 setlocal ENABLEDELAYEDEXPANSION
-SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
+SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
 for /f %%i in ("%LOGFILE%") do set size=%%~zi
@@ -656,7 +657,7 @@ GOTO alrDown-11
 cls
 echo/
 color 0C
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 type nul>VP-Installations-found-output.txt
 for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
@@ -695,7 +696,7 @@ color 0C
 cls
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 echo/
 %Print%{231;72;86} Select which program(s) you want to uninstall \n
 echo ---------------------------------
@@ -708,7 +709,7 @@ call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
-set VP-Uninst-Select1="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
+set VP-Uninst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
 if exist %VP-Uninst-Select1% del %VP-Uninst-Select1%
 setlocal enabledelayedexpansion
 set Counter=1
@@ -810,7 +811,7 @@ IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue11
 echo/
 
 :vp-uninstall-selection-continue11
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 :: Parses each line in VP-Uninstall-Selection.txt to a variable
 setlocal enabledelayedexpansion
 set Counter=1
@@ -823,7 +824,7 @@ for /f "tokens=* delims=" %%x in (VP-Uninstall-Selection.txt) do (
 :: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
 :: Changing directory is needed
 cls
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 setlocal EnableDelayedExpansion
 set "cmd=findstr /R /N "^^" VP-Uninstall-Selection.txt | find /C ":""
 for /f %%U in ('!cmd!') do set VPnumber=%%U
@@ -951,7 +952,7 @@ GOTO VP-Install-Check-12
 :VP-Install-Check-12
 @ECHO OFF
 setlocal ENABLEDELAYEDEXPANSION
-SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
+SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
 for /f %%i in ("%LOGFILE%") do set size=%%~zi
@@ -962,7 +963,7 @@ GOTO alrDown-12
 cls
 echo/
 color 0C
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 type nul>VP-Installations-found-output.txt
 for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
@@ -1000,7 +1001,7 @@ color 0C
 cls
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 echo/
 %Print%{231;72;86} Select which program(s) you want to uninstall \n
 echo ---------------------------------
@@ -1013,7 +1014,7 @@ call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
-set VP-Uninst-Select1="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
+set VP-Uninst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
 if exist %VP-Uninst-Select1% del %VP-Uninst-Select1%
 setlocal enabledelayedexpansion
 set Counter=1
@@ -1076,7 +1077,7 @@ IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue12
 echo/
 
 :vp-uninstall-selection-continue12
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 :: Parses each line in VP-Uninstall-Selection.txt to a variable
 setlocal enabledelayedexpansion
 set Counter=1
@@ -1089,7 +1090,7 @@ for /f "tokens=* delims=" %%x in (VP-Uninstall-Selection.txt) do (
 :: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
 :: Changing directory is needed
 cls
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 setlocal EnableDelayedExpansion
 set "cmd=findstr /R /N "^^" VP-Uninstall-Selection.txt | find /C ":""
 for /f %%U in ('!cmd!') do set VPnumber=%%U
@@ -1215,7 +1216,7 @@ GOTO VP-Install-Check-13
 :VP-Install-Check-13
 @ECHO OFF
 setlocal ENABLEDELAYEDEXPANSION
-SET LOGFILE="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
+SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
 for /f %%i in ("%LOGFILE%") do set size=%%~zi
@@ -1226,7 +1227,7 @@ GOTO alrDown-13
 cls
 echo/
 color 0C
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 type nul>VP-Installations-found-output.txt
 for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
   findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
@@ -1280,7 +1281,7 @@ color 0C
 cls
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 call :vp-dlm-parse13 > "VP-Uninstall-DLM-Selection.txt"
 echo/
 %Print%{231;72;86} Select which program(s) you want to uninstall \n
@@ -1294,7 +1295,7 @@ call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Uninstall-DLM-Selection.txt" /o -
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
-set VP-Uninst-Select2="%~dp0\Installer-files\Installer-Scripts\Settings\VP-Uninstall-DLM-Selection-output.txt"
+set VP-Uninst-Select2="%~dp0Installer-files\Installer-Scripts\Settings\VP-Uninstall-DLM-Selection-output.txt"
 if exist %VP-Uninst-Select2% del %VP-Uninst-Select2%
 setlocal enabledelayedexpansion
 set Counter=1
@@ -1395,7 +1396,7 @@ IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue13
 echo/
 
 :vp-uninstall-selection-continue13
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 :: Parses each line in VP-Uninstall-Selection.txt to a variable
 setlocal enabledelayedexpansion
 set Counter=1
@@ -1408,7 +1409,7 @@ for /f "tokens=* delims=" %%x in (VP-Uninstall-DLM-Selection-output.txt) do (
 :: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
 :: Changing directory is needed
 cls
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 setlocal EnableDelayedExpansion
 set "cmd=findstr /R /N "^^" VP-Uninstall-DLM-Selection-output.txt | find /C ":""
 for /f %%U in ('!cmd!') do set VPnumber=%%U
@@ -1503,6 +1504,7 @@ timeout /T 7 /nobreak >nul
 GOTO Main
 
 :install-14
+cd /d "%~dp0"
 cls
 color 0c
 echo Initializing Download...
@@ -1686,6 +1688,7 @@ if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Continue-1
 echo/
 echo/
 echo                 Loading...
+cd /d "%~dp0"
 SET LOGFILE3=".\Installer-files\Installer-Scripts\Settings\Plug-Installations-found.txt"
 call :LogPlugList > %LOGFILE3%
 cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
@@ -1953,7 +1956,7 @@ if %getOptionPlugSkip% EQU 1 GOTO getOptionsPlugUninstall-Error
 color 0c
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Changing directory is needed
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
 for /f %%i in ("Plug-Uninstall-found.txt") do set size=%%~zi
 if %size% EQU 0 GOTO getOptionsPlugUninstall-error
@@ -1971,9 +1974,9 @@ for /f %%U in ('!cmd!') do set PlugUninstnumberCounter=%%U
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: This entire process is for multi-selection when user chooses to uninstall VP
 :: Deletes text preference for selection, if made previously
-set Plug-Uninst-Select1="%~dp0\Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection.txt"
-set Plug-Uninstall-found="%~dp0\Installer-files\Installer-Scripts\Settings\Plug-Uninstall-found-output.txt"
-set Plug-Uninstall-Select="%~dp0\Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection-output.txt"
+set Plug-Uninst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection.txt"
+set Plug-Uninstall-found="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Uninstall-found-output.txt"
+set Plug-Uninstall-Select="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection-output.txt"
 if exist %Plug-Uninst-Select1% del %Plug-Uninst-Select1%
 if exist %Plug-Uninstall-found% del %Plug-Uninstall-found%
 if exist %Plug-Uninstall-Select% del %Plug-Uninstall-Select%
@@ -2137,7 +2140,7 @@ for /f "tokens=* delims=" %%x in (Plug-Uninstall-Selection-output.txt) do (
 :: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
 :: Changing directory is needed
 cls
-cd /d "%~dp0\Installer-files\Installer-Scripts\Settings"
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 set "cmd=findstr /R /N "^^" Plug-Uninstall-Selection-output.txt | find /C ":""
 for /f %%U in ('!cmd!') do set PlugUninstnumber=%%U
 :Plug-Uninstall-Selection-loopcheck11
@@ -3420,6 +3423,7 @@ GOTO SelectPlugins
 :3-Main-check
 :: Checks various preferences that are needed later in script, same as Main-check
 :: VP-patch-1
+cd /d "%~dp0"
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 3-Main
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" & GOTO 3-Main
 if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul del ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" >nul & GOTO 3-Main
@@ -3431,6 +3435,7 @@ GOTO 3-Main
 :3
 GOTO 3-Main-check
 :3-Main
+cd /d "%~dp0"
 color 0C
 cls
 @ECHO OFF
@@ -3482,6 +3487,7 @@ GOTO 3-Main
 
 :::::::::::::::::::::::::::::::::::::::
 :32
+cd /d "%~dp0"
 if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 32-enabled
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.UNBAK" >nul GOTO 32-disabled
 if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 32-disabled-prompt
@@ -3491,7 +3497,7 @@ GOTO 3
 color 0C
 ::Patch is enabled, proceeds to unpatch and save patched files for later
 ::Regular=patched > .UNBAK=patched copy, .bak=unpatched > Regular=unpatched, .UNBAK=patched copy
-del "%~dp0\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
+del "%~dp0Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
 cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
 REN "vegas210.exe" "vegas210.exe.UNBAK" >nul 2>nul
 xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F
@@ -3569,6 +3575,7 @@ GOTO 3-Main
 :::::::::::::::::::::::::::::::::::::::
 
 :33-syscheck
+cd /d "%~dp0"
 if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check*.txt" break>".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt"
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" GOTO 33-syscheck-disable
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" GOTO 33-syscheck-enable
@@ -3681,7 +3688,8 @@ GOTO 3
 :::::::::::::::::::::::::::::::::::::::
 
 :34
-olor 0C
+cd /d "%~dp0"
+color 0C
 cls
 @ECHO OFF
 color 0C
@@ -3716,6 +3724,7 @@ echo/
 :::::::::::::::::::::::::::::::::::::::
 
 :331
+cd /d "%~dp0"
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO 331-enabled-toggle
 if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO 331-disabled-toggle
 :331-enabled-toggle
@@ -3727,6 +3736,7 @@ GOTO 34
 :::::::::::::::::::::::::::::::::::::::
 
 :332
+cd /d "%~dp0"
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-win.txt" GOTO 332-win-toggle
 if exist ".\Installer-files\Installer-Scripts\Settings\archive-szip.txt" GOTO 332-szip-toggle
 :332-win-toggle
@@ -3739,6 +3749,7 @@ GOTO 34
 
 :333
 cls
+cd /d "%~dp0"
 color 0C
 echo/
 %Print%{231;72;86}Are you sure you want to delete
