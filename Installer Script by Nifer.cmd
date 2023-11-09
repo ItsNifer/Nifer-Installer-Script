@@ -582,7 +582,7 @@ color 0C
 Echo ****************************************************************
 Echo ***    (Option #1) Downloading and Installing Vegas Pro      ***
 %Print%{231;72;86}***        
-%Print%{244;255;0}Current Build: Vegas Pro 21 Build 108
+%Print%{244;255;0}Current Build: Vegas Pro 21 Build 187
 %Print%{231;72;86}             *** \n
 %Print%{231;72;86}**************************************************************** \n
 echo/
