@@ -425,7 +425,7 @@ color 0C
 echo/                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.3.6 \n
+%Print%{244;255;0}                        Version - 6.3.7 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -876,14 +876,10 @@ cd /d "%~dp0"
 cls
 color 0c
 echo Initializing Download...
-@pause
 if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
-@pause
 for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS*.exe" GOTO install-prompt-11
-@pause
 :: gdown command
 gdown --folder 1CfHOmkla8pim4jH2xBFLeBdUFCLHWVh4 -O ".\Installer-files\Vegas Pro"
-@pause
 cls
 color 0c
 echo Download is finished
