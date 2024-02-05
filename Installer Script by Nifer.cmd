@@ -425,7 +425,7 @@ color 0C
 echo/                                                        
 %Print%{231;72;86}		   Installer Script by Nifer \n
 %Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        Version - 6.3.5 \n
+%Print%{244;255;0}                        Version - 6.3.6 \n
 %Print%{231;72;86}		     Twitter - @NiferEdits \n
 %Print%{231;72;86}\n
 %Print%{231;72;86}            1) Magix Vegas Software \n
@@ -644,13 +644,12 @@ for /f "tokens=1,2*" %%J in ('^
 exit /b
 
 :VP-Install-Check-11
-@ECHO OFF
 setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-for /f %%i in ("%LOGFILE%") do set size=%%~zi
-if %size% EQU 0 GOTO install-11
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
+>nul findstr "^" "VP-Installations-found.txt" || install-11
 GOTO alrDown-11
 
 :alrDown-11
@@ -877,10 +876,14 @@ cd /d "%~dp0"
 cls
 color 0c
 echo Initializing Download...
+@pause
 if not exist ".\Installer-files\Vegas Pro" mkdir ".\Installer-files\Vegas Pro" 
+@pause
 for /D %%I in (".\Installer-files\Vegas Pro") do if exist "%%~I\VEGAS*.exe" GOTO install-prompt-11
+@pause
 :: gdown command
 gdown --folder 1CfHOmkla8pim4jH2xBFLeBdUFCLHWVh4 -O ".\Installer-files\Vegas Pro"
+@pause
 cls
 color 0c
 echo Download is finished
@@ -955,8 +958,8 @@ setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-for /f %%i in ("%LOGFILE%") do set size=%%~zi
-if %size% EQU 0 GOTO install-12
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
+>nul findstr "^" "VP-Installations-found.txt" || install-12
 GOTO alrDown-12
 
 :alrDown-12
@@ -1219,8 +1222,8 @@ setlocal ENABLEDELAYEDEXPANSION
 SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
 call :LogVPVers > %LOGFILE%
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-for /f %%i in ("%LOGFILE%") do set size=%%~zi
-if %size% EQU 0 GOTO install-13
+cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
+>nul findstr "^" "VP-Installations-found.txt" || install-13
 GOTO alrDown-13
 
 :alrDown-13
@@ -1958,8 +1961,7 @@ color 0c
 :: Changing directory is needed
 cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
-for /f %%i in ("Plug-Uninstall-found.txt") do set size=%%~zi
-if %size% EQU 0 GOTO getOptionsPlugUninstall-error
+>nul findstr "^" "Plug-Uninstall-found.txt" || getOptionsPlugUninstall-error
 echo/
 ::::::::::::::::::::::::::::::::::::::::::::::::
 :: loops through and trims duplicate entires.
