@@ -1,0 +1,47 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "MediaFireDownloader/0.6": {
+        "dependencies": {
+          "PinkJson2": "1.28.0",
+          "WebLib": "1.4.0"
+        },
+        "runtime": {
+          "MediaFireDownloader.dll": {}
+        }
+      },
+      "PinkJson2/1.28.0": {
+        "runtime": {
+          "PinkJson2.dll": {}
+        }
+      },
+      "WebLib/1.4.0": {
+        "runtime": {
+          "WebLib.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MediaFireDownloader/0.6": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PinkJson2/1.28.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WebLib/1.4.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
