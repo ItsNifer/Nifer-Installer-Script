@@ -8,6 +8,16 @@
 <h5 align="center">NIS is a CLI script used to aid in installing various softwares. The goal in this project is to have an *all-in-one* spot for downloading and installing software that the user needs. NIS is dependency free and works on Windows 10 or Windows 11.                                                                                  </p>
 </h5>
 
+## Supported Software
+- MAGIX Vegas Pro
+- MAGIX Vegas Effects
+- MAGIX Vegas Image
+
+## Features
+- Download and Install any supported software/plugins
+- Fully customizable selection of what you download
+- Automatic Installation and patching of software/plugins
+
 ## Usage
 1. Download the [latest](https://github.com/ItsNifer/Nifer-Installer-Script/releases/latest) update from the releases page.
 2. Extract the files from the zipped .rar file (Right click the .rar file > Extract files)
