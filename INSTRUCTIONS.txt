@@ -1,21 +1,16 @@
 Installer Script by Nifer
+Twitter @NiferEdits
 
-Hello!
-I've worked pretty hard on this installer, if you could please follow on twitter @NiferEdits
-This script automatically checks & installs these requirements (if u are missing them):
-	- Python 3.x		(used for GDown)
-	- GDown 		(used for Google Drive download)
-	- WinRAR or 7Zip	(used for file extraction)
-	- Git 4.x 		(used for Auto-updating [Optional])
+*** Upon first launching the script, windows will warn you that my script is "from an unknown publisher".
+Simply click "More Details > Open Anyway". 
+(This is because owning a software license with Microsoft is pretty expensive.. im not paying monthly for that) ***
+
 
 *** YOU NEED to have the folder "Installer-files" in the same directory as "Installer Script by Nifer" *** 
 Once you've done that, simply run "Installer Script by Nifer"
 
-All downloaded files will be placed in their own folders under the "Installer-files" folder.
+All downloaded files will be placed in their own sub-folders under the "Installer-files" folder.
 After downloading any 3rd party plugin, open the Installer-files folder > Plugins folder > (Plugin)
-
-*** Auto-updating is REQUIRED to be ENABLED for any updates to VEGAS Pro patches ***
-Auto-updating is not required for 3rd party plugins, VEGAS Image, or VEGAS Effects.
 
 
 
@@ -23,7 +18,7 @@ ___________________________________________________________________
 Troubleshooting:
 My Installer won't get passed installing the required software, It keeps asking to close and re-open but never continues
 	- Make sure you have extracted the zipped folder, you can extract the files anywhere on your computer.
-	- To extract: open the zipped folder, drag the folder "Nifer-Installer-Script-(build#)" to anywhere on your computer. 
+	- To extract: open the zipped folder, drag the folder "Nifer-Installer-Script-(build#)" folder to anywhere on your computer. (ie: Your Desktop)
 
 My Installer is giving errors during launch, and instantly closes.
 	- Try Restarting the Installer to check for the required software.
@@ -51,21 +46,14 @@ ___________________________________________________________________
 ___________________________________________________________________
 Extra Information (for those that are curious):
 
-This installer is linked to my Google Drive Storage and downloads the needed files from my Drive.
+This installer is linked to my Mediafire Storage and downloads the needed files from my storage.
 This means that this script does not need any updating.
 You can use this same exact script to Download, Install, Patch Vegas Pro and Plugins.
-All I would need to do is update the files in my Google Drive, that the script reads off of.
+All I would need to do is update the files in my Mediafire Storage, that the script reads off of.
 This includes all future updates for Vegas Pro and Plugins.
 
 Although, I've allowed a feature to auto update the installer script, in case I add any new features into the installer
-in the future. This would require Git to be installed, as it is pulling my github repository to check for updates.
-
-This script utilizes Python, and a open source PyPi project called GDown.
-GDown is a Google Drive downloading tool, and as you can guess... It downloads files from google drive.
-You will also need WinRAR or 7Zip to extract the files.
-This script will automatically detect if you have Python installed (any 3.x version), Gdown, and WinRAR/7Zip installed.
-If you don't have them installed, this script will automatically install them for you.
-
+in the future.
 
 
 My Github Repository:
