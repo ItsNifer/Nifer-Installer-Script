@@ -148,7 +148,8 @@ C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what option you wa
 IF ERRORLEVEL 2  GOTO Main
 IF ERRORLEVEL 1  GOTO check-auto-3
 :check-auto-3
-cd /d "%~dp0Installer-files"
+if not exist "%~dp0Installer-files\Nifer Installer Script\" mkdir "%~dp0Installer-files\Nifer Installer Script"
+cd /d "%~dp0Installer-files\Nifer Installer Script"
 cls
 color 0C
 %Print%{231;72;86} Getting Latest Version \n
@@ -156,7 +157,7 @@ echo/
 for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| find "browser_download_url"') do (curl -kOL %%B)
 echo/
 %Print%{231;72;86} Applying Update \n
-FOR %%A in ("%~dp0Installer-files\*.rar") do (set "updateextract=%%A")
+FOR %%A in ("*.rar") do (set "updateextract=%%A")
 if defined updateextract %UnRAR% x -u -y -inul "%updateextract%"
 if defined updateextract del "%updateextract%" 2>nul
 Start "" "%~dp0Installer-files\Nifer Installer Script\Installer-files\Installer-Scripts\Update.cmd"
