@@ -57,6 +57,7 @@ CD /D "%~dp0"
 GOTO initial-extract-check
 
 :initial-extract-check
+if not exist ".\Installer-files\Installer-Scripts\Settings\" mkdir ".\Installer-files\Installer-Scripts\Settings"
 if not exist ".\Installer-files\" GOTO initial-extract-check-error
 GOTO curl-check
 
@@ -98,7 +99,7 @@ set ScriptVersionGit=%ScriptVersionGit:",=%
 set ScriptVersionGit=%ScriptVersionGit:"=%
 set ScriptVersionGit=%ScriptVersionGit:v=%
 set ScriptVersionGit=%ScriptVersionGit: =%
-set ScriptVersion=v7.0.1
+set ScriptVersion=v7.0.2
 set ScriptVersion2=%ScriptVersion:v=%
 set ScriptVersionDisplay=Version - %ScriptVersion2%
 GOTO check-auto-up
@@ -216,7 +217,7 @@ GOTO SelectPlugins
 :SelectPlugins
 cd /d "%~dp0"
 color 0C
-if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check*.txt" break> ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt"
+if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check*.txt" break> ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt"
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" set getOptionPlugSkip=1
 if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" set getOptionPlugSkip=0
 if not defined getOptionPlugSkip set getOptionPlugSkip=0
@@ -364,7 +365,7 @@ exit /b
 :Plugin-Select-Start
 setlocal ENABLEDELAYEDEXPANSION
 color 0C
-if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Continue-1
+if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Continue-0
 echo/
 echo/
 echo                 Loading...
@@ -385,8 +386,8 @@ cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 if %MainPluginSelection% EQU 1 setlocal enabledelayedexpansion
 if %MainPluginSelection% EQU 1 set Counter=1
 if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%x in (Plug-Installations-found.txt) do (
-  set "Line_Plug_Select_!Counter!=%%x"
-  set /a Counter+=1
+  if %MainPluginSelection% EQU 1 set "Line_Plug_Select_!Counter!=%%x"
+  if %MainPluginSelection% EQU 1 set /a Counter+=1
 )
 :: Trims duplicate entries found in Magix-Installations-found.txt
 if %MainMagixSelection% EQU 1 type nul>Magix-Installations-found-output.txt
@@ -1330,7 +1331,7 @@ echo/
 echo ---------------------------------
 echo/
 %Print%{0;185;255}NOTE: You will need to Un-Install Previous Versions of VEGAS Pro if they match VEGAS Pro 21 \n
-%Print%{0;185;255}      Otherwise, Installing VP21 will not work! Older Versions of VP are okay to keep. \n
+%Print%{0;185;255}      Otherwise, Installing VP21 will not work, Older Versions of VP are okay to keep. \n
 echo/
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall and Continue \n
@@ -1569,7 +1570,6 @@ if %MainMagixSelection% EQU 1 IF %magixcountviAlr% EQU 1 set PLUGKEY8=1
 IF defined PLUGKEY8 (
 GOTO Plug-Already-Installed-Prompt
 )
-@pause
 GOTO Plug-Select-Queue-Setup-1
 :Plug-Select-Queue-Setup-1
 :: Set variables for each selected plugin, add counter for task countdown
