@@ -38,6 +38,8 @@
  * [ ] Add other MAGIX Software
  * [ ] Add Adobe software
  * [ ] Add Affinity software
+ * [ ] Add other VFX Plugins
+ * [ ] Add VST3 Audio Plugins
  * [ ] Add textbox UI for popup tooltips
 ## Support
 
