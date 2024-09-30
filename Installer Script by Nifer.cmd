@@ -54,6 +54,21 @@ if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
 pushd "%CD%"
 CD /D "%~dp0"
 @cls
+GOTO dotNET-check
+
+:dotNET-check
+dotNET --list-runtimes | findstr /C:"Microsoft.NETCore.App 3" 2>nul
+if ERRORLEVEL 1 GOTO dotNET-install
+if ERRORLEVEL 0 GOTO initial-extract-check
+GOTO initial-extract-check
+
+:dotNET-install
+cls
+echo/
+echo Microsoft dotNET 3.1 was not found
+echo Installing Microsoft dotNET 3.1.32 x64
+echo Please Wait...
+start "" /wait ".\Installer-files\Installer-Scripts\windowsdesktop-runtime-3.1.32-win-x64.exe" /quiet /norestart
 GOTO initial-extract-check
 
 :initial-extract-check
@@ -99,7 +114,7 @@ set ScriptVersionGit=%ScriptVersionGit:",=%
 set ScriptVersionGit=%ScriptVersionGit:"=%
 set ScriptVersionGit=%ScriptVersionGit:v=%
 set ScriptVersionGit=%ScriptVersionGit: =%
-set ScriptVersion=v7.0.2
+set ScriptVersion=v7.0.3
 set ScriptVersion2=%ScriptVersion:v=%
 set ScriptVersionDisplay=Version - %ScriptVersion2%
 GOTO check-auto-up
@@ -234,6 +249,29 @@ for /f "tokens=1,2*" %%J in ('^
         set plugbfxlist=%%L
 	echo !plugbfxlist! 2>nul | findstr /v /C:"After Effects" /C:"Adobe" /C:"Photoshop" /C:"Optics" 2>nul
     ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "BorisFX"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugbfx2list=%%L
+	echo !plugbfx2list! 2>nul | findstr /v /C:"After Effects" /C:"Adobe" /C:"Photoshop" /C:"Optics" 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Silhouette"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugbfsilolist=%%L
+	echo !plugbfsilolist! 2>nul
         set str=%%J
         if "!str:~0,4!"=="HKEY" set key=%%J
     )
@@ -384,12 +422,6 @@ call :LogPlugList > %LOGFILE3%
 GOTO Scan-Continue
 :Scan-Continue
 cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-if %MainPluginSelection% EQU 1 setlocal enabledelayedexpansion
-if %MainPluginSelection% EQU 1 set Counter=1
-if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%x in (Plug-Installations-found.txt) do (
-  if %MainPluginSelection% EQU 1 set "Line_Plug_Select_!Counter!=%%x"
-  if %MainPluginSelection% EQU 1 set /a Counter+=1
-)
 :: Trims duplicate entries found in Magix-Installations-found.txt
 if %MainMagixSelection% EQU 1 type nul>Magix-Installations-found-output.txt
 if %MainMagixSelection% EQU 1 for /f "tokens=* delims=" %%g in (Magix-Installations-found.txt) do (
@@ -405,9 +437,24 @@ if %MainMagixSelection% EQU 1 for /f "tokens=* delims=" %%x in (Magix-Installati
   if %MainMagixSelection% EQU 1 set "Line_Plug_Select_!Counter!=%%x"
   if %MainMagixSelection% EQU 1 set /a Counter+=1
 )
+:: Trims duplicate entries found in Plug-Installations-found.txt
+if %MainPluginSelection% EQU 1 type nul>Plug-Installations-found-output.txt
+if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%g in (Plug-Installations-found.txt) do (
+  if %MainPluginSelection% EQU 1 findstr /ixc:"%%g" Plug-Installations-found-output.txt || >>Plug-Installations-found-output.txt echo.%%g
+)
+if %MainPluginSelection% EQU 1 cls
+if %MainPluginSelection% EQU 1 echo/
+if %MainPluginSelection% EQU 1 echo/
+if %MainPluginSelection% EQU 1 echo                 Loading...
+if %MainPluginSelection% EQU 1 setlocal enabledelayedexpansion
+if %MainPluginSelection% EQU 1 set Counter=1
+if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%x in (Plug-Installations-found-output.txt) do (
+  if %MainPluginSelection% EQU 1 set "Line_Plug_Select_!Counter!=%%x"
+  if %MainPluginSelection% EQU 1 set /a Counter+=1
+)
 :: Parses each line in Plug-Installations-found.txt to a number counter
 :: sets variables for each plugin to 0, counts later when checked.
-if %MainPluginSelection% EQU 1 set "cmd3=findstr /R /N "^^" Plug-Installations-found.txt | find /C ":""
+if %MainPluginSelection% EQU 1 set "cmd3=findstr /R /N "^^" Plug-Installations-found-output.txt | find /C ":""
 if %MainPluginSelection% EQU 1 for /f %%U in ('!cmd3!') do set PlugNumber=%%U
 if %MainMagixSelection% EQU 1 set "cmd3=findstr /R /N "^^" Magix-Installations-found-output.txt | find /C ":""
 if %MainMagixSelection% EQU 1 for /f %%U in ('!cmd3!') do set PlugNumber=%%U
@@ -438,7 +485,9 @@ if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,26!" == 
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,23!" == "Boris FX Mocha Plug-ins" set /a plugcountbfxmocha+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,28!" == "VEGAS Pro 21.0 (Mocha VEGAS)" set plugcountvpbfxmocha=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Boris FX Continuum" set /a plugcountbfxcontin+=1
+if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,17!" == "BorisFX Continuum" set /a plugcountbfxcontin+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Boris FX Silhouette" set /a plugcountbfxsilho+=1
+if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,10!" == "Silhouette" set /a plugcountbfxsilho+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,10!" == "Ignite Pro" set /a plugcountignite+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Ignite Pro by Nifer" set /a plugcountignitenifer+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Magic Bullet Suite" set /a plugcountmbl+=1
@@ -446,6 +495,7 @@ if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,8!" == "
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" set /a plugcountnfxtitler+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,17!" == "NewBlue TotalFX 7" set /a plugcountnfxtotal+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,20!" == "RE:Vision Effections" set /a plugcountrfxeff+=1
+if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 22.0  " set /a magixcountvp+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 21.0  " set /a magixcountvp+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 20.0  " set /a magixcountvp+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 19.0  " set /a magixcountvp+=1
@@ -454,6 +504,7 @@ if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS 
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 16.0  " set /a magixcountvp+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 15.0  " set /a magixcountvp+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 14.0  " set /a magixcountvp+=1
+if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 22.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 21.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 20.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 19.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
@@ -768,7 +819,7 @@ color 0c
 cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 :: loops through and trims duplicate entires.
 type nul>Plug-Uninstall-found.txt
-for /f "tokens=* delims=" %%a in (Plug-Installations-found.txt) do (
+for /f "tokens=* delims=" %%a in (Plug-Installations-found-output.txt) do (
   findstr /ixc:"%%a" Plug-Uninstall-found.txt >nul || >>Plug-Uninstall-found.txt echo.%%a
 )
 :: If logfile is blank - continues to install. If data found, prompt user to uninstall
@@ -819,7 +870,9 @@ if %PlugUninstnumber% GTR %PlugUninstnumberCounter% GOTO Plug-Uninst-Continue1
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,26!" == "Boris FX Sapphire Plug-ins" >> %Plug-Uninstall-found% echo BORIS FX - Sapphire & set "PlugUninstall1=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,23!" == "Boris FX Mocha Plug-ins" >> %Plug-Uninstall-found% echo BORIS FX - Mocha Pro & set "PlugUninstall2=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,18!" == "Boris FX Continuum" >> %Plug-Uninstall-found% echo BORIS FX - Continuum Complete & set "PlugUninstall3=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,17!" == "BorisFX Continuum" >> %Plug-Uninstall-found% echo BORIS FX - Continuum Complete & set "PlugUninstall3=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,19!" == "Boris FX Silhouette" >> %Plug-Uninstall-found% echo BORIS FX - Silhouette & set "PlugUninstall4=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,10!" == "Silhouette" >> %Plug-Uninstall-found% echo BORIS FX - Silhouette & set "PlugUninstall4=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,28!" == "VEGAS Pro 21.0 (Mocha VEGAS)" >> %Plug-Uninstall-found% echo BORIS FX - Mocha VEGAS & set "PlugUninstall5=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%!" == "Ignite Pro " >> %Plug-Uninstall-found% echo FXHOME - Ignite Pro & set "PlugUninstall6=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%!" == "Ignite Pro by Nifer " >> %Plug-Uninstall-found% echo FXHOME - Ignite Pro by Nifer & set "PlugUninstall7=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
@@ -828,6 +881,7 @@ if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,8!" == "Universe" >> %Plug-Uninsta
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" >> %Plug-Uninstall-found% echo NEWBLUEFX - Titler Pro 7 Ultimate & set "PlugUninstall10=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,17!" == "NewBlue TotalFX 7" >> %Plug-Uninstall-found% echo NEWBLUEFX - TotalFX 7 & set "PlugUninstall11=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,20!" == "RE:Vision Effections" >> %Plug-Uninstall-found% echo REVISIONFX - Effections & set "PlugUninstall12=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+set /a PlugUninstnumber+=1
 GOTO Plug-Uninst-loopcheck
 
 :Plug-Uninst-Continue1
@@ -1282,6 +1336,7 @@ for /f "tokens=1,2*" %%J in ('^
 exit /b
 
 :Magix-Already-Installed-Prompt
+cd /d "%~dp0"
 cls
 color 0C
 if not defined Magix-Alr-Installed set Magix-Alr-Installed=0
