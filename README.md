@@ -8,6 +8,10 @@
 <h5 align="center">NIS is a CLI script used to aid in installing various softwares. The goal in this project is to have an *all-in-one* spot for downloading and installing software that the user needs. NIS is dependency free and works on Windows 10 or Windows 11.                                                                                  </p>
 </h5>
 
+## Requirements
+- [Microsoft dotNET Runtime 3.1.32](https://dotnet.microsoft.com/en-us/download/dotnet/3.1)
+- The script will automatically install dotNet 3.1.32 if you do not have it installed. (More often than not... you will have it installed already due to other programs / games requiring it.
+
 ## Supported Software
 - MAGIX Vegas Pro
 - MAGIX Vegas Effects
