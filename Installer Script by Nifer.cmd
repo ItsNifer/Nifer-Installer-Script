@@ -53,6 +53,7 @@ exit /B
 if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
 pushd "%CD%"
 CD /D "%~dp0"
+set wget="%~dp0Installer-files\Installer-Scripts\wget.exe"
 @cls
 GOTO dotNET-check
 
@@ -68,6 +69,7 @@ echo/
 echo Microsoft dotNET 3.1 was not found
 echo Installing Microsoft dotNET 3.1.32 x64
 echo Please Wait...
+%wget% "https://download.visualstudio.microsoft.com/download/pr/b92958c6-ae36-4efa-aafe-569fced953a5/1654639ef3b20eb576174c1cc200f33a/windowsdesktop-runtime-3.1.32-win-x64.exe" -P ".\Installer-files\Installer-Scripts" -q
 start "" /wait ".\Installer-files\Installer-Scripts\windowsdesktop-runtime-3.1.32-win-x64.exe" /quiet /norestart
 GOTO initial-extract-check
 
