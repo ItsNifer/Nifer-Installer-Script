@@ -55,26 +55,9 @@ pushd "%CD%"
 CD /D "%~dp0"
 set wget="%~dp0Installer-files\Installer-Scripts\wget.exe"
 @cls
-GOTO dotNET-check
-
-:dotNET-check
-dotNET --list-runtimes | findstr /C:"Microsoft.NETCore.App 3" 2>nul
-if ERRORLEVEL 1 GOTO dotNET-install
-if ERRORLEVEL 0 GOTO initial-extract-check
-GOTO initial-extract-check
-
-:dotNET-install
-cls
-echo/
-echo Microsoft dotNET 3.1 was not found
-echo Installing Microsoft dotNET 3.1.32 x64
-echo Please Wait...
-%wget% "https://download.visualstudio.microsoft.com/download/pr/b92958c6-ae36-4efa-aafe-569fced953a5/1654639ef3b20eb576174c1cc200f33a/windowsdesktop-runtime-3.1.32-win-x64.exe" -P ".\Installer-files\Installer-Scripts" -q
-start "" /wait ".\Installer-files\Installer-Scripts\windowsdesktop-runtime-3.1.32-win-x64.exe" /quiet /norestart
 GOTO initial-extract-check
 
 :initial-extract-check
-if not exist ".\Installer-files\Installer-Scripts\Settings\" mkdir ".\Installer-files\Installer-Scripts\Settings"
 if not exist ".\Installer-files\" GOTO initial-extract-check-error
 GOTO curl-check
 
@@ -116,7 +99,7 @@ set ScriptVersionGit=%ScriptVersionGit:",=%
 set ScriptVersionGit=%ScriptVersionGit:"=%
 set ScriptVersionGit=%ScriptVersionGit:v=%
 set ScriptVersionGit=%ScriptVersionGit: =%
-set ScriptVersion=v7.0.3
+set ScriptVersion=v7.1.0
 set ScriptVersion2=%ScriptVersion:v=%
 set ScriptVersionDisplay=Version - %ScriptVersion2%
 GOTO check-auto-up
@@ -1654,6 +1637,23 @@ cls
 GOTO Plug-Select-Queue-Setup-2-1
 
 :Plug-Select-Queue-Setup-2-1
+::downloads data of each plugin name, so we can rename the rar files to the proper names
+cd /d "%~dp0Installer-files\Installer-Scripts"
+%wget% --quiet --no-check-certificate --output-document=Names.txt "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/export?gid=1501927928&format=csv"
+setlocal enabledelayedexpansion 
+:: Trims Names.txt to only keep the names
+if exist Names2.txt del Names2.txt
+for /f "skip=1 delims=*" %%A IN (Names.txt) do echo %%A >> Names2.txt
+:: Parses each line of Sizes.txt and saves it as a variable counting by each line "
+For /F tokens^=* %%i in ('type "Names2.txt"
+')do set /a "_cont+=1+0" && call set "_vari!_cont!=%%~i"
+For /L %%L in (1 1 !_cont!)do For /F tokens^=*usebackq %%i in (
+`echo[!_vari%%~L!`)do if not defined _vari_ (set "_vari_=_vari%%L=!_vari%%~L!"
+     ) else set "_vari_=!_vari_!, _vari%%~L=!_vari%%~L!"
+)
+GOTO Plug-Select-Queue-Setup-2-2
+
+:Plug-Select-Queue-Setup-2-2
 ::downloads data of each plugin size, so we can parse each size as a variable and verify if the download reached the size
 cd /d "%~dp0Installer-files\Installer-Scripts"
 %wget% --quiet --no-check-certificate --output-document=Sizes.txt "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/export?gid=689881134&format=csv"
@@ -1849,7 +1849,12 @@ if %plugin14queue% EQU 1 GOTO Plug-Queue-14
 :: Boris FX Sapphire
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% yyc66eydbct59 "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/MkziKReb" -P ".\Plugins\Boris FX - Sapphire"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\Boris FX - Sapphire"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari9%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var9!"
 for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -1873,7 +1878,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: Boris FX Mocha Pro OFX
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% 88913ft7q3eis "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/4etrsASn" -P ".\Plugins\Boris FX - Mocha Pro"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\Boris FX - Mocha Pro"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari7%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var7!"
 for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -1897,7 +1907,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: Boris FX Mocha Vegas
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% vlccbdl5e0u5j "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/WUyebEQD" -P ".\Plugins\Boris FX - Mocha VEGAS"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\Boris FX - Mocha VEGAS"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari8%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var8!"
 for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -1921,7 +1936,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: Boris FX Continuum
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% 8cl793sy6biwh "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/P1xTXJT3" -P ".\Plugins\Boris FX - Continuum Complete"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\Boris FX - Continuum Complete"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari6%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var6!"
 for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -1945,7 +1965,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: Boris FX Silhouette
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% pkihh0gni1d2p "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/gLbinhBV" -P ".\Plugins\Boris FX - Silhouette"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\Boris FX - Silhouette"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari10%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var10!"
 for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -1969,7 +1994,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: FXHome Ignite Pro
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% 0qehlga6jczao "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/3iT9T18Z" -P ".\Plugins\FXHOME - Ignite Pro"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\FXHOME - Ignite Pro"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari11%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var11!"
 for %%G in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -1993,7 +2023,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: Maxon Red Giant Magic Bullet Suite
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% xn3ebx6mu0lab "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/ysg6ZBnT" -P ".\Plugins\MAXON - Red Giant Magic Bullet Suite"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\MAXON - Red Giant Magic Bullet Suite"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari12%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var12!"
 for %%G in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2017,7 +2052,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: Maxon Red Giant Universe
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% i4i06wx46773l "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/eYMouNf4" -P ".\Plugins\MAXON - Red Giant Universe"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\MAXON - Red Giant Universe"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari13%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var13!"
 for %%G in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2041,7 +2081,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: NewBlue FX Titler Pro
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% 753v6x4wy1x5k "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/UHJ6PYTP" -P ".\Plugins\NewBlueFX - Titler Pro 7 Ultimate"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\NewBlueFX - Titler Pro 7 Ultimate"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari14%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var14!"
 for %%G in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2065,7 +2110,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: NewBlue FX TotalFX
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% yue229um1c4ac "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/G61gUBhS" -P ".\Plugins\NewBlueFX - TotalFX 7"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\NewBlueFX - TotalFX 7"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari15%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var15!"
 for %%G in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2089,7 +2139,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: REVision FX Effections
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% t5r99zdcz0qya "Plugins" 20
+%wget% "https://pixeldrain.com/api/file/pygxrhhN" -P ".\Plugins\REVisionFX - Effections Suite"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Plugins\REVisionFX - Effections Suite"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari16%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var16!"
 for %%G in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2113,7 +2168,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: VEGAS Pro
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% pnpmp4zjkroo3 "Magix Vegas Software" 20
+%wget% "https://pixeldrain.com/api/file/mgyNdxKS" -P ".\Magix Vegas Software\Vegas Pro"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Magix Vegas Software\Vegas Pro"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari2%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var2!"
 for %%G in ("%~dp0Installer-files\Magix Vegas Software\Vegas Pro\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2137,7 +2197,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: VEGAS Pro Deep Learning Models
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% iiiodmf21nw2p "Magix Vegas Software" 20
+%wget% "https://pixeldrain.com/api/file/2UZcZPVS" -P ".\Magix Vegas Software\Deep Learning Models"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Magix Vegas Software\Deep Learning Models"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari3%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var3!"
 for %%G in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2161,7 +2226,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: VEGAS Effects
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% 8rttdkgi1aowr "Magix Vegas Software" 20
+%wget% "https://pixeldrain.com/api/file/9S3AYo9L" -P ".\Magix Vegas Software\Vegas Effects"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Magix Vegas Software\Vegas Effects"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari4%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var4!"
 for %%G in ("%~dp0Installer-files\Magix Vegas Software\Vegas Effects\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2185,7 +2255,12 @@ GOTO Plug-Select-Queue-Setup-2
 :: VEGAS Image
 cd /d "%~dp0Installer-files"
 %Print%{0;185;255}Downloading, please be patient... \n
-%mediafire% xb8p75szquj3y "Magix Vegas Software" 20
+%wget% "https://pixeldrain.com/api/file/ATHL5d4Y" -P ".\Magix Vegas Software\Vegas Image"
+:: Parses the most recent file in the downloads folder to rename.
+cd /d ".\Magix Vegas Software\Vegas Image"
+for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
+REN "%RECENT_FILE%" "%_vari5%.rar"
+cd /d "%~dp0Installer-files"
 set CheckSizeVar="!_var5!"
 for %%G in ("%~dp0Installer-files\Magix Vegas Software\Vegas Image\*.rar") DO (
     CALL :CHECKSIZE "%%G"
@@ -2244,91 +2319,91 @@ if defined qextract12 set qextract12=
 if defined qextract13 set qextract13=
 if defined qextract14 set qextract14=
 
-if %plugin1queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\Boris FX*.rar") do (set "qextract1=%%A")
+if %plugin1queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\.rar") do (set "qextract1=%%A")
 if defined qextract1 cd "%~dp0Installer-files\Plugins\Boris FX - Sapphire" & %Print%{244;255;0} Extracting Boris FX - Sapphire \n
 if defined qextract1 %UnRAR% x -u -y -inul "%qextract1%"
 if defined qextract1 del "%qextract1%" 2>nul
 if defined qextract1 echo Finished
 color 0c
-if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\Boris FX*.rar") do (set "qextract2-1=%%A")
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\*.rar") do (set "qextract2-1=%%A")
 if defined qextract2-1 cd "%~dp0Installer-files\Plugins\Boris FX - Mocha Pro" & %Print%{244;255;0} Extracting Boris FX - Mocha Pro \n
 if defined qextract2-1 %UnRAR% x -u -y -inul "%qextract2-1%"
 if defined qextract2-1 del "%qextract2-1%" 2>nul
 if defined qextract2-1 echo Finished
 color 0c
-if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\Boris FX*.rar") do (set "qextract2-2=%%A")
+if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\*.rar") do (set "qextract2-2=%%A")
 if defined qextract2-2 cd "%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS" & %Print%{244;255;0} Extracting Boris FX - Mocha VEGAS \n
 if defined qextract2-2 %UnRAR% x -u -y -inul "%qextract2-2%"
 if defined qextract2-2 del "%qextract2-2%" 2>nul
 if defined qextract2-2 echo Finished
 color 0c
-if %plugin3queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\Boris FX*.rar") do (set "qextract3=%%A")
+if %plugin3queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\*.rar") do (set "qextract3=%%A")
 if defined qextract3 cd "%~dp0Installer-files\Plugins\Boris FX - Continuum Complete" & %Print%{244;255;0} Extracting Boris FX - Continuum Complete \n
 if defined qextract3 %UnRAR% x -u -y -inul "%qextract3%"
 if defined qextract3 del "%qextract3%" 2>nul
 if defined qextract3 echo Finished
 color 0c
-if %plugin4queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\Boris FX*.rar") do (set "qextract4=%%A")
+if %plugin4queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\*.rar") do (set "qextract4=%%A")
 if defined qextract4 cd "%~dp0Installer-files\Plugins\Boris FX - Silhouette" & %Print%{244;255;0} Extracting Boris FX - Silhouette \n
 if defined qextract4 %UnRAR% x -u -y -inul "%qextract4%"
 if defined qextract4 del "%qextract4%" 2>nul
 if defined qextract4 echo Finished
 color 0c
-if %plugin5queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\FXHOME*.rar") do (set "qextract5=%%A")
+if %plugin5queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\*.rar") do (set "qextract5=%%A")
 if defined qextract5 cd "%~dp0Installer-files\Plugins\FXHOME - Ignite Pro" & %Print%{244;255;0} Extracting FXHOME - Ignite Pro \n
 if defined qextract5 %UnRAR% x -u -y -inul "%qextract5%"
 if defined qextract5 del "%qextract5%" 2>nul
 if defined qextract5 echo Finished
 color 0c
-if %plugin6queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\MAXON*.rar") do (set "qextract6=%%A")
+if %plugin6queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\*.rar") do (set "qextract6=%%A")
 if defined qextract6 cd "%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite" & %Print%{244;255;0} Extracting MAXON - Red Giant Magic Bullet Suite \n
 if defined qextract6 %UnRAR% x -u -y -inul "%qextract6%"
 if defined qextract6 del "%qextract6%" 2>nul
 if defined qextract6 echo Finished
 color 0c
-if %plugin7queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\MAXON*.rar") do (set "qextract7=%%A")
+if %plugin7queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\*.rar") do (set "qextract7=%%A")
 if defined qextract7 cd "%~dp0Installer-files\Plugins\MAXON - Red Giant Universe" & %Print%{244;255;0} Extracting MAXON - Red Giant Universe \n
 if defined qextract7 %UnRAR% x -u -y -inul "%qextract7%"
 if defined qextract7 del "%qextract7%" 2>nul
 if defined qextract7 echo Finished
 color 0c
-if %plugin8queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\NewBlueFX*.rar") do (set "qextract8=%%A")
+if %plugin8queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\*.rar") do (set "qextract8=%%A")
 if defined qextract8 cd "%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate" & %Print%{244;255;0} Extracting NewBlueFX - Titler Pro 7 Ultimate \n
 if defined qextract8 %UnRAR% x -u -y -inul "%qextract8%"
 if defined qextract8 del "%qextract8%" 2>nul
 if defined qextract8 echo Finished
 color 0c
-if %plugin9queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\NewBlueFX*.rar") do (set "qextract9=%%A")
+if %plugin9queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\*.rar") do (set "qextract9=%%A")
 if defined qextract9 cd "%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7" & %Print%{244;255;0} Extracting NewBlueFX - TotalFX 7 \n
 if defined qextract9 %UnRAR% x -u -y -inul "%qextract9%"
 if defined qextract9 del "%qextract9%" 2>nul
 if defined qextract9 echo Finished
 color 0c
-if %plugin10queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\REVisionFX*.rar") do (set "qextract10=%%A")
+if %plugin10queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\*.rar") do (set "qextract10=%%A")
 if defined qextract10 cd "%~dp0Installer-files\Plugins\REVisionFX - Effections Suite" & %Print%{244;255;0} Extracting REVisionFX - Effections Suite \n
 if defined qextract10 %UnRAR% x -u -y -inul "%qextract10%"
 if defined qextract10 del "%qextract10%" 2>nul
 if defined qextract10 echo Finished
 color 0c
-if %plugin11queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Pro\MAGIX*.rar") do (set "qextract11=%%A")
+if %plugin11queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Pro\*.rar") do (set "qextract11=%%A")
 if defined qextract11 cd "%~dp0Installer-files\Magix Vegas Software\VEGAS Pro" & %Print%{244;255;0} Extracting VEGAS Pro \n
 if defined qextract11 %UnRAR% x -u -y -inul "%qextract11%"
 if defined qextract11 del "%qextract11%" 2>nul
 if defined qextract11 echo Finished
 color 0c
-if %plugin12queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\Deep*.rar") do (set "qextract12=%%A")
+if %plugin12queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\*.rar") do (set "qextract12=%%A")
 if defined qextract12 cd "%~dp0Installer-files\Magix Vegas Software\Deep Learning Models" & %Print%{244;255;0} Extracting VEGAS Pro Deep Learning Models \n
 if defined qextract12 %UnRAR% x -u -y -inul "%qextract12%"
 if defined qextract12 del "%qextract12%" 2>nul
 if defined qextract12 echo Finished
 color 0c
-if %plugin13queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Effects\MAGIX*.rar") do (set "qextract13=%%A")
+if %plugin13queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Effects\*.rar") do (set "qextract13=%%A")
 if defined qextract13 cd "%~dp0Installer-files\Magix Vegas Software\VEGAS Effects" & %Print%{244;255;0} Extracting VEGAS Effects \n
 if defined qextract13 %UnRAR% x -u -y -inul "%qextract13%"
 if defined qextract13 del "%qextract13%" 2>nul
 if defined qextract13 echo Finished
 color 0c
-if %plugin14queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Image\MAGIX*.rar") do (set "qextract14=%%A")
+if %plugin14queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Image\*.rar") do (set "qextract14=%%A")
 if defined qextract14 cd "%~dp0Installer-files\Magix Vegas Software\VEGAS Image" & %Print%{244;255;0} Extracting VEGAS Image \n
 if defined qextract14 %UnRAR% x -u -y -inul "%qextract14%"
 if defined qextract14 del "%qextract14%" 2>nul
