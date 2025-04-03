@@ -99,7 +99,7 @@ set ScriptVersionGit=%ScriptVersionGit:",=%
 set ScriptVersionGit=%ScriptVersionGit:"=%
 set ScriptVersionGit=%ScriptVersionGit:v=%
 set ScriptVersionGit=%ScriptVersionGit: =%
-set ScriptVersion=v7.1.0
+set ScriptVersion=v7.1.1
 set ScriptVersion2=%ScriptVersion:v=%
 set ScriptVersionDisplay=Version - %ScriptVersion2%
 GOTO check-auto-up
@@ -439,10 +439,9 @@ if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%x in (Plug-Installati
 )
 :: Parses each line in Plug-Installations-found.txt to a number counter
 :: sets variables for each plugin to 0, counts later when checked.
-if %MainPluginSelection% EQU 1 set "cmd3=findstr /R /N "^^" Plug-Installations-found-output.txt | find /C ":""
-if %MainPluginSelection% EQU 1 for /f %%U in ('!cmd3!') do set PlugNumber=%%U
-if %MainMagixSelection% EQU 1 set "cmd3=findstr /R /N "^^" Magix-Installations-found-output.txt | find /C ":""
-if %MainMagixSelection% EQU 1 for /f %%U in ('!cmd3!') do set PlugNumber=%%U
+set PlugNumber=0
+if %MainPluginSelection% EQU 1 for /F %%a in ('findstr /R . Plug-Installations-found-output.txt') do (set /A PlugNumber+=1)
+if %MainMagixSelection% EQU 1 for /F %%a in ('findstr /R . Magix-Installations-found-output.txt') do (set /A PlugNumber+=1)
 set PlugNumberFinal=%PlugNumber%
 set getOptionsPlugCountCheck=0
 set plugcountbfxsaph=0
