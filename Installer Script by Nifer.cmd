@@ -78,6 +78,7 @@ pause
 :curl-check
 :: checks system for curl. This is not needed for the latest windows versions... however if a user doesn't have curl for some reason, it will copy curl into system32 to work in env paths.
 :: the curl.exe given apart of this download is from and signed by microsoft.
+if not exist "%~dp0Installer-files\Installer-Scripts\Settings\" mkdir "%~dp0Installer-files\Installer-Scripts\Settings"
 if not exist "C:\Windows\System32\curl.exe" xcopy "%~dp0Installer-files\Installer-Scripts\curl.exe" "C:\Windows\System32\curl.exe*" /I /Q /Y /F
 GOTO set-variables
 
@@ -94,12 +95,12 @@ set _my_datetime=%_my_datetime::=%
 set _my_datetime=%_my_datetime:/=_%
 set _my_datetime=%_my_datetime:.=_%
 :: Get's latest release tag from github repo, and compares with current version.
-for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| find "tag_name"') do (set ScriptVersionGit=%%B)
+for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| findstr /C:"tag_name"') do (set ScriptVersionGit=%%B)
 set ScriptVersionGit=%ScriptVersionGit:",=%
 set ScriptVersionGit=%ScriptVersionGit:"=%
 set ScriptVersionGit=%ScriptVersionGit:v=%
 set ScriptVersionGit=%ScriptVersionGit: =%
-set ScriptVersion=v7.1.1
+set ScriptVersion=v7.1.2
 set ScriptVersion2=%ScriptVersion:v=%
 set ScriptVersionDisplay=Version - %ScriptVersion2%
 GOTO check-auto-up
@@ -154,7 +155,7 @@ cls
 color 0C
 %Print%{231;72;86} Getting Latest Version \n
 echo/
-for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| find "browser_download_url"') do (curl -kOL %%B)
+for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| findstr /C:"browser_download_url"') do (curl -kOL %%B)
 echo/
 %Print%{231;72;86} Applying Update \n
 FOR %%A in ("*.rar") do (set "updateextract=%%A")
@@ -334,6 +335,18 @@ for /f "tokens=1,2*" %%J in ('^
     )
 )
 for /f "tokens=1,2*" %%J in ('^
+    reg query HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "NewBlue TotalFX 360"^
+') do (
+    if "%%J"=="DisplayName" (
+	::echo %%L
+        set plugnbxtitlerlist=%%L
+	echo !plugnbxtitlerlist! 2>nul
+    ) else (
+        set str=%%J
+        if "!str:~0,4!"=="HKEY" set key=%%J
+    )
+)
+for /f "tokens=1,2*" %%J in ('^
     reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "RE:Vision Effections Fusion"^
 ') do (
     if "%%J"=="DisplayName" (
@@ -478,6 +491,7 @@ if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == 
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,8!" == "Universe" set /a plugcountuni+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" set /a plugcountnfxtitler+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,17!" == "NewBlue TotalFX 7" set /a plugcountnfxtotal+=1
+if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "NewBlue TotalFX 360" set /a plugcountnfxtitler+=1
 if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,20!" == "RE:Vision Effections" set /a plugcountrfxeff+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 22.0  " set /a magixcountvp+=1
 if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 21.0  " set /a magixcountvp+=1
@@ -864,6 +878,7 @@ if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,18!" == "Magic Bullet Suite" >> %P
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,8!" == "Universe" >> %Plug-Uninstall-found% echo MAXON - Red Giant Universe & set "PlugUninstall9=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" >> %Plug-Uninstall-found% echo NEWBLUEFX - Titler Pro 7 Ultimate & set "PlugUninstall10=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,17!" == "NewBlue TotalFX 7" >> %Plug-Uninstall-found% echo NEWBLUEFX - TotalFX 7 & set "PlugUninstall11=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
+if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,19!" == "NewBlue TotalFX 360" >> %Plug-Uninstall-found% echo NEWBLUEFX - TotalFX 360 & set "PlugUninstall10=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,20!" == "RE:Vision Effections" >> %Plug-Uninstall-found% echo REVISIONFX - Effections & set "PlugUninstall12=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
 set /a PlugUninstnumber+=1
 GOTO Plug-Uninst-loopcheck
@@ -946,6 +961,7 @@ if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "MAXON - Red Giant Magic Bul
 if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "MAXON - Red Giant Universe " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall9% & set MaxonUNIUninst=1
 if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - Titler Pro 7 Ultimate " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall10%
 if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - TotalFX 7 " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall11%
+if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - TotalFX 360 " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall10%
 if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "REVISIONFX - Effections " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall12%
 exit /B
 
@@ -1359,7 +1375,7 @@ echo ---------------------------------
 echo/
 setLocal
 :: Trims down output and removes duplicate entries
-for /f "eol=- tokens=* delims= " %%T in ('find "VEGAS Pro" VP-Installations-found-output.txt') do (
+for /f "eol=- tokens=* delims= " %%T in ('findstr /C:"VEGAS Pro" VP-Installations-found-output.txt') do (
 	set tempvar12=%%T
    ::echo.%%T
    echo  !tempvar12:---------- =! 2>nul | findstr /v Voukoder 2>nul
@@ -1370,8 +1386,8 @@ if %Magix-Alr-Installed% EQU 1 GOTO select-vp-uninstall-12
 echo/
 echo ---------------------------------
 echo/
-%Print%{0;185;255}NOTE: You will need to Un-Install Previous Versions of VEGAS Pro if they match VEGAS Pro 21 \n
-%Print%{0;185;255}      Otherwise, Installing VP21 will not work, Older Versions of VP are okay to keep. \n
+%Print%{0;185;255}NOTE: You will need to Un-Install Previous Versions of VEGAS Pro if they match VEGAS Pro 22 \n
+%Print%{0;185;255}      Otherwise, Installing VP22 will not work, Older Versions of VP are okay to keep. \n
 echo/
 %Print%{255;255;255} What do you want to do? \n
 %Print%{231;72;86} 1 = Select what programs to Uninstall and Continue \n
