@@ -2,6 +2,7 @@
   <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/4f67702b11829893a4a78e5a30ae3ab1ccabb8be/imgs/Nifer%20AVI%20square%20border.jpg" alt="Nifer's Logo"/>
 </p>
 <p align="center">
+  <a href="https://github.com/ItsNifer/Nifer-Installer-Script/releases/download/v7.2.1/Nifer.Installer.Script.v7.2.1.rar"><img alt="Download" src="https://custom-icon-badges.demolab.com/badge/-Download-limegreen?style=for-the-badge&logo=download&logoColor=white"></a>
   <a href="https://twitter.com/NiferEdits"><img alt="Twitter" src="https://img.shields.io/badge/twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white"></a>
 </p>
 <h1 align="center">Nifer's Installer Script (NIS)</h1>
