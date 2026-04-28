@@ -1,3430 +1,1667 @@
-
 @echo off
-color 0C
-@C:\Windows\System32\chcp 28591 > nul
-@C:\Windows\System32\mode con cols=105 lines=35
-@Title Start as Admin 
-:: function for colored lines using ascii
-@Echo Off & Setlocal DisableDelayedExpansion
-::: { Creates variable /AE = Ascii-27 escape code.
-::: - %/AE% can be used  with and without DelayedExpansion.
-    For /F %%a in ('echo prompt $E ^| cmd')do set "/AE=%%a"
-::: }
+:: ============================================================================
+::  Installer Script by Nifer
+::  Patch and Script by Nifer
+::  Twitter - @NiferEdits
+:: ============================================================================
 
-(Set \n=^^^
+color 0C
+%SystemRoot%\System32\chcp.com 28591 >nul
+%SystemRoot%\System32\mode.com con cols=105 lines=35
+title Start as Admin
+
+:: Colored-print macro (RGB via ANSI escape)
+setlocal DisableDelayedExpansion
+for /f %%a in ('echo prompt $E ^| cmd') do set "/AE=%%a"
+(set \n=^^^
 %=Newline DNR=%
 )
-::: / Color Print Macro -
-::: Usage: %Print%{RRR;GGG;BBB}text to output
-::: \n at the end of the string echo's a new line
-::: valid range for RGB values: 0 - 255
-  Set Print=For %%n in (1 2)Do If %%n==2 (%\n%
+set Print=For %%n in (1 2)Do If %%n==2 (%\n%
     For /F "Delims=" %%G in ("!Args!")Do (%\n%
       For /F "Tokens=1 Delims={}" %%i in ("%%G")Do Set "Output=%/AE%[0m%/AE%[38;2;%%im!Args:{%%~i}=!"%\n%
       ^< Nul set /P "=!Output:\n=!%/AE%[0m"%\n%
       If "!Output:~-2!"=="\n" (Echo/^&Endlocal)Else (Endlocal)%\n%
     )%\n%
   )Else Setlocal EnableDelayedExpansion ^& Set Args=
-::: / Erase Macro -
-::: Usage: %Erase%{string of the length to be erased}
-  Set Erase=For %%n in (1 2)Do If %%n==2 (%\n%
-    For /F "Tokens=1 Delims={}" %%G in ("!Args!")Do (%\n%
-      Set "Nul=!Args:{%%G}=%%G!"%\n%
-      For /L %%# in (0 1 100) Do (If Not "!Nul:~%%#,1!"=="" ^< Nul set /P "=%/AE%[D%/AE%[K")%\n%
-    )%\n%
-    Endlocal%\n%
-  )Else Setlocal EnableDelayedExpansion ^& Set Args=
-:: Checking for admin rights
-::------------------------------------------
-REM --> Checking Permissions
+setlocal EnableDelayedExpansion
+
+:: Admin elevation check
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
-REM --> Error: No admistrative privlages
 if '%errorlevel%' NEQ '0' (
-REM --> Checking administrative privileges
-goto UACPrompt
-) else ( goto gotAdmin )
-:UACPrompt
-@echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-set params = %*:"="
-echo UAC.ShellExecute "%~s0", "%params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
-"%temp%\getadmin.vbs"
-exit /B
-:gotAdmin
-if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "%~s0", "", "", "runas", 1            >> "%temp%\getadmin.vbs"
+    "%temp%\getadmin.vbs"
+    exit /B
+)
+if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs"
 pushd "%CD%"
-CD /D "%~dp0"
-set wget="%~dp0Installer-files\Installer-Scripts\wget.exe"
-@cls
-GOTO initial-extract-check
+cd /d "%~dp0"
 
-:initial-extract-check
-if not exist ".\Installer-files\" GOTO initial-extract-check-error
-GOTO curl-check
+:: Basic path + tool variables
+set "ROOT=%~dp0"
+if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
+set "IF_DIR=%ROOT%\Installer-files"
+set "SCR_DIR=%IF_DIR%\Installer-Scripts"
+set "SET_DIR=%SCR_DIR%\Settings"
+set "LOG_DIR=%IF_DIR%\Logs"
+set "PLG_DIR=%IF_DIR%\Plugins"
+set "MGX_DIR=%IF_DIR%\Magix Vegas Software"
 
-:initial-extract-check-error
+set wget="%SCR_DIR%\wget.exe"
+set UnRAR="%SCR_DIR%\UnRAR.exe"
+
+:: Script version
+set "ScriptVersion=v7.2.1"
+set "ScriptVersion2=%ScriptVersion:v=%"
+set "ScriptVersionDisplay=Version - %ScriptVersion2%"
+
+:: Verify extract + create required dirs
+if not exist "%IF_DIR%" goto :FatalNotExtracted
+if not exist "%SET_DIR%" mkdir "%SET_DIR%" >nul 2>&1
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
+
+:: Copy curl into System32 if missing
+if not exist "%SystemRoot%\System32\curl.exe" (
+    if exist "%SCR_DIR%\curl.exe" xcopy "%SCR_DIR%\curl.exe" "%SystemRoot%\System32\curl.exe*" /I /Q /Y /F >nul 2>&1
+)
+
+:: Log File info
+set "_my_datetime=%date%_%time%"
+set "_my_datetime=%_my_datetime: =_%"
+set "_my_datetime=%_my_datetime::=%"
+set "_my_datetime=%_my_datetime:/=_%"
+set "_my_datetime=%_my_datetime:.=_%"
+
+:: ============================================================================
+::  ITEM TABLE
+::  Every supported product (software or plugin) is defined once here.
+::  Properties:
+::    .name      - label shown in menus and reports
+::    .group     - "magix" (VEGAS software) or "plugin" (3rd-party)
+::    .folder    - subfolder name under Plugins\ or Magix Vegas Software\
+::    .root      - parent folder (PLG_DIR or MGX_DIR)
+::    .fs_id     - PixelDrain filesystem (folder) ID
+::                 to confirm; the JSON's "children" array lists the files.
+::    .fs_file   - exact filename to pull from that folder
+::    .size      - fallback / static size shown until the JSON fetch completes
+::                 (the live size from PixelDrain replaces it at runtime)
+::    .regs      - list of reg-query display-name patterns
+::    .regexclude- patterns to subtract from the reg-query
+::    .optrow    - row number in the selection menu (1..N within group)
+:: ============================================================================
+
+set "ITEMS=vp vpdlm ve vi bfxsaph bfxmocha bfxcontin bfxsilho ignite rg nfxtitler nfxtotal rfxeff vpuadd"
+
+:: Magix VEGAS software
+set "vp.name=VEGAS Pro"
+set "vp.group=magix"
+set "vp.root=MGX_DIR"
+set "vp.folder=VEGAS Pro"
+set "vp.fs_id=bYnZa9LR"
+set "vp.fs_file=VEGAS Pro.rar"
+set "vp.size=665 MB"
+set "vp.regs=VEGAS Pro 2026|VEGAS Pro 23.0|VEGAS Pro 22.0|VEGAS Pro 21.0|VEGAS Pro 20.0|VEGAS Pro 19.0|VEGAS Pro 18.0|VEGAS Pro 17.0|VEGAS Pro 16.0|VEGAS Pro 15.0|VEGAS Pro 14.0"
+set "vp.regexclude=Voukoder|Mocha|Deep Learning|Capture"
+set "vp.optrow=1"
+
+set "vpdlm.name=VEGAS Pro Deep Learning Models"
+set "vpdlm.group=magix"
+set "vpdlm.root=MGX_DIR"
+set "vpdlm.folder=Deep Learning Models"
+set "vpdlm.fs_id=bYnZa9LR"
+set "vpdlm.fs_file=AI Models.rar"
+set "vpdlm.size=1.38 GB"
+set "vpdlm.regs=Deep Learning Models"
+set "vpdlm.regexclude="
+set "vpdlm.optrow=2"
+
+set "ve.name=VEGAS Effects"
+set "ve.group=magix"
+set "ve.root=MGX_DIR"
+set "ve.folder=VEGAS Effects"
+set "ve.fs_id=bYnZa9LR"
+set "ve.fs_file=VEGAS Effects.rar"
+set "ve.size=205 MB"
+set "ve.regs=VEGAS Effects"
+set "ve.regexclude="
+set "ve.optrow=3"
+
+set "vi.name=VEGAS Image"
+set "vi.group=magix"
+set "vi.root=MGX_DIR"
+set "vi.folder=VEGAS Image"
+set "vi.fs_id=bYnZa9LR"
+set "vi.fs_file=VEGAS Image.rar"
+set "vi.size=105 MB"
+set "vi.regs=VEGAS Image"
+set "vi.regexclude="
+set "vi.optrow=4"
+
+:: 3rd-party plugins OFX
+set "bfxsaph.name=BORIS FX - Sapphire"
+set "bfxsaph.group=plugin"
+set "bfxsaph.root=PLG_DIR"
+set "bfxsaph.folder=Boris FX - Sapphire"
+set "bfxsaph.fs_id=8yM3boe7"
+set "bfxsaph.fs_file=BFX-Sapphire.rar"
+set "bfxsaph.size=322 MB"
+set "bfxsaph.regs=Boris FX Sapphire Plug-ins"
+set "bfxsaph.regexclude=for After Effects|for Adobe|for Photoshop"
+set "bfxsaph.optrow=1"
+
+set "bfxmocha.name=BORIS FX - Mocha Pro"
+set "bfxmocha.group=plugin"
+set "bfxmocha.root=PLG_DIR"
+set "bfxmocha.folder=Boris FX - Mocha Pro"
+set "bfxmocha.fs_id=8yM3boe7"
+set "bfxmocha.fs_file=BFX-Mocha.rar"
+set "bfxmocha.size=165 MB"
+set "bfxmocha.regs=Boris FX Mocha Plug-ins"
+set "bfxmocha.regexclude=for After Effects|for Adobe|for Photoshop"
+set "bfxmocha.optrow=2"
+
+set "bfxcontin.name=BORIS FX - Continuum Complete"
+set "bfxcontin.group=plugin"
+set "bfxcontin.root=PLG_DIR"
+set "bfxcontin.folder=Boris FX - Continuum Complete"
+set "bfxcontin.fs_id=8yM3boe7"
+set "bfxcontin.fs_file=BFX-BCC.rar"
+set "bfxcontin.size=790 MB"
+set "bfxcontin.regs=Boris FX Continuum|BorisFX Continuum"
+set "bfxcontin.regexclude=for After Effects|for Adobe|for Photoshop"
+set "bfxcontin.optrow=3"
+
+set "bfxsilho.name=BORIS FX - Silhouette"
+set "bfxsilho.group=plugin"
+set "bfxsilho.root=PLG_DIR"
+set "bfxsilho.folder=Boris FX - Silhouette"
+set "bfxsilho.fs_id=8yM3boe7"
+set "bfxsilho.fs_file=BFX-Silhouette.rar"
+set "bfxsilho.size=1.45 GB"
+set "bfxsilho.regs=Boris FX Silhouette|Silhouette"
+set "bfxsilho.regexclude="
+set "bfxsilho.optrow=4"
+
+set "ignite.name=FXHOME - Ignite Pro"
+set "ignite.group=plugin"
+set "ignite.root=PLG_DIR"
+set "ignite.folder=FXHOME - Ignite Pro"
+set "ignite.fs_id=8yM3boe7"
+set "ignite.fs_file=FXH-Ignite.rar"
+set "ignite.size=430 MB"
+set "ignite.regs=Ignite Pro|Ignite Pro by Nifer"
+set "ignite.regexclude="
+set "ignite.optrow=5"
+
+set "rg.name=MAXON - Red Giant Suite"
+set "rg.group=plugin"
+set "rg.root=PLG_DIR"
+set "rg.folder=MAXON - Red Giant Suite"
+set "rg.fs_id=8yM3boe7"
+set "rg.fs_file=MXN-RG.rar"
+set "rg.size=2.30 GB"
+set "rg.regs=Magic Bullet Suite|Universe"
+set "rg.regexclude="
+set "rg.optrow=6"
+
+set "nfxtitler.name=NEWBLUEFX - Titler Pro 7"
+set "nfxtitler.group=plugin"
+set "nfxtitler.root=PLG_DIR"
+set "nfxtitler.folder=NewBlueFX - Titler Pro 7 Ultimate"
+set "nfxtitler.fs_id=8yM3boe7"
+set "nfxtitler.fs_file=NFX-Titler.rar"
+set "nfxtitler.size=630 MB"
+set "nfxtitler.regs=NewBlue Titler Pro 7 Ultimate"
+set "nfxtitler.regexclude="
+set "nfxtitler.optrow=7"
+
+set "nfxtotal.name=NEWBLUEFX - TotalFX 360"
+set "nfxtotal.group=plugin"
+set "nfxtotal.root=PLG_DIR"
+set "nfxtotal.folder=NewBlueFX - TotalFX 360"
+set "nfxtotal.fs_id=8yM3boe7"
+set "nfxtotal.fs_file=NFX-TotalFX.rar"
+set "nfxtotal.size=790 MB"
+set "nfxtotal.regs=NewBlue TotalFX 7|NewBlue TotalFX 360"
+set "nfxtotal.regexclude="
+set "nfxtotal.optrow=8"
+
+set "rfxeff.name=REVISIONFX - Effections"
+set "rfxeff.group=plugin"
+set "rfxeff.root=PLG_DIR"
+set "rfxeff.folder=REVisionFX - Effections Suite"
+set "rfxeff.fs_id=8yM3boe7"
+set "rfxeff.fs_file=RFX-Effections.rar"
+set "rfxeff.size=50 MB"
+set "rfxeff.regs=RE:Vision Effections"
+set "rfxeff.regexclude="
+set "rfxeff.optrow=9"
+
+set "vpuadd.name=VEGAS Pro 2026 Ultimate Addons"
+set "vpuadd.group=plugin"
+set "vpuadd.root=PLG_DIR"
+set "vpuadd.folder=VEGAS Pro 2026 - Ultimate Addons"
+set "vpuadd.fs_id=8yM3boe7"
+set "vpuadd.fs_file=VPU-Addons.rar"
+set "vpuadd.size=8.19 GB"
+set "vpuadd.regs=Boris FX Continuum 2026.1 OFX|Boris FX Continuum 2026 OFX|Boris FX CrumplePop for VST3|Boris FX Sound Forge 2026|Sound Forge Pro 2026|Boris FX Optics 2026|Boris FX SoundApp"
+set "vpuadd.regexclude="
+set "vpuadd.optrow=10"
+
+:: VEGAS Pro 2026 Ultimate Addons — bundle definition
+set "VPU_SUBS=vpu_bcc vpu_crumpl vpu_forge vpu_optics vpu_soundapp"
+
+set "vpu_bcc.name=Boris FX Continuum 2026.1 OFX (for VEGAS Pro 2026)"
+set "vpu_bcc.regs=Boris FX Continuum 2026.1 OFX|Boris FX Continuum 2026 OFX"
+set "vpu_bcc.regexclude="
+
+set "vpu_crumpl.name=Boris FX CrumplePop for VST3"
+set "vpu_crumpl.regs=Boris FX CrumplePop for VST3"
+set "vpu_crumpl.regexclude="
+
+set "vpu_forge.name=Boris FX Sound Forge 2026"
+set "vpu_forge.regs=Boris FX Sound Forge 2026|Sound Forge Pro 2026"
+set "vpu_forge.regexclude="
+
+set "vpu_optics.name=Boris FX Optics 2026"
+set "vpu_optics.regs=Boris FX Optics 2026"
+set "vpu_optics.regexclude="
+
+set "vpu_soundapp.name=Boris FX SoundApp"
+set "vpu_soundapp.regs=Boris FX SoundApp"
+set "vpu_soundapp.regexclude="
+
+goto :CheckAutoUpdate
+
+:: ======================================================================================================================
+::  AUTO-UPDATE CHECK
+:CheckAutoUpdate
+:: States: auto-update-0 (undecided), -1 (enabled), -2 (disabled)
+if not exist "%SET_DIR%\auto-update*.txt" type nul > "%SET_DIR%\auto-update-0.txt"
+if exist "%SET_DIR%\auto-update-1.txt" goto :AutoUpdateEnabled
+if exist "%SET_DIR%\auto-update-2.txt" goto :Main
+if exist "%SET_DIR%\auto-update-0.txt" goto :AutoUpdatePrompt
+goto :Main
+
+:AutoUpdatePrompt
 cls
-color 0C
-echo/                                                        
-%Print%{231;72;86}             Error: Script contents not found. \n
-%Print%{0;185;255}        Please ensure script contents are properly \n
-%Print%{0;185;255}              extracted from it's zipped file. \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}To extract files: Right click on "Nifer Installer Script.rar" and press "Extract files" \n
-%Print%{231;72;86}   Choose a destination to extract the files to, or extract to the current directory. \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}If you have WinRAR or 7zip installed, simply extract the zipped contents. \n
-pause
-
-:curl-check
-:: checks system for curl. This is not needed for the latest windows versions... however if a user doesn't have curl for some reason, it will copy curl into system32 to work in env paths.
-:: the curl.exe given apart of this download is from and signed by microsoft.
-if not exist "%~dp0Installer-files\Installer-Scripts\Settings\" mkdir "%~dp0Installer-files\Installer-Scripts\Settings"
-if not exist "C:\Windows\System32\curl.exe" xcopy "%~dp0Installer-files\Installer-Scripts\curl.exe" "C:\Windows\System32\curl.exe*" /I /Q /Y /F
-GOTO set-variables
-
-:set-variables
-:: Sets variables used throughout the script.
-set jrepl="%~dp0Installer-files\Installer-Scripts\jrepl.bat"
-set mediafire="%~dp0Installer-files\Installer-Scripts\MediaFireDownloader.exe"
-set wget="%~dp0Installer-files\Installer-Scripts\wget.exe"
-set UnRAR="%~dp0Installer-files\Installer-Scripts\UnRAR.exe"
-:: Get's current date and time to use later for any logging files (for any potential errors)
-set _my_datetime=%date%_%time%
-set _my_datetime=%_my_datetime: =_%
-set _my_datetime=%_my_datetime::=%
-set _my_datetime=%_my_datetime:/=_%
-set _my_datetime=%_my_datetime:.=_%
-:: Get's latest release tag from github repo, and compares with current version.
-for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| findstr /C:"tag_name"') do (set ScriptVersionGit=%%B)
-set ScriptVersionGit=%ScriptVersionGit:",=%
-set ScriptVersionGit=%ScriptVersionGit:"=%
-set ScriptVersionGit=%ScriptVersionGit:v=%
-set ScriptVersionGit=%ScriptVersionGit: =%
-set ScriptVersion=v7.1.2
-set ScriptVersion2=%ScriptVersion:v=%
-set ScriptVersionDisplay=Version - %ScriptVersion2%
-GOTO check-auto-up
-
-:: 1=yes, 0=default, 2=no
-:check-auto-up
-if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" break>".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt"
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO check-auto-1
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" GOTO check-auto-0
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO check-auto-1
-:check-auto-0
-cls
-color 0C
-echo/                                                        
+echo/
 %Print%{231;72;86}             Auto Updating is Not Enabled. \n
 %Print%{0;185;255}    Note: Auto Updating will only check for updates \n
 %Print%{0;185;255}              when the script is running. \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            1) Enable Auto Updating \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            2) Disable Auto Updating \n
 echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what option you want." /N
-IF ERRORLEVEL 2  REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-2.txt" 2>nul & GOTO Main
-IF ERRORLEVEL 1  REN ".\Installer-files\Installer-Scripts\Settings\auto-update-0.txt" "auto-update-1.txt" 2>nul & GOTO check-auto-1
-:check-auto-1
-if %ScriptVersion2% LSS %ScriptVersionGit% GOTO check-auto-2
-if %ScriptVersion2% EQU %ScriptVersionGit% echo Script is up to date. & timeout /T 3 /nobreak >nul & GOTO Main
-if %ScriptVersion2% GTR %ScriptVersionGit% GOTO Main
-GOTO Main
-:check-auto-2
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO check-auto-3
+%Print%{204;204;204}            1) Enable Auto Updating \n
+%Print%{204;204;204}            2) Disable Auto Updating \n
+echo/
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what option you want." /N
+if errorlevel 2 (ren "%SET_DIR%\auto-update-0.txt" "auto-update-2.txt" >nul 2>&1 & goto :Main)
+if errorlevel 1 (ren "%SET_DIR%\auto-update-0.txt" "auto-update-1.txt" >nul 2>&1 & goto :AutoUpdateEnabled)
+goto :Main
+
+:AutoUpdateEnabled
+:: Fetch latest release tag from GitHub
+set "ScriptVersionGit="
+for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| findstr /C:"tag_name"') do set "ScriptVersionGit=%%B"
+if not defined ScriptVersionGit goto :Main
+set "ScriptVersionGit=%ScriptVersionGit:",=%"
+set "ScriptVersionGit=%ScriptVersionGit:"=%"
+set "ScriptVersionGit=%ScriptVersionGit:v=%"
+set "ScriptVersionGit=%ScriptVersionGit: =%"
+if "%ScriptVersion2%"=="%ScriptVersionGit%" (
+    echo Script is up to date.
+    timeout /T 3 /nobreak >nul
+    goto :Main
+)
+if %ScriptVersion2% GTR %ScriptVersionGit% goto :Main
 cls
-color 0C
-echo/                                                        
-%Print%{231;72;86}		       Current Script Version is: 
+echo/
+%Print%{231;72;86}           Current Script Version is:
 %Print%{244;255;0}%ScriptVersion2% \n
-%Print%{231;72;86}		       Latest Script Version is: 
+%Print%{231;72;86}           Latest Script Version is:
 %Print%{244;255;0}%ScriptVersionGit% \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            1) Update to the Latest Version \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            2) Skip this update \n
 echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what option you want." /N
-IF ERRORLEVEL 2  GOTO Main
-IF ERRORLEVEL 1  GOTO check-auto-3
-:check-auto-3
-if not exist "%~dp0Installer-files\Nifer Installer Script\" mkdir "%~dp0Installer-files\Nifer Installer Script"
-cd /d "%~dp0Installer-files\Nifer Installer Script"
+:: Show release notes (changelog) from the GitHub release body before the prompt
+call :RenderChangelog
+echo/
+%Print%{204;204;204}            1) Update to the Latest Version \n
+%Print%{255;112;0}            2) Skip this update \n
+echo/
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what option you want." /N
+if errorlevel 2 goto :Main
+if errorlevel 1 goto :DoUpdate
+goto :Main
+
+:DoUpdate
+if not exist "%IF_DIR%\Nifer Installer Script" mkdir "%IF_DIR%\Nifer Installer Script"
+cd /d "%IF_DIR%\Nifer Installer Script"
 cls
-color 0C
 %Print%{231;72;86} Getting Latest Version \n
 echo/
-for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| findstr /C:"browser_download_url"') do (curl -kOL %%B)
+for /f "tokens=1,* delims=:" %%A in ('curl -kLs https://api.github.com/repos/itsnifer/Nifer-Installer-Script/releases/latest ^| findstr /C:"browser_download_url"') do curl -kOL %%B
 echo/
 %Print%{231;72;86} Applying Update \n
-FOR %%A in ("*.rar") do (set "updateextract=%%A")
-if defined updateextract %UnRAR% x -u -y -inul "%updateextract%"
-if defined updateextract del "%updateextract%" 2>nul
-Start "" "%~dp0Installer-files\Nifer Installer Script\Installer-files\Installer-Scripts\Update.cmd"
-@exit
+set "updateextract="
+for %%A in ("*.rar") do set "updateextract=%%A"
+if defined updateextract (
+    %UnRAR% x -u -y -inul "%updateextract%"
+    del "%updateextract%" 2>nul
+)
+if exist "%IF_DIR%\Nifer Installer Script\Installer-files\Installer-Scripts\Update.cmd" (
+    start "" "%IF_DIR%\Nifer Installer Script\Installer-files\Installer-Scripts\Update.cmd"
+)
+exit
 
-::------------------------------------------
+:: ======================================================================================================================
 :Main
-cd /d "%~dp0"
-if defined MainPluginSelection set MainPluginSelection=
-if defined MainMagixSelection set MainMagixSelection=
-
-@Title Installer Script by Nifer
+cd /d "%ROOT%"
+call :ResetRunState
+title Installer Script by Nifer
+:: One-time prefetch of live PixelDrain sizes (only first time we hit Main)
+if not defined PREFETCH_DONE call :ShowPrefetchAndRun
 cls
-color 0C
-echo/                                                        
-%Print%{231;72;86}		   Installer Script by Nifer \n
-%Print%{231;72;86}		   Patch and Script by Nifer \n
-%Print%{244;255;0}                        %ScriptVersionDisplay% \n
-%Print%{231;72;86}		     Twitter - @NiferEdits \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            1) Magix Vegas Software \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            2) 3rd Party Plugins \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}            3) Settings \n
-%Print%{231;72;86}\n
-%Print%{231;72;86}\n
+echo/
+%Print%{231;72;86}           Installer Script by Nifer \n
+%Print%{231;72;86}           Patch and Script by Nifer \n
+%Print%{244;255;0}               %ScriptVersionDisplay% \n
+%Print%{231;72;86}            Twitter - @NiferEdits \n
+echo/
+%Print%{204;204;204}            1) VEGAS Software \n
+echo/
+%Print%{204;204;204}            2) 3rd Party Plugins \n
+echo/
+%Print%{204;204;204}            3) Settings \n
+echo/
+echo/
 %Print%{0;185;255}            4) Donate to support (Paypal) \n
-%Print%{231;72;86}\n
+echo/
 %Print%{255;112;0}            5) Quit \n
 echo/
-C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-5) of what option you want." /N
+%SystemRoot%\System32\choice.exe /C 12345 /M "Type the number (1-5) of what option you want." /N
+set "MENU_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 5  GOTO Quit
-IF ERRORLEVEL 4  GOTO Donate
-IF ERRORLEVEL 3  GOTO 3
-IF ERRORLEVEL 2  set MainPluginSelection=1 & GOTO 2
-IF ERRORLEVEL 1  set MainMagixSelection=1 & GOTO 2
-echo/
+if %MENU_CHOICE% EQU 5 goto :Quit
+if %MENU_CHOICE% EQU 4 goto :Donate
+if %MENU_CHOICE% EQU 3 goto :SettingsMenu
+if %MENU_CHOICE% EQU 2 (set "ACTIVE_GROUP=plugin" & goto :GroupHub)
+if %MENU_CHOICE% EQU 1 (set "ACTIVE_GROUP=magix"  & goto :GroupHub)
+goto :Main
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:2
-color 0c
-if not defined MainPluginSelection set MainPluginSelection=0
-if not defined MainMagixSelection set MainMagixSelection=0
+:Donate
+start "" "https://paypal.me/ItsNifer?country.x=US^&locale.x=en_US"
+goto :Main
 
-if %MainMagixSelection% EQU 1 Echo ******************************************************************
-if %MainMagixSelection% EQU 1 Echo ***             (Option #1) MAGIX Vegas Software               ***
-if %MainMagixSelection% EQU 1 Echo ******************************************************************
-if %MainMagixSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 Echo *****************************************************************
-if %MainPluginSelection% EQU 1 Echo ***          (Option #2) 3rd Party Plugins for OFX            ***
-if %MainPluginSelection% EQU 1 Echo *****************************************************************
-if %MainPluginSelection% EQU 1 echo/
-GOTO SelectPlugins
+:Quit
+cls
+echo Quitting Nifer's Installer Script
+echo Twitter - @NiferEdits
+timeout /T 3 /nobreak >nul
+exit
 
-:SelectPlugins
-cd /d "%~dp0"
-color 0C
-if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check*.txt" break> ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt"
-if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" set getOptionPlugSkip=1
-if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" set getOptionPlugSkip=0
-if not defined getOptionPlugSkip set getOptionPlugSkip=0
-GOTO Plugin-Select-Start
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:LogPlugList
-:: Reg Query for all supported plugins, output to logfile3.
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Boris FX"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugbfxlist=%%L
-	echo !plugbfxlist! 2>nul | findstr /v /C:"After Effects" /C:"Adobe" /C:"Photoshop" /C:"Optics" 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "BorisFX"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugbfx2list=%%L
-	echo !plugbfx2list! 2>nul | findstr /v /C:"After Effects" /C:"Adobe" /C:"Photoshop" /C:"Optics" 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Silhouette"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugbfsilolist=%%L
-	echo !plugbfsilolist! 2>nul
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Pro 21.0 (Mocha VEGAS)"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugvpmochalist=%%L
-	echo !plugvpmochalist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Ignite"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugfxhlist=%%L
-	echo !plugfxhlist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Magic Bullet Suite"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugmbllist=%%L
-	echo !plugmbllist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "Universe"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugunilist=%%L
-	echo !plugunilist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "NewBlue Titler Pro 7 Ultimate"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugnbxtitlerlist=%%L
-	echo !plugnbxtitlerlist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "NewBlue TotalFX 7"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugnbxtfxlist=%%L
-	echo !plugnbxtfxlist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "NewBlue TotalFX 360"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugnbxtitlerlist=%%L
-	echo !plugnbxtitlerlist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "RE:Vision Effections Fusion"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set plugnbxtitlerlist=%%L
-	echo !plugnbxtitlerlist! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-exit /b
 
-:LogMagixList
-:: Reg Query for all supported programs, output to logfilemagix.
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Pro"^
-') do (
-    if "%%J"=="DisplayName" (
-        set vpver=%%L
-	echo !vpver! 2>nul | findstr /v /C:"Voukoder" /C:"Mocha" 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Effects"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set vpeff=%%L
-	echo !vpeff! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Image"^
-') do (
-    if "%%J"=="DisplayName" (
-	::echo %%L
-        set vpimg=%%L
-	echo !vpimg! 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
-exit /b
-
-:Plugin-Select-Start
-setlocal ENABLEDELAYEDEXPANSION
-color 0C
-if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Continue-0
-echo/
+:: ======================================================================================================================
+::  GROUP HUB
+:GroupHub
+cd /d "%ROOT%"
+call :ResetRunState
+:: Scan the registry for installed items
 echo/
 echo                 Loading...
-cd /d "%~dp0"
-::Go to a call, otherwise script will crash
-if %MainPluginSelection% EQU 1 GOTO PlugScan-Pre
-if %MainMagixSelection% EQU 1 GOTO MagixScan-Pre
-:MagixScan-Pre
-SET LOGFILEMagix=".\Installer-files\Installer-Scripts\Settings\Magix-Installations-found.txt"
-call :LogMagixList > %LOGFILEMagix%
-GOTO Scan-Continue
-:PlugScan-Pre
-SET LOGFILE3=".\Installer-files\Installer-Scripts\Settings\Plug-Installations-found.txt"
-call :LogPlugList > %LOGFILE3%
-GOTO Scan-Continue
-:Scan-Continue
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-:: Trims duplicate entries found in Magix-Installations-found.txt
-if %MainMagixSelection% EQU 1 type nul>Magix-Installations-found-output.txt
-if %MainMagixSelection% EQU 1 for /f "tokens=* delims=" %%g in (Magix-Installations-found.txt) do (
-  if %MainMagixSelection% EQU 1 findstr /ixc:"%%g" Magix-Installations-found-output.txt || >>Magix-Installations-found-output.txt echo.%%g
-)
-if %MainMagixSelection% EQU 1 cls
-if %MainMagixSelection% EQU 1 echo/
-if %MainMagixSelection% EQU 1 echo/
-if %MainMagixSelection% EQU 1 echo                 Loading...
-if %MainMagixSelection% EQU 1 setlocal enabledelayedexpansion
-if %MainMagixSelection% EQU 1 set Counter=1
-if %MainMagixSelection% EQU 1 for /f "tokens=* delims=" %%x in (Magix-Installations-found-output.txt) do (
-  if %MainMagixSelection% EQU 1 set "Line_Plug_Select_!Counter!=%%x"
-  if %MainMagixSelection% EQU 1 set /a Counter+=1
-)
-:: Trims duplicate entries found in Plug-Installations-found.txt
-if %MainPluginSelection% EQU 1 type nul>Plug-Installations-found-output.txt
-if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%g in (Plug-Installations-found.txt) do (
-  if %MainPluginSelection% EQU 1 findstr /ixc:"%%g" Plug-Installations-found-output.txt || >>Plug-Installations-found-output.txt echo.%%g
-)
-if %MainPluginSelection% EQU 1 cls
-if %MainPluginSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 echo                 Loading...
-if %MainPluginSelection% EQU 1 setlocal enabledelayedexpansion
-if %MainPluginSelection% EQU 1 set Counter=1
-if %MainPluginSelection% EQU 1 for /f "tokens=* delims=" %%x in (Plug-Installations-found-output.txt) do (
-  if %MainPluginSelection% EQU 1 set "Line_Plug_Select_!Counter!=%%x"
-  if %MainPluginSelection% EQU 1 set /a Counter+=1
-)
-:: Parses each line in Plug-Installations-found.txt to a number counter
-:: sets variables for each plugin to 0, counts later when checked.
-set PlugNumber=0
-if %MainPluginSelection% EQU 1 for /F %%a in ('findstr /R . Plug-Installations-found-output.txt') do (set /A PlugNumber+=1)
-if %MainMagixSelection% EQU 1 for /F %%a in ('findstr /R . Magix-Installations-found-output.txt') do (set /A PlugNumber+=1)
-set PlugNumberFinal=%PlugNumber%
-set getOptionsPlugCountCheck=0
-set plugcountbfxsaph=0
-set plugcountbfxmocha=0
-set plugcountvpbfxmocha=0
-set plugcountbfxcontin=0
-set plugcountbfxsilho=0
-set plugcountignite=0
-set plugcountignitenifer=0
-set plugcountmbl=0
-set plugcountuni=0
-set plugcountnfxtitler=0
-set plugcountnfxtotal=0
-set plugcountrfxeff=0
-set magixcountvp=0
-set magixcountvpdlm=0
-set magixcountve=0
-set magixcountvi=0
-GOTO Plug-Select-Counter
-:Plug-Select-Counter
-IF %PlugNumber% EQU 0 GOTO Plug-Select-Continue-0
-IF %PlugNumber% GEQ 1 GOTO Plug-Select-Loop-1
-:Plug-Select-Loop-1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,26!" == "Boris FX Sapphire Plug-ins" set /a plugcountbfxsaph+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,23!" == "Boris FX Mocha Plug-ins" set /a plugcountbfxmocha+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,28!" == "VEGAS Pro 21.0 (Mocha VEGAS)" set plugcountvpbfxmocha=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Boris FX Continuum" set /a plugcountbfxcontin+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,17!" == "BorisFX Continuum" set /a plugcountbfxcontin+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Boris FX Silhouette" set /a plugcountbfxsilho+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,10!" == "Silhouette" set /a plugcountbfxsilho+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,10!" == "Ignite Pro" set /a plugcountignite+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "Ignite Pro by Nifer" set /a plugcountignitenifer+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,18!" == "Magic Bullet Suite" set /a plugcountmbl+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,8!" == "Universe" set /a plugcountuni+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" set /a plugcountnfxtitler+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,17!" == "NewBlue TotalFX 7" set /a plugcountnfxtotal+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,19!" == "NewBlue TotalFX 360" set /a plugcountnfxtitler+=1
-if %MainPluginSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,20!" == "RE:Vision Effections" set /a plugcountrfxeff+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 22.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 21.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 20.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 19.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 18.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 17.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 16.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 15.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 14.0  " set /a magixcountvp+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 22.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 21.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 20.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 19.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%!" == "VEGAS Pro 18.0 (Deep Learning Models)  " set /a magixcountvpdlm+=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,13!" == "VEGAS Effects" set magixcountve=1
-if %MainMagixSelection% EQU 1 if /I "!Line_Plug_Select_%PlugNumber%:~0,11!" == "VEGAS Image" set /a magixcountvi+=1
-set /a PlugNumber-=1
-GOTO Plug-Select-Counter
+call :ScanAllForGroup "%ACTIVE_GROUP%"
+goto :GroupMenu
 
-:Plug-Select-Continue-0
-if not defined getOptionPlugSkip set getOptionPlugSkip=0
-if not defined getOptionsPlugCountCheck set getOptionsPlugCountCheck=0
-if not defined getOptionsMagixCountCheck set getOptionsMagixCountCheck=0
-if not defined plugcountbfxsaph set plugcountbfxsaph=0
-if not defined plugcountbfxmocha set plugcountbfxmocha=0
-if not defined plugcountvpbfxmocha set plugcountvpbfxmocha=0
-if not defined plugcountbfxcontin set plugcountbfxcontin=0
-if not defined plugcountbfxsilho set plugcountbfxsilho=0
-if not defined plugcountignite set plugcountignite=0
-if not defined plugcountignitenifer set plugcountignitenifer=0
-if not defined plugcountmbl set plugcountmbl=0
-if not defined plugcountuni set plugcountuni=0
-if not defined plugcountnfxtitler set plugcountnfxtitler=0
-if not defined plugcountnfxtotal set plugcountnfxtotal=0
-if not defined plugcountrfxeff set plugcountrfxeff=0
-if not defined magixcountvp set magixcountvp=0
-if not defined magixcountvpdlm set magixcountvpdlm=0
-if not defined magixcountve set magixcountve=0
-if not defined magixcountvi set magixcountvi=0
-GOTO Plug-Select-Continue-1
-
-:Plug-Select-Continue-1
-::0=none 1=ofx 2=vegas 3=both
-if %plugcountbfxmocha% EQU 0 if %plugcountvpbfxmocha% EQU 0 set mochadisplay=0
-if %plugcountbfxmocha% EQU 1 if %plugcountvpbfxmocha% EQU 0 set mochadisplay=1
-if %plugcountbfxmocha% EQU 0 if %plugcountvpbfxmocha% EQU 1 set mochadisplay=2
-if %plugcountbfxmocha% EQU 1 if %plugcountvpbfxmocha% EQU 1 set mochadisplay=3
-if defined plugcountbfxsapfinal set plugcountbfxsapfinal=0
-if defined plugcountbfxmochafinal set plugcountbfxmochafinal=0
-if defined plugcountbfxcontinfinal set plugcountbfxcontinfinal=0
-if defined plugcountbfxsilhofinal set plugcountbfxsilhofinal=0
-if defined plugcountignitefinal set plugcountignitefinal=0
-if defined plugcountmblfinal set plugcountmblfinal=0
-if defined plugcountunifinal set plugcountunifinal=0
-if defined plugcountnfxtitlerfinal set plugcountnfxtitlerfinal=0
-if defined plugcountnfxtotalfinal set plugcountnfxtotalfinal=0
-if defined plugcountrfxefffinal set plugcountrfxefffinal=0
-if defined magixcountvpfinal set magixcountvpfinal=0
-if defined magixcountvpdlmfinal set magixcountvpdlmfinal=0
-if defined magixcountvefinal set magixcountvefinal=0
-if defined magixcountvifinal set magixcountvifinal=0
+:GroupMenu
 cls
-echo/
 color 0C
-if %MainMagixSelection% EQU 1 Echo ******************************************************************
-if %MainMagixSelection% EQU 1 Echo ***             (Option #1) MAGIX Vegas Software               ***
-if %MainMagixSelection% EQU 1 Echo ******************************************************************
-if %MainMagixSelection% EQU 1 echo/
-if %MainMagixSelection% EQU 1 %Print%{255;255;255}	 Available software to Download: \n
-if %MainPluginSelection% EQU 1 Echo *****************************************************************
-if %MainPluginSelection% EQU 1 Echo ***          (Option #2) 3rd Party Plugins for OFX            ***
-if %MainPluginSelection% EQU 1 Echo *****************************************************************
-if %MainPluginSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 %Print%{255;255;255}	 Available plugins to Download: \n
+echo/
+if /I "%ACTIVE_GROUP%"=="magix"  call :PrintMagixHeader
+if /I "%ACTIVE_GROUP%"=="plugin" call :PrintPluginHeader
+echo/
+%Print%{255;255;255}          Currently installed / available items: \n
 echo         --------------------------------
 echo/
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            1) BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            1) BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            1) BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% GEQ 0 %Print%{0;185;255}(595 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% LEQ 1 %Print%{231;72;86}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% LEQ 1 %Print%{0;255;50}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% LEQ 1 %Print%{244;255;0}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% LEQ 1 %Print%{231;72;86}            2) BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% LEQ 1 %Print%{0;255;50}            2) BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% LEQ 1 %Print%{244;255;0}            2) BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 0 if %mochadisplay% LEQ 1 %Print%{0;185;255}(165 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{231;72;86}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{0;255;50}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{244;255;0}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{231;72;86}            2) BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{0;255;50}            2) BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{244;255;0}            2) BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 0 if %mochadisplay% EQU 3 %Print%{0;185;255}(165 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 2 %Print%{231;72;86}            BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 2 %Print%{0;255;50}            BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 2 %Print%{244;255;0}            BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 2 %Print%{231;72;86}            2) BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 2 %Print%{0;255;50}            2) BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 2 %Print%{244;255;0}            2) BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% GEQ 0 if %mochadisplay% EQU 2 %Print%{0;185;255}(70 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{231;72;86}            BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{0;255;50}            BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 if %mochadisplay% EQU 3 %Print%{244;255;0}            BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{231;72;86}            2) BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{0;255;50}            2) BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 if %mochadisplay% EQU 3 %Print%{244;255;0}            2) BORIS FX - Mocha VEGAS 
-if %MainPluginSelection% EQU 1 if %plugcountvpbfxmocha% GEQ 0 if %mochadisplay% EQU 3 %Print%{0;185;255}(70 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            3) BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            3) BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            3) BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% GEQ 0 %Print%{0;185;255}(790 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            4) BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            4) BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            4) BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% GEQ 0 %Print%{0;185;255}(1.45 GB) \n
-if %MainPluginSelection% EQU 1 if %plugcountignite% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            5) FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            5) FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            5) FXHOME - Ignite Pro
-if %MainPluginSelection% EQU 1 if %plugcountignite% GEQ 0 %Print%{0;185;255}(430 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountmbl% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            6) MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            6) MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            6) MAXON - Red Giant Magic Bullet Suite
-if %MainPluginSelection% EQU 1 if %plugcountmbl% GEQ 0 %Print%{0;185;255}(385 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountuni% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            7) MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            7) MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            7) MAXON - Red Giant Universe
-if %MainPluginSelection% EQU 1 if %plugcountuni% GEQ 0 %Print%{0;185;255}(1.91 GB) \n
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            8) NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            8) NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            8) NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% GEQ 0 %Print%{0;185;255}(630 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            9) NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            9) NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            9) NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% GEQ 0 %Print%{0;185;255}(790 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% EQU 0 If %getOptionsPlugCountCheck% EQU 0 %Print%{231;72;86}            REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% EQU 1 If %getOptionsPlugCountCheck% EQU 0 %Print%{0;255;50}            REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% GEQ 2 If %getOptionsPlugCountCheck% EQU 0 %Print%{244;255;0}            REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% EQU 0 If %getOptionsPlugCountCheck% GEQ 1 %Print%{231;72;86}            10) REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;255;50}            10) REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% GEQ 2 If %getOptionsPlugCountCheck% GEQ 1 %Print%{244;255;0}            10) REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% GEQ 0 %Print%{0;185;255}(50 MB) \n
-if %MainPluginSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;185;255}            11) ALL PLUGINS 
-if %MainPluginSelection% EQU 1 If %getOptionsPlugCountCheck% GEQ 1 %Print%{0;185;255}(7 GB) \n
-if %MainPluginSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 If %getOptionPlugSkip% EQU 0 echo         --------------------------------
-if %MainMagixSelection% EQU 1 if %magixcountvp% EQU 0 If %getOptionsMagixCountCheck% EQU 0 %Print%{231;72;86}            VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% EQU 1 If %getOptionsMagixCountCheck% EQU 0 %Print%{0;255;50}            VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% GEQ 2 If %getOptionsMagixCountCheck% EQU 0 %Print%{244;255;0}            VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% EQU 0 If %getOptionsMagixCountCheck% GEQ 1 %Print%{231;72;86}            1) VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% EQU 1 If %getOptionsMagixCountCheck% GEQ 1 %Print%{0;255;50}            1) VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% GEQ 2 If %getOptionsMagixCountCheck% GEQ 1 %Print%{244;255;0}            1) VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% GEQ 0 %Print%{0;185;255}(665 MB) \n
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% EQU 0 If %getOptionsMagixCountCheck% EQU 0 %Print%{231;72;86}            VEGAS Pro Deep Learning Models 
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% EQU 1 If %getOptionsMagixCountCheck% EQU 0 %Print%{0;255;50}            VEGAS Pro Deep Learning Models 
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% GEQ 2 If %getOptionsMagixCountCheck% EQU 0 %Print%{244;255;0}            VEGAS Pro Deep Learning Models 
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% EQU 0 If %getOptionsMagixCountCheck% GEQ 1 %Print%{231;72;86}            2) VEGAS Pro Deep Learning Models 
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% EQU 1 If %getOptionsMagixCountCheck% GEQ 1 %Print%{0;255;50}            2) VEGAS Pro Deep Learning Models 
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% GEQ 2 If %getOptionsMagixCountCheck% GEQ 1 %Print%{244;255;0}            2) VEGAS Pro Deep Learning Models 
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% GEQ 0 %Print%{0;185;255}(1.38 GB) \n
-if %MainMagixSelection% EQU 1 if %magixcountve% EQU 0 If %getOptionsMagixCountCheck% EQU 0 %Print%{231;72;86}            VEGAS Effects 
-if %MainMagixSelection% EQU 1 if %magixcountve% EQU 1 If %getOptionsMagixCountCheck% EQU 0 %Print%{0;255;50}            VEGAS Effects 
-if %MainMagixSelection% EQU 1 if %magixcountve% GEQ 2 If %getOptionsMagixCountCheck% EQU 0 %Print%{244;255;0}            VEGAS Effects 
-if %MainMagixSelection% EQU 1 if %magixcountve% EQU 0 If %getOptionsMagixCountCheck% GEQ 1 %Print%{231;72;86}            3) VEGAS Effects 
-if %MainMagixSelection% EQU 1 if %magixcountve% EQU 1 If %getOptionsMagixCountCheck% GEQ 1 %Print%{0;255;50}            3) VEGAS Effects 
-if %MainMagixSelection% EQU 1 if %magixcountve% GEQ 2 If %getOptionsMagixCountCheck% GEQ 1 %Print%{244;255;0}            3) VEGAS Effects 
-if %MainMagixSelection% EQU 1 if %magixcountve% GEQ 0 %Print%{0;185;255}(205 MB) \n
-if %MainMagixSelection% EQU 1 if %magixcountvi% EQU 0 If %getOptionsMagixCountCheck% EQU 0 %Print%{231;72;86}            VEGAS Image 
-if %MainMagixSelection% EQU 1 if %magixcountvi% EQU 1 If %getOptionsMagixCountCheck% EQU 0 %Print%{0;255;50}            VEGAS Image 
-if %MainMagixSelection% EQU 1 if %magixcountvi% GEQ 2 If %getOptionsMagixCountCheck% EQU 0 %Print%{244;255;0}            VEGAS Image 
-if %MainMagixSelection% EQU 1 if %magixcountvi% EQU 0 If %getOptionsMagixCountCheck% GEQ 1 %Print%{231;72;86}            4) VEGAS Image 
-if %MainMagixSelection% EQU 1 if %magixcountvi% EQU 1 If %getOptionsMagixCountCheck% GEQ 1 %Print%{0;255;50}            4) VEGAS Image 
-if %MainMagixSelection% EQU 1 if %magixcountvi% GEQ 2 If %getOptionsMagixCountCheck% GEQ 1 %Print%{244;255;0}            4) VEGAS Image
-if %MainMagixSelection% EQU 1 if %magixcountvi% GEQ 0 %Print%{0;185;255}(105 MB) \n
-if %MainMagixSelection% EQU 1 echo/
-if %MainMagixSelection% EQU 1 If %getOptionsMagixCountCheck% GEQ 1 %Print%{0;185;255}            NOTE: VEGAS Pro Deep Learning Models are Optional. \n
-if %MainMagixSelection% EQU 1 If %getOptionsMagixCountCheck% GEQ 1 %Print%{0;185;255}            These are used for new AI features within VEGAS Pro. \n
-if %MainMagixSelection% EQU 1 echo/
-if %MainMagixSelection% EQU 1 If %getOptionPlugSkip% EQU 0 echo         --------------------------------
-set "PLUGKEY0="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaph% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontin% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmocha% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilho% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountignite% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountmbl% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountuni% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitler% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotal% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeff% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountvp% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlm% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountve% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountvi% EQU 0 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-IF defined PLUGKEY0 (
-if %MainPluginSelection% EQU 1 %Print%{231;72;86}        Red =        not installed \n
-if %MainMagixSelection% EQU 1 %Print%{231;72;86}        Red =        not installed \n
-)
-set "PLUGKEY1="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaph% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontin% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmocha% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilho% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountignite% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountmbl% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountuni% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitler% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeff% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountvp% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlm% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountve% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountvi% EQU 1 set PLUGKEY1=1
-IF defined PLUGKEY1 (
-if %MainPluginSelection% EQU 1 %Print%{0;255;50}        Green =      installed \n
-if %MainMagixSelection% EQU 1 %Print%{0;255;50}        Green =      installed \n
-)
-set "PLUGKEY2="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaph% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontin% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmocha% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilho% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountignite% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountmbl% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountuni% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitler% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotal% GEQ 2 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeff% GEQ 2 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountvp% GEQ 2 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlm% GEQ 2 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountve% GEQ 2 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountvi% GEQ 2 set PLUGKEY2=1
-IF defined PLUGKEY2 (
-if %MainPluginSelection% EQU 1 %Print%{244;255;0}        Yellow =     multiple installed [May detect AE plugins] \n
-if %MainMagixSelection% EQU 1 %Print%{244;255;0}        Yellow =     multiple installed \n
-)
-if %MainPluginSelection% EQU 1 IF %getOptionsPlugCountCheck% EQU 1 GOTO getOptionsPlug
-if %MainMagixSelection% EQU 1 If %getOptionsMagixCountCheck% EQU 1 GOTO getOptionsPlug
-if %MainMagixSelection% EQU 1 If %getOptionsMagixCountCheck% EQU 0 GOTO Magix-Select-Prompt
+:: Show items without row numbers
+call :DisplayGroup 0
+echo/
+echo         --------------------------------
+call :DisplayLegend
 echo         --------------------------------
 echo/
-%Print%{204;204;204}            1) Download plugins \n
-%Print%{204;204;204}            2) Uninstall plugins \n
+%Print%{204;204;204}            1) Download \n
+%Print%{204;204;204}            2) Uninstall \n
 %Print%{255;112;0}            3) Main Menu \n
 echo/
-C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+%SystemRoot%\System32\choice.exe /C 123 /M "Type the number (1-3) of what you want." /N
+set "GH_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 3  GOTO Main
-IF ERRORLEVEL 2  GOTO getOptionsPlugUninstall
-IF ERRORLEVEL 1  set getOptionsPlugCountCheck=1 & GOTO Plug-Select-Continue-1
-echo/
+if %GH_CHOICE% EQU 3 goto :Main
+if %GH_CHOICE% EQU 2 goto :UninstallPicker
+if %GH_CHOICE% EQU 1 goto :DownloadPicker
+goto :GroupMenu
 
-:Magix-Select-Prompt
-echo         --------------------------------
-echo/
-%Print%{204;204;204}            1) Download software \n
-%Print%{204;204;204}            2) Uninstall software \n
-%Print%{255;112;0}            3) Main Menu \n
-echo/
-C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
-cls
-echo/
-IF ERRORLEVEL 3  GOTO Main
-IF ERRORLEVEL 2  set Magix-Alr-Installed=1 & GOTO Magix-Already-Installed-Prompt
-IF ERRORLEVEL 1  set getOptionsMagixCountCheck=1 & GOTO Plug-Select-Continue-1
-echo/
-
-:getOptionsPlugUninstall-Error-System
-cls
-color 0C
-echo/
-%Print%{231;72;86}To Uninstall plugins with the script, you need
-%Print%{244;255;0} System Checks enabled
-%Print%{231;72;86} under the script settings. \n
-echo/
-echo/
-%Print%{231;72;86}Returning back to the Main Menu...
-timeout /T 6 /nobreak >nul
-GOTO Plug-Select-Continue-1
-
-:getOptionsPlugUninstall-error
-cls
-color 0C
-echo Plugin Queue is empty
-echo Returning to main menu...
-timeout /T 5 /nobreak >nul
-GOTO Plug-Select-Continue-1
-
-:getOptionsPlugUninstall
-cls
-if %getOptionPlugSkip% EQU 1 GOTO getOptionsPlugUninstall-Error-System
-color 0c
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Changing directory is needed
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-:: loops through and trims duplicate entires.
-type nul>Plug-Uninstall-found.txt
-for /f "tokens=* delims=" %%a in (Plug-Installations-found-output.txt) do (
-  findstr /ixc:"%%a" Plug-Uninstall-found.txt >nul || >>Plug-Uninstall-found.txt echo.%%a
-)
-:: If logfile is blank - continues to install. If data found, prompt user to uninstall
->nul findstr "^" "Plug-Uninstall-found.txt" || getOptionsPlugUninstall-error
-echo/
-::::::::::::::::::::::::::::::::::::::::::::::::
-:: Parses each line and puts into into a counter variable.
-setlocal EnableDelayedExpansion
-set "cmd=findstr /R /N "^^" Plug-Uninstall-found.txt | find /C ":""
-for /f %%U in ('!cmd!') do set PlugUninstnumberCounter=%%U
-::::::::::::::::::::::::::::::::::::::::::::::::
-:: This entire process is for multi-selection when user chooses to uninstall VP
-:: Deletes text preference for selection, if made previously
-set Plug-Uninst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection.txt"
-set Plug-Uninstall-found="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Uninstall-found-output.txt"
-set Plug-Uninstall-Select="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Uninstall-Selection-output.txt"
-if exist %Plug-Uninst-Select1% del %Plug-Uninst-Select1%
-if exist %Plug-Uninstall-found% del %Plug-Uninstall-found%
-if exist %Plug-Uninstall-Select% del %Plug-Uninstall-Select%
-:: Set plugin list variables for reg query
-set Counter=1
-for /f "tokens=* delims=" %%x in (Plug-Uninstall-found.txt) do (
-  set "Line_PlugUninst_!Counter!=%%x"
-  set /a Counter+=1
-)
-set /a NumLines=Counter - 1
-set PlugUninstnumber=1
-set PlugUninstall1=0
-set PlugUninstall2=0
-set PlugUninstall3=0
-set PlugUninstall4=0
-set PlugUninstall5=0
-set PlugUninstall6=0
-set PlugUninstall7=0
-set PlugUninstall8=0
-set PlugUninstall9=0
-set PlugUninstall10=0
-set PlugUninstall11=0
-set PlugUninstall12=0
-GOTO Plug-Uninst-loopcheck
-:Plug-Uninst-loopcheck
-if %PlugUninstnumber% LEQ %PlugUninstnumberCounter% GOTO Plug-Uninst-Loop
-if %PlugUninstnumber% GTR %PlugUninstnumberCounter% GOTO Plug-Uninst-Continue1
-@pause
-
-:Plug-Uninst-Loop
-:: If plugin detected, echo the name into another logfile. Doing this so I can echo my own text and not the reg display names.
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,26!" == "Boris FX Sapphire Plug-ins" >> %Plug-Uninstall-found% echo BORIS FX - Sapphire & set "PlugUninstall1=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,23!" == "Boris FX Mocha Plug-ins" >> %Plug-Uninstall-found% echo BORIS FX - Mocha Pro & set "PlugUninstall2=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,18!" == "Boris FX Continuum" >> %Plug-Uninstall-found% echo BORIS FX - Continuum Complete & set "PlugUninstall3=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,17!" == "BorisFX Continuum" >> %Plug-Uninstall-found% echo BORIS FX - Continuum Complete & set "PlugUninstall3=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,19!" == "Boris FX Silhouette" >> %Plug-Uninstall-found% echo BORIS FX - Silhouette & set "PlugUninstall4=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,10!" == "Silhouette" >> %Plug-Uninstall-found% echo BORIS FX - Silhouette & set "PlugUninstall4=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,28!" == "VEGAS Pro 21.0 (Mocha VEGAS)" >> %Plug-Uninstall-found% echo BORIS FX - Mocha VEGAS & set "PlugUninstall5=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%!" == "Ignite Pro " >> %Plug-Uninstall-found% echo FXHOME - Ignite Pro & set "PlugUninstall6=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%!" == "Ignite Pro by Nifer " >> %Plug-Uninstall-found% echo FXHOME - Ignite Pro by Nifer & set "PlugUninstall7=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,18!" == "Magic Bullet Suite" >> %Plug-Uninstall-found% echo MAXON - Red Giant Magic Bullet Looks & set "PlugUninstall8=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,8!" == "Universe" >> %Plug-Uninstall-found% echo MAXON - Red Giant Universe & set "PlugUninstall9=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,29!" == "NewBlue Titler Pro 7 Ultimate" >> %Plug-Uninstall-found% echo NEWBLUEFX - Titler Pro 7 Ultimate & set "PlugUninstall10=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,17!" == "NewBlue TotalFX 7" >> %Plug-Uninstall-found% echo NEWBLUEFX - TotalFX 7 & set "PlugUninstall11=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,19!" == "NewBlue TotalFX 360" >> %Plug-Uninstall-found% echo NEWBLUEFX - TotalFX 360 & set "PlugUninstall10=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-if /I "!Line_PlugUninst_%PlugUninstnumber%:~0,20!" == "RE:Vision Effections" >> %Plug-Uninstall-found% echo REVISIONFX - Effections & set "PlugUninstall12=!Line_PlugUninst_%PlugUninstnumber%!" & set /a PlugUninstnumber+=1 & GOTO Plug-Uninst-loopcheck
-set /a PlugUninstnumber+=1
-GOTO Plug-Uninst-loopcheck
-
-:Plug-Uninst-Continue1
-:: Set Plug-Uninstall-found logfile to a counter, display each line for user input
-set Counter=1
-for /f "tokens=* delims=" %%x in (Plug-Uninstall-found-output.txt) do (
-  set "Line_PlugUninstList_!Counter!=%%x"
-  set /a Counter+=1
-)
-set /a NumLines=Counter - 1
-%Print%{231;72;86} Select which program(s) you want to uninstall \n
-echo ---------------------------------
-echo/
-for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_PlugUninstList_%%x!
-%Print%{0;185;255} %Counter% - ALL OPTIONS \n
-echo/
-echo ---------------------------------
-echo/
-echo/
-set MaxonMBLUninst=0
-set MaxonUNIUninst=0
-set CounterMax=%Counter%
-set CounterPre=0
-set CounterFinish=
-GOTO Counter-loop
-:Counter-loop
-if %CounterPre% LSS %CounterMax% set /a CounterPre+=1 & set "CounterFinish=!CounterFinish!%CounterPre% " & GOTO Counter-loop
-if %CounterPre% GTR %CounterMax% GOTO counter-finish
-:counter-finish
-:: Prompt user choices of all detected VP installations, and asks for multi-choice input
-%Print%{231;72;86}Type your choices with a space after each choice 
-%Print%{255;112;0}(ie: 1 2 3 4) \n
-set "choices="
-set /p "choices=Type and press Enter when finished: "
-
-if not defined choices ( 
-    echo Please enter a valid option
-    goto getOptions11
-    )
-
-::2=1 set 3, if fail-2/a+1) 1=optionPlugTest 2=optionPlugTestPre 3=optionPlugNumber
-for %%a in (%choices%) do if %%a EQU %Counter% set "choices=!CounterFinish!"
-for %%i in (%choices%) do set optionPlugTest=%%i & call :optionPlugUninst-1 2>nul
-IF ERRORLEVEL 1 GOTO optionPlugUninstError11
-GOTO Plug-uninstall-selection-prompt
-exit
-
-:optionPlugUninstError11
-echo/
-echo Exceeded max number of selections.
-echo Selections (1-13)
-@pause
-GOTO getOptions11
-
-:optionPlugUninst-1
-set "optionPlugTestPre=1"
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=1" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=2" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=3" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=4" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=5" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=6" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=7" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=8" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=9" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=10" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=11" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-if %optionPlugTestPre% EQU %optionPlugTest% ( set "optionPlugNumber=12" & GOTO optionPlugUninst-1-Continue ) else ( set /a optionPlugTestPre+=1 )
-:optionPlugUninst-1-Continue
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Sapphire " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall1%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Mocha Pro " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall2%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Continuum Complete " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall3%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Silhouette " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall4%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "BORIS FX - Mocha VEGAS " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall5%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "FXHOME - Ignite Pro " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall6%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "FXHOME - Ignite Pro by Nifer " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall7%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "MAXON - Red Giant Magic Bullet Looks " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall8% & set MaxonMBLUninst=1
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "MAXON - Red Giant Universe " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall9% & set MaxonUNIUninst=1
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - Titler Pro 7 Ultimate " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall10%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - TotalFX 7 " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall11%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "NEWBLUEFX - TotalFX 360 " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall10%
-if /I "!Line_PlugUninstList_%optionPlugNumber%!" == "REVISIONFX - Effections " >> %Plug-Uninst-Select1% echo  !Line_PlugUninstList_%optionPlugNumber%! & >> %Plug-Uninstall-Select% echo %PlugUninstall12%
-exit /B
-
-:Plug-uninstall-selection-prompt
-color 0C
-cls
-echo/
-%Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
-echo ---------------------------------
-echo/
-type %Plug-Uninst-Select1%
-echo/
-echo ---------------------------------
-%Print%{231;72;86} 1 = Yes, Uninstall these programs \n
-%Print%{255;112;0} 2 = No, Cancel and Go back \n
-echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo/
-IF ERRORLEVEL 2  GOTO Plug-Select-Continue-1
-IF ERRORLEVEL 1  GOTO Plug-uninstall-selection-continue11
-echo/
-
-:Plug-uninstall-selection-continue11
-:: This entire process is to delete any leading spaces for each line in a text file.
-:: Calls JREPL to remove leading spaces and append to input file.
-:: Otherwise, leading white space will conflict when we reg query for display name.
-call %jrepl% "[ \t]+(?=\||$)" "" /f "Plug-Uninstall-Selection-output.txt" /o -
-:: Parses each line in Plug-Uninstall-Selection-output.txt to a variable
-setlocal enabledelayedexpansion
-set Counter=1
-for /f "tokens=* delims=" %%x in (Plug-Uninstall-Selection-output.txt) do (
-  set "Line_PlugUninstSelect_!Counter!=%%x"
-  set /a Counter+=1
-)
-
-:: Parses each line in Plug-Uninstall-Selection-output.txt to a variable number counter
-:: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
-:: Changing directory is needed
-cls
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-set "cmd=findstr /R /N "^^" Plug-Uninstall-Selection-output.txt | find /C ":""
-for /f %%U in ('!cmd!') do set PlugUninstnumber=%%U
-:Plug-Uninstall-Selection-loopcheck11
-:: Loop to check if VPnumber variable is 0 or not.
-%Print%{0;255;50} %PlugUninstnumber% Uninstalls Remaining \n
-IF %PlugUninstnumber% EQU 0 GOTO Plug-uninstall-selection-fin-11
-IF %PlugUninstnumber% GEQ 1 GOTO Plug-uninstall-selection-start11-1
-:Plug-uninstall-selection-start11-1
-color 0C
-@echo off
-cd /d "%~dp0"
-set "PLUGKEY10="
-if %MaxonMBLUninst% EQU 1 set PLUGKEY10=1
-if %MaxonUNIUninst% EQU 1 set PLUGKEY10=1
-IF defined PLUGKEY10 > ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo If the uninstaller stopped or is frozen: & >> ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo manually close the uninstaller CMD window. & >> ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo Go back to my auto-installer script and type "n" and & >> ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" echo press enter when it asks to "terminate batch job" & start "" ".\Installer-files\Installer-Scripts\uninstall-prompt.txt"
-%Print%{244;255;0} !Line_PlugUninstSelect_%PlugUninstnumber%! 2>nul \n
-For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_PlugUninstSelect_%PlugUninstnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && start "" /wait !MsiStr!
-if %MaxonMBLUninst% EQU 1 forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M Magic Bullet Suite /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul & set MaxonMBLUninst=0
-if %MaxonUNIUninst% EQU 1 forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M Red Giant Universe /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul & set MaxonUNIUninst=0
-set /a PlugUninstnumber-=1
-GOTO Plug-Uninstall-Selection-loopcheck11
-@pause
-
-:Plug-uninstall-selection-fin-11
-if exist ".\Installer-files\Installer-Scripts\uninstall-prompt.txt" del "".\Installer-files\Installer-Scripts\uninstall-prompt.txt""
-echo Finished all tasks
-echo Returning to main menu...
-cd /d "%~dp0"
-timeout /T 5 /nobreak >nul
-GOTO Pre-SelectPlugins
-pause
-
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-:getOptionsPlug
-set plugcountbfxsaphfinal=0
-set plugcountbfxmochafinal=0
-set plugcountbfxcontinfinal=0
-set plugcountbfxsilhofinal=0
-set plugcountignitefinal=0
-set plugcountmblfinal=0
-set plugcountunifinal=0
-set plugcountnfxtitlerfinal=0
-set plugcountnfxtotalfinal=0
-set plugcountrfxefffinal=0
-set magixcountvpfinal=0
-set magixcountvpdlmfinal=0
-set magixcountvefinal=0
-set magixcountvifinal=0
-:: This entire process is for multi-selection when user chooses to install desired plugins
-:: Deletes text preference for selection, if made previously
-::set Plug-Inst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\Plug-Install-Selection.txt"
-::if exist %Plug-Inst-Select1% del %Plug-Inst-Select1%
-echo         --------------------------------
-echo/
-echo/
-%Print%{204;204;204}Type your choices with a space after each choice 
-%Print%{255;112;0}(ie: 1 2 3 4) \n
-set "choices="
-set /p "choices=Type and press Enter when finished: "
-
-if not defined choices ( 
-    echo Please enter a valid option
-    goto getOptionsPlug
-    )
-
-for %%a in (%choices%) do if %%a EQU 11 set choices=1 2 3 4 5 6 7 8 9 10
-for %%i in (%choices%) do call :optionPlug-%%i 2>nul
-IF ERRORLEVEL 1 GOTO optionErrorPlug
-GOTO getOptionPlug-Confirm-Prompt
-exit
-
-:optionErrorPlug
-echo/
-echo Exceeded max number of selections.
-echo Selections (1-10)
-@pause
-GOTO getOptionsPlug
-
-:optionPlug-1
-if %MainPluginSelection% EQU 1 set plugcountbfxsaphfinal=1 
-if %MainMagixSelection% EQU 1 set magixcountvpfinal=1
-exit /B
-
-:optionPlug-2
-if %MainPluginSelection% EQU 1 set plugcountbfxmochafinal=1
-if %MainMagixSelection% EQU 1 set magixcountvpdlmfinal=1
-exit /B
-
-:optionPlug-3
-if %MainPluginSelection% EQU 1 set plugcountbfxcontinfinal=1
-if %MainMagixSelection% EQU 1 set magixcountvefinal=1
-exit /B
-
-:optionPlug-4
-if %MainPluginSelection% EQU 1 set plugcountbfxsilhofinal=1
-if %MainMagixSelection% EQU 1 set magixcountvifinal=1
-exit /B
-
-:optionPlug-5
-if %MainPluginSelection% EQU 1 set plugcountignitefinal=1
-exit /B
-
-:optionPlug-6
-if %MainPluginSelection% EQU 1 set plugcountmblfinal=1
-exit /B
-
-:optionPlug-7
-if %MainPluginSelection% EQU 1 set plugcountunifinal=1
-exit /B
-
-:optionPlug-8
-if %MainPluginSelection% EQU 1 set plugcountnfxtitlerfinal=1
-exit /B
-
-:optionPlug-9
-if %MainPluginSelection% EQU 1 set plugcountnfxtotalfinal=1
-exit /B
-
-:optionPlug-10
-if %MainPluginSelection% EQU 1 set plugcountrfxefffinal=1
-exit /B
-
-:getOptionPlug-Confirm-Prompt
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaphfinal% EQU 1 if %plugcountbfxmochafinal% EQU 1 if %plugcountbfxcontinfinal% EQU 1 if %plugcountbfxsilhofinal% EQU 1 if %plugcountignitefinal% EQU 1 if %plugcountmblfinal% EQU 1 if %plugcountunifinal% EQU 1 if %plugcountnfxtitlerfinal% EQU 1 if %plugcountnfxtotalfinal% EQU 1 if %plugcountrfxefffinal% EQU 1 set plugcountall=1
-if not defined plugcountall set plugcountall=0
-color 0C
-cls
-echo/
-if %MainPluginSelection% EQU 1 %Print%{231;72;86} Are you sure you want to install these selected plugins? \n
-if %MainMagixSelection% EQU 1 %Print%{231;72;86} Are you sure you want to install these selected programs? \n
-echo         --------------------------------
-echo/
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% EQU 0 If %plugcountbfxsaphfinal% EQU 1 %Print%{231;72;86}            BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% EQU 1 If %plugcountbfxsaphfinal% EQU 1 %Print%{0;255;50}            BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% GEQ 2 If %plugcountbfxsaphfinal% EQU 1 %Print%{244;255;0}            BORIS FX - Sapphire 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsaph% GEQ 0 If %plugcountbfxsaphfinal% EQU 1 %Print%{0;185;255}(595 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 0 If %plugcountbfxmochafinal% EQU 1 %Print%{231;72;86}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% EQU 1 If %plugcountbfxmochafinal% EQU 1 %Print%{0;255;50}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 2 If %plugcountbfxmochafinal% EQU 1 %Print%{244;255;0}            BORIS FX - Mocha Pro 
-if %MainPluginSelection% EQU 1 if %plugcountbfxmocha% GEQ 0 If %plugcountbfxmochafinal% EQU 1 %Print%{0;185;255}(165 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% EQU 0 If %plugcountbfxcontinfinal% EQU 1 %Print%{231;72;86}            BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% EQU 1 If %plugcountbfxcontinfinal% EQU 1 %Print%{0;255;50}            BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% GEQ 2 If %plugcountbfxcontinfinal% EQU 1 %Print%{244;255;0}            BORIS FX - Continuum Complete 
-if %MainPluginSelection% EQU 1 if %plugcountbfxcontin% GEQ 0 If %plugcountbfxcontinfinal% EQU 1 %Print%{0;185;255}(790 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% EQU 0 If %plugcountbfxsilhofinal% EQU 1 %Print%{231;72;86}            BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% EQU 1 If %plugcountbfxsilhofinal% EQU 1 %Print%{0;255;50}            BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% GEQ 2 If %plugcountbfxsilhofinal% EQU 1 %Print%{244;255;0}            BORIS FX - Silhouette 
-if %MainPluginSelection% EQU 1 if %plugcountbfxsilho% GEQ 0 If %plugcountbfxsilhofinal% EQU 1 %Print%{0;185;255}(1.45 GB) \n
-if %MainPluginSelection% EQU 1 if %plugcountignite% EQU 0 If %plugcountignitefinal% EQU 1 %Print%{231;72;86}            FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% EQU 1 If %plugcountignitefinal% EQU 1 %Print%{0;255;50}            FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% GEQ 2 If %plugcountignitefinal% EQU 1 %Print%{244;255;0}            FXHOME - Ignite Pro 
-if %MainPluginSelection% EQU 1 if %plugcountignite% GEQ 0 If %plugcountignitefinal% EQU 1 %Print%{0;185;255}(430 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountmbl% EQU 0 If %plugcountmblfinal% EQU 1 %Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% EQU 1 If %plugcountmblfinal% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% GEQ 2 If %plugcountmblfinal% EQU 1 %Print%{244;255;0}            MAXON - Red Giant Magic Bullet Suite 
-if %MainPluginSelection% EQU 1 if %plugcountmbl% GEQ 0 If %plugcountmblfinal% EQU 1 %Print%{0;185;255}(385 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountuni% EQU 0 If %plugcountunifinal% EQU 1 %Print%{231;72;86}            MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% EQU 1 If %plugcountunifinal% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% GEQ 2 If %plugcountunifinal% EQU 1 %Print%{244;255;0}            MAXON - Red Giant Universe 
-if %MainPluginSelection% EQU 1 if %plugcountuni% GEQ 0 If %plugcountunifinal% EQU 1 %Print%{0;185;255}(1.91 GB) \n
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% EQU 0 If %plugcountnfxtitlerfinal% EQU 1 %Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% EQU 1 If %plugcountnfxtitlerfinal% EQU 1 %Print%{0;255;50}            NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% GEQ 2 If %plugcountnfxtitlerfinal% EQU 1 %Print%{244;255;0}            NEWBLUEFX - Titler Pro 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtitler% GEQ 0 If %plugcountnfxtitlerfinal% EQU 1 %Print%{0;185;255}(630 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% EQU 0 If %plugcountnfxtotalfinal% EQU 1 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% EQU 1 If %plugcountnfxtotalfinal% EQU 1 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% GEQ 2 If %plugcountnfxtotalfinal% EQU 1 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7 
-if %MainPluginSelection% EQU 1 if %plugcountnfxtotal% GEQ 0 If %plugcountnfxtotalfinal% EQU 1 %Print%{0;185;255}(790 MB) \n
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% EQU 0 If %plugcountrfxefffinal% EQU 1 %Print%{231;72;86}            REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% EQU 1 If %plugcountrfxefffinal% EQU 1 %Print%{0;255;50}            REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% GEQ 2 If %plugcountrfxefffinal% EQU 1 %Print%{244;255;0}            REVISIONFX - Effections 
-if %MainPluginSelection% EQU 1 if %plugcountrfxeff% GEQ 0 If %plugcountrfxefffinal% EQU 1 %Print%{0;185;255}(50 MB) \n
-if %MainPluginSelection% EQU 1 echo/
-if %MainPluginSelection% EQU 1 If %getOptionPlugSkip% EQU 0 echo         --------------------------------
-if %MainMagixSelection% EQU 1 if %magixcountvp% EQU 0 If %magixcountvpfinal% EQU 1 %Print%{231;72;86}            VEGAS Pro 
-if %MainMagixSelection% EQU 1 if %magixcountvp% EQU 1 If %magixcountvpfinal% EQU 1 %Print%{0;255;50}            VEGAS Pro
-if %MainMagixSelection% EQU 1 if %magixcountvp% GEQ 2 If %magixcountvpfinal% EQU 1 %Print%{244;255;0}            VEGAS Pro
-if %MainMagixSelection% EQU 1 if %magixcountvp% GEQ 0 If %magixcountvpfinal% EQU 1 %Print%{0;185;255}(665 MB) \n
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% EQU 0 If %magixcountvpdlmfinal% EQU 1 %Print%{231;72;86}            VEGAS Pro Deep Learning Models
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% EQU 1 If %magixcountvpdlmfinal% EQU 1 %Print%{0;255;50}            VEGAS Pro Deep Learning Models
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% GEQ 2 If %magixcountvpdlmfinal% EQU 1 %Print%{244;255;0}            VEGAS Pro Deep Learning Models
-if %MainMagixSelection% EQU 1 if %magixcountvpdlm% GEQ 0 If %magixcountvpdlmfinal% EQU 1 %Print%{0;185;255}(1.38 GB) \n
-if %MainMagixSelection% EQU 1 if %magixcountve% EQU 0 If %magixcountvefinal% EQU 1 %Print%{231;72;86}            VEGAS Effects
-if %MainMagixSelection% EQU 1 if %magixcountve% EQU 1 If %magixcountvefinal% EQU 1 %Print%{0;255;50}            VEGAS Effects
-if %MainMagixSelection% EQU 1 if %magixcountve% GEQ 2 If %magixcountvefinal% EQU 1 %Print%{244;255;0}            VEGAS Effects
-if %MainMagixSelection% EQU 1 if %magixcountve% GEQ 0 If %magixcountvefinal% EQU 1 %Print%{0;185;255}(205 MB) \n
-if %MainMagixSelection% EQU 1 if %magixcountvi% EQU 0 If %magixcountvifinal% EQU 1 %Print%{231;72;86}            VEGAS Image
-if %MainMagixSelection% EQU 1 if %magixcountvi% EQU 1 If %magixcountvifinal% EQU 1 %Print%{0;255;50}            VEGAS Image
-if %MainMagixSelection% EQU 1 if %magixcountvi% GEQ 2 If %magixcountvifinal% EQU 1 %Print%{244;255;0}            VEGAS Image
-if %MainMagixSelection% EQU 1 if %magixcountvi% GEQ 0 If %magixcountvifinal% EQU 1 %Print%{0;185;255}(105 MB) \n
-if %MainMagixSelection% EQU 1 echo/
-if %MainMagixSelection% EQU 1 If %getOptionPlugSkip% EQU 0 echo         --------------------------------
-set "PLUGKEY0="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaph% EQU 0 if %plugcountbfxsaphfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontin% EQU 0 if %plugcountbfxcontinfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmocha% EQU 0 if %plugcountbfxmochafinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilho% EQU 0 if %plugcountbfxsilhofinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountignite% EQU 0 if %plugcountignitefinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountmbl% EQU 0 if %plugcountmblfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountuni% EQU 0 if %plugcountunifinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitler% EQU 0 if %plugcountnfxtitlerfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotal% EQU 0 if %plugcountnfxtotalfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeff% EQU 0 if %plugcountrfxefffinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountvp% EQU 0 if %magixcountvpfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlm% EQU 0 if %magixcountvpdlmfinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountve% EQU 0 if %magixcountvefinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-if %MainMagixSelection% EQU 1 IF %magixcountvi% EQU 0 if %magixcountvifinal% EQU 1 If %getOptionPlugSkip% EQU 0 set PLUGKEY0=1
-IF defined PLUGKEY0 (
-if %MainPluginSelection% EQU 1 %Print%{231;72;86}        Red =        not installed \n
-if %MainMagixSelection% EQU 1 %Print%{231;72;86}        Red =        not installed \n
-)
-set "PLUGKEY1="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaph% EQU 1 if %plugcountbfxsaphfinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontin% EQU 1 if %plugcountbfxcontinfinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmocha% EQU 1 if %plugcountbfxmochafinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilho% EQU 1 if %plugcountbfxsilhofinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountignite% EQU 1 if %plugcountignitefinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountmbl% EQU 1 if %plugcountmblfinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountuni% EQU 1 if %plugcountunifinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitler% EQU 1 if %plugcountnfxtitlerfinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotal% EQU 1 if %plugcountnfxtotalfinal% EQU 1 set PLUGKEY1=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeff% EQU 1 if %plugcountrfxefffinal% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountvp% EQU 1 if %magixcountvpfinal% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlm% EQU 1 if %magixcountvpdlmfinal% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountve% EQU 1 if %magixcountvefinal% EQU 1 set PLUGKEY1=1
-if %MainMagixSelection% EQU 1 IF %magixcountvi% EQU 1 if %magixcountvifinal% EQU 1 set PLUGKEY1=1
-IF defined PLUGKEY1 (
-if %MainPluginSelection% EQU 1 %Print%{0;255;50}        Green =      installed \n
-if %MainMagixSelection% EQU 1 %Print%{0;255;50}        Green =      installed \n
-)
-set "PLUGKEY2="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaph% GEQ 2 if %plugcountbfxsaphfinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontin% GEQ 2 if %plugcountbfxcontinfinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmocha% GEQ 2 if %plugcountbfxmochafinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilho% GEQ 2 if %plugcountbfxsilhofinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountignite% GEQ 2 if %plugcountignitefinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountmbl% GEQ 2 if %plugcountmblfinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountuni% GEQ 2 if %plugcountunifinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitler% GEQ 2 if %plugcountnfxtitlerfinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotal% GEQ 2 if %plugcountnfxtotalfinal% EQU 1 set PLUGKEY2=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeff% GEQ 2 if %plugcountrfxefffinal% EQU 1 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountvp% GEQ 2 if %magixcountvpfinal% EQU 1 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlm% GEQ 2 if %magixcountvpdlmfinal% EQU 1 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountve% GEQ 2 if %magixcountvefinal% EQU 1 set PLUGKEY2=1
-if %MainMagixSelection% EQU 1 IF %magixcountvi% GEQ 2 if %magixcountvifinal% EQU 1 set PLUGKEY2=1
-IF defined PLUGKEY2 (
-if %MainPluginSelection% EQU 1 %Print%{244;255;0}        Yellow =     multiple installed [May detect AE plugins] \n
-if %MainMagixSelection% EQU 1 %Print%{244;255;0}        Yellow =     multiple installed \n
-)
-if %MainMagixSelection% EQU 1 GOTO getOption-Magix-Confirm-Prompt
-echo         --------------------------------
-echo/
-if %plugcountall% EQU 1 %Print%{0;185;255}         ALL plugins are around
-if %plugcountall% EQU 1 %Print%{244;255;0} 7 GB \n
-echo/
-%Print%{204;204;204}            1) Yes, install these plugins \n
-echo/
-%Print%{255;112;0}            2) No, Cancel and Go back \n
-echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo/
-IF ERRORLEVEL 2  set getOptionsPlugCountCheck=0 & GOTO Plug-Select-Continue-1
-IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup
-echo/
-:getOption-Magix-Confirm-Prompt
-echo         --------------------------------
-echo/
-%Print%{204;204;204}            1) Yes, install these software \n
-echo/
-%Print%{255;112;0}            2) No, Cancel and Go back \n
-echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo/
-IF ERRORLEVEL 2  set getOptionsMagixCountCheck=0 & GOTO Plug-Select-Continue-1
-IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup
-echo/
-
-
-:Plug-Already-Installed-Prompt
-cls
-color 0C
-echo/
-%Print%{231;72;86} You already have these items downloaded \n
-echo/
-if %plugcountbfxsaphAlr% EQU 1 %Print%{244;255;0} BORIS FX - Sapphire \n
-if %plugcountbfxmochaAlr% EQU 1 %Print%{244;255;0} BORIS FX - Mocha Pro \n
-if %plugcountbfxcontinAlr% EQU 1 %Print%{244;255;0} BORIS FX - Continuum Complete \n
-if %plugcountbfxsilhoAlr% EQU 1 %Print%{244;255;0} BORIS FX - Silhouette \n
-if %plugcountigniteAlr% EQU 1 %Print%{244;255;0} FXHOME - Ignite Pro \n
-if %plugcountmblAlr% EQU 1 %Print%{244;255;0} MAXON - Red Giant Magic Bullet Suite \n
-if %plugcountuniAlr% EQU 1 %Print%{244;255;0} MAXON - Red Giant Universe \n
-if %plugcountnfxtitlerAlr% EQU 1 %Print%{244;255;0} NEWBLUEFX - Titler Pro 7 \n
-if %plugcountnfxtotalAlr% EQU 1 %Print%{244;255;0} NEWBLUEFX - TotalFX 7 \n
-if %plugcountrfxeffAlr% EQU 1 %Print%{244;255;0} REVISIONFX - Effections \n
-if %magixcountvpAlr% EQU 1 %Print%{244;255;0} VEGAS Pro \n
-if %magixcountvpdlmAlr% EQU 1 %Print%{244;255;0} VEGAS Pro Deep Learning Models \n
-if %magixcountveAlr% EQU 1 %Print%{244;255;0} VEGAS Effects \n
-if %magixcountviAlr% EQU 1 %Print%{244;255;0} VEGAS Image \n
-echo/
-%Print%{231;72;86} Do you want to re-download? \n
-echo/
-%Print%{231;72;86} 1) Re-download these items \n
-%Print%{231;72;86} 2) Skip these items \n
-%Print%{231;72;86} 3) No, Back to Main Menu \n
-echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo/
-IF ERRORLEVEL 3  set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
-IF ERRORLEVEL 2  GOTO Plug-Already-Installed-skip
-IF ERRORLEVEL 1  GOTO Plug-Select-Queue-Setup-1
-echo/
-
-:: Creates a Log File for scanning any Vegas Pro Installations
-:LogVPVers
-for /f "tokens=1,2*" %%J in ('^
-    reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s /d /f "VEGAS Pro"^
-') do (
-    if "%%J"=="DisplayName" (
-        set vpver=%%L
-	echo !vpver! 2>nul | findstr /v Voukoder 2>nul
-    ) else (
-        set str=%%J
-        if "!str:~0,4!"=="HKEY" set key=%%J
-    )
-)
+:PrintMagixHeader
+echo ******************************************************************
+echo ***             ^(Option #1^) VEGAS Software               ***
+echo ******************************************************************
 exit /b
 
-:Magix-Already-Installed-Prompt
-cd /d "%~dp0"
+:PrintPluginHeader
+echo *****************************************************************
+echo ***          ^(Option #2^) 3rd Party Plugins for OFX            ***
+echo *****************************************************************
+exit /b
+
+:: ======================================================================================================================
+::  DOWNLOAD PICKER — user selects which items to download/install
+:DownloadPicker
 cls
 color 0C
-if not defined Magix-Alr-Installed set Magix-Alr-Installed=0
-::setting to 2 to skip if user comes to this function from elsewhere, then unsets the variable after to avoid issues.
-if not defined plugkeymagixinstallcheck set plugkeymagixinstallcheck=2
-IF %plugkeymagixinstallcheck% EQU 0 set plugkeymagixinstallcheck=1
-IF %plugkeymagixinstallcheck% EQU 2 set plugkeymagixinstallcheck=
-if %getOptionPlugSkip% EQU 1 GOTO Plug-Select-Queue-Setup-1
 echo/
-:: Check if vegas is already installed
-if %Magix-Alr-Installed% EQU 0 echo Checking for other installations...
-GOTO VP-Install-Check-12
-
-:VP-Install-Check-12
-@ECHO OFF
-setlocal ENABLEDELAYEDEXPANSION
-SET LOGFILE="%~dp0Installer-files\Installer-Scripts\Settings\VP-Installations-found.txt"
-call :LogVPVers > %LOGFILE%
-:: If logfile is blank - continues to install. If data found, prompt user to uninstall
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
->nul findstr "^" "VP-Installations-found.txt" || Plug-Select-Queue-Setup
-GOTO alrDown-12
-
-:alrDown-12
-cls
+if /I "%ACTIVE_GROUP%"=="magix"  call :PrintMagixHeader
+if /I "%ACTIVE_GROUP%"=="plugin" call :PrintPluginHeader
+if /I "%ACTIVE_GROUP%"=="magix"  %Print%{255;255;255}         Available software to Download: \n
+if /I "%ACTIVE_GROUP%"=="plugin" %Print%{255;255;255}         Available plugins to Download: \n
+echo         --------------------------------
 echo/
-color 0C
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-type nul>VP-Installations-found-output.txt
-for /f "tokens=* delims=" %%g in (VP-Installations-found.txt) do (
-  findstr /ixc:"%%g" VP-Installations-found-output.txt || >>VP-Installations-found-output.txt echo.%%g
+:: Show items WITH row numbers
+call :DisplayGroup 1
+:: Show an "ALL" option
+call :CountGroupItems
+echo/
+if /I "%ACTIVE_GROUP%"=="plugin" %Print%{0;185;255}            %GROUP_COUNT_PLUS1%) ALL PLUGINS (15 GB) \n
+if /I not "%ACTIVE_GROUP%"=="plugin" %Print%{0;185;255}            %GROUP_COUNT_PLUS1%) ALL SOFTWARE (2.15 GB) \n
+echo/
+echo         --------------------------------
+call :DisplayLegend
+echo         --------------------------------
+echo/
+%Print%{204;204;204}Type your choices with a space after each choice
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "choices="
+set /p "choices=Type and press Enter when finished: "
+if not defined choices (
+    echo Please enter a valid option
+    goto :DownloadPicker
 )
+:: Expand "ALL" (the GROUP_COUNT_PLUS1 number) into every row
+call :ExpandAll "%choices%" choices
+:: Clear old picks
+call :ClearPicks
+:: numeric choices into PICK.<id>=1
+call :ApplyPicksByRow "%choices%"
+if %PICKS_ANY% EQU 0 (
+    echo/
+    echo No valid selections were made.
+    pause
+    goto :DownloadPicker
+)
+goto :ConfirmDownload
+
+:ConfirmDownload
 cls
+color 0C
+echo/
+if /I "%ACTIVE_GROUP%"=="plugin"     %Print%{231;72;86} Are you sure you want to install these selected plugins? \n
+if /I not "%ACTIVE_GROUP%"=="plugin" %Print%{231;72;86} Are you sure you want to install these selected programs? \n
+echo         --------------------------------
+echo/
+call :DisplayPicked
+echo         --------------------------------
+echo/
+%Print%{204;204;204}            1) Yes, continue \n
+%Print%{255;112;0}            2) No, go back \n
+echo/
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+set "CD_CHOICE=%errorlevel%"
+cls
+if %CD_CHOICE% EQU 2 goto :DownloadPicker
+:: For the Ultimate Addons bundle, show a one-time info popup so the user
+:: knows what's bundled inside before committing to the ~8 GB download.
+if defined PICK.vpuadd if not defined VPUADD_CONFIRMED goto :VPUAddPicker
+goto :CheckExistingVPBeforeInstall
+
+:: ======================================================================================================================
+::  VPU ADD-ONS BUNDLE
+:VPUAddPicker
+:: Scan registry for each sub-product so we can show installed/not-installed.
+for %%I in (%VPU_SUBS%) do call :ScanItem %%I
+cls
+color 0C
+echo/
+%Print%{231;72;86}      VEGAS Pro 2026 Ultimate Addons - Bundle Contents \n
+echo         --------------------------------
+echo/
+%Print%{0;185;255} This bundle includes the following software and plugins: \n
+echo/
+for %%I in (%VPU_SUBS%) do call :VPUAddDisplaySub %%I
+echo/
+echo         --------------------------------
+echo/
+%Print%{244;255;0} Note: Continuum Complete 2026.1 included in this bundle is \n
+%Print%{244;255;0}       built specifically for VEGAS Pro 2026. \n
+echo/
+%Print%{0;185;255} Total download size:
+call :ResolveSizeFor "vpuadd" VPU_DL_SIZE
+%Print%{0;185;255} (%VPU_DL_SIZE%) \n
+echo/
+%Print%{255;255;255} Do you want to continue with the Ultimate Addons download? \n
+echo/
+%Print%{204;204;204}  1) Yes, continue \n
+%Print%{0;185;255}  2) Skip - download the rest of the queue without Ultimate Addons \n
+%Print%{255;112;0}  3) No, go back \n
+echo/
+%SystemRoot%\System32\choice.exe /C 123 /M "Type the number (1-3) of what you want." /N
+set "VPU_CHOICE=%errorlevel%"
+cls
+if %VPU_CHOICE% EQU 3 goto :DownloadPicker
+if %VPU_CHOICE% EQU 2 (set "VPUADD_CONFIRMED=1" & set "PICK.vpuadd=" & goto :VPUAddSkip)
+if %VPU_CHOICE% EQU 1 (set "VPUADD_CONFIRMED=1" & goto :CheckExistingVPBeforeInstall)
+goto :VPUAddPicker
+
+:VPUAddSkip
+:: User chose to skip Ultimate Addons but keep the rest of the queue
+:: If nothing else is queued, send them back to the picker
+set "VPU_OTHER=0"
+for %%I in (%ITEMS%) do if defined PICK.%%I set "VPU_OTHER=1"
+if "%VPU_OTHER%"=="0" (
+    cls
+    %Print%{244;255;0} Ultimate Addons was your only selection. Returning to the menu. \n
+    timeout /T 3 /nobreak >nul
+    goto :DownloadPicker
+)
+goto :CheckExistingVPBeforeInstall
+
+:VPUAddDisplaySub
+:: Renders one sub-product line with [INSTALLED] / [NOT INSTALLED] tag
+set "VDS_ID=%~1"
+call set "VDS_NAME=%%%VDS_ID%.name%%"
+call set "VDS_CNT=%%count.%VDS_ID%%%"
+if not defined VDS_CNT set "VDS_CNT=0"
+if %VDS_CNT% GEQ 1 %Print%{0;255;50}      [INSTALLED]      %VDS_NAME% \n
+if %VDS_CNT% LSS 1 %Print%{231;72;86}      [NOT INSTALLED]  %VDS_NAME% \n
+exit /b
+
+:: ======================================================================================================================
+::  Prompt to uninstall existing VEGAS Pro(s) before installing VP2026
+:CheckExistingVPBeforeInstall
+:: Only relevant if VP is in the pick list
+if not defined PICK.vp goto :CheckAlreadyDownloaded
+:: Build list of installed VP entries
+call :ListInstalledVP
+if %VP_INSTALLED_COUNT% EQU 0 goto :CheckAlreadyDownloaded
+cls
+color 0C
+echo/
 %Print%{231;72;86} Found installations of the following: \n
 echo ---------------------------------
 echo/
-setLocal
-:: Trims down output and removes duplicate entries
-for /f "eol=- tokens=* delims= " %%T in ('findstr /C:"VEGAS Pro" VP-Installations-found-output.txt') do (
-	set tempvar12=%%T
-   ::echo.%%T
-   echo  !tempvar12:---------- =! 2>nul | findstr /v Voukoder 2>nul
-)
-endlocal
-cd /d "%~dp0"
-if %Magix-Alr-Installed% EQU 1 GOTO select-vp-uninstall-12
+for /f "usebackq delims=" %%L in ("%SET_DIR%\VP-Installations-found.txt") do echo  %%L
 echo/
 echo ---------------------------------
 echo/
-%Print%{0;185;255}NOTE: You will need to Un-Install Previous Versions of VEGAS Pro if they match VEGAS Pro 22 \n
-%Print%{0;185;255}      Otherwise, Installing VP22 will not work, Older Versions of VP are okay to keep. \n
+%Print%{0;185;255}NOTE: You will need to Un-Install previous versions of VEGAS Pro if they match VEGAS Pro 2026. \n
+%Print%{0;185;255}      Otherwise, installing VP2026 will not work. Older versions of VP are okay to keep. \n
 echo/
 %Print%{255;255;255} What do you want to do? \n
-%Print%{231;72;86} 1 = Select what programs to Uninstall and Continue \n
-%Print%{231;72;86} 2 = Don't uninstall anything and Continue \n
-%Print%{255;112;0} 3 = Cancel and return to Main Menu \n
+%Print%{204;204;204} 1) Select which programs to Uninstall, then continue \n
+%Print%{204;204;204} 2) Don't uninstall anything, just continue \n
+%Print%{255;112;0} 3) Cancel and return to Main Menu \n
 echo/
-echo/
-C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+%SystemRoot%\System32\choice.exe /C 123 /M "Type the number (1-3) of what you want." /N
+set "VP_PRE_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 3  GOTO Pre-SelectPlugins
-IF ERRORLEVEL 2  GOTO Plug-Select-Queue-Setup
-IF ERRORLEVEL 1  GOTO select-vp-uninstall-12
-echo/
-:select-vp-uninstall-12
+if %VP_PRE_CHOICE% EQU 3 goto :Main
+if %VP_PRE_CHOICE% EQU 2 goto :CheckAlreadyDownloaded
+if %VP_PRE_CHOICE% EQU 1 goto :SelectVPToUninstall
+goto :CheckAlreadyDownloaded
+
+:SelectVPToUninstall
+cls
 color 0C
-cls
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Changing directory is needed
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
 echo/
-%Print%{231;72;86} Select which program(s) you want to uninstall \n
+%Print%{231;72;86} Select which VP installation(s) you want to uninstall \n
 echo ---------------------------------
 echo/
-::::::::::::::::::::::::::::::::::::::::::::::::
-:: This entire process is to delete any leading spaces for each line in a text file.
-:: Calls JREPL to remove leading spaces and append to input file.
-:: Otherwise, leading white space will conflict when we reg query for display name.
-call %jrepl% "[ \t]+(?=\||$)" "" /f "VP-Installations-found-output.txt" /o -
-::::::::::::::::::::::::::::::::::::::::::::::::
-:: This entire process is for multi-selection when user chooses to uninstall VP
-:: Deletes text preference for selection, if made previously
-set VP-Uninst-Select1="%~dp0Installer-files\Installer-Scripts\Settings\VP-Uninstall-Selection.txt"
-if exist %VP-Uninst-Select1% del %VP-Uninst-Select1%
-setlocal enabledelayedexpansion
-set Counter=1
-for /f "tokens=* delims=" %%x in (VP-Installations-found-output.txt) do (
-  set "Line_!Counter!=%%x"
-  set /a Counter+=1
+set /a _n=0
+for /f "usebackq delims=" %%L in ("%SET_DIR%\VP-Installations-found.txt") do (
+    set /a _n+=1
+    call set "VPU_!_n!=%%L"
+    call echo   !_n! - %%L
 )
-set /a NumLines=Counter - 1
-rem or, for arbitrary file lengths:
-for /l %%x in (1,1,%NumLines%) do echo  %%x - !Line_%%x!
-%Print%{0;185;255} %Counter% - ALL OPTIONS \n
+set "VPU_MAX=%_n%"
+set /a _allnum=_n+1
+echo   %_allnum% - ALL OPTIONS
 echo/
 echo ---------------------------------
-GOTO getOptions12
-:: Prompt user choices of all detected VP installations, and asks for multi-choice input
-:getOptions12
-%Print%{231;72;86}Type your choices with a space after each choice 
-%Print%{244;255;0}(ie: 1 2 3 4) \n
-set "choices="
-set /p "choices=Type and press Enter when finished: "
-
-if not defined choices ( 
-    echo Please enter a valid option
-    goto getOptions12
-    )
-
-for %%a in (%choices%) do if %%a EQU %Counter% set choices=1 2 3 4 5 6 7 8 9 10
-for %%i in (%choices%) do call :option-%%i 2>nul
-IF ERRORLEVEL 1 GOTO optionError12
-GOTO vp-uninstall-selection-prompt12
-exit
-
-:optionError12
-color 0C
 echo/
-echo Exceeded max number of selections.
-echo Selections (1-10)
-@pause
-GOTO getOptions12
-
-
-:vp-uninstall-selection-prompt12
-color 0C
+%Print%{231;72;86}Type your choices with a space after each choice
+%Print%{244;255;0}(ie: 1 2 3 4) \n
+set "vpchoices="
+set /p "vpchoices=Type and press Enter when finished: "
+if not defined vpchoices goto :SelectVPToUninstall
+call :ExpandNumericAll "%vpchoices%" %VPU_MAX% %_allnum% vpchoices
 cls
 echo/
 %Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
 echo ---------------------------------
 echo/
-type %VP-Uninst-Select1%
+for %%N in (%vpchoices%) do (
+    call echo   %%VPU_%%N%%
+)
 echo/
 echo ---------------------------------
-%Print%{231;72;86} 1 = Yes, Uninstall these programs \n
-%Print%{255;112;0} 2 = No, Cancel and Go back \n
+%Print%{204;204;204} 1 = Yes, Uninstall \n
+%Print%{255;112;0} 2 = No, Cancel \n
 echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
-cls
-echo/
-IF ERRORLEVEL 2  GOTO alrDown-12
-IF ERRORLEVEL 1  GOTO vp-uninstall-selection-continue12
-echo/
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+if errorlevel 2 goto :CheckExistingVPBeforeInstall
+if errorlevel 1 goto :DoVPUninstalls
+goto :SelectVPToUninstall
 
-:vp-uninstall-selection-continue12
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-:: Parses each line in VP-Uninstall-Selection.txt to a variable
-setlocal enabledelayedexpansion
-set Counter=1
-for /f "tokens=* delims=" %%x in (VP-Uninstall-Selection.txt) do (
-  set "Line_Select_!Counter!=%%x"
-  set /a Counter+=1
-)
-
-:: Parses each line in VP-Uninstall-Selection.txt to a variable number counter
-:: Each loop will subtract -1 from the variable, until 0. Once 0 it continues the script
-:: Changing directory is needed
-cls
-cd /d "%~dp0Installer-files\Installer-Scripts\Settings"
-setlocal EnableDelayedExpansion
-set "cmd=findstr /R /N "^^" VP-Uninstall-Selection.txt | find /C ":""
-for /f %%U in ('!cmd!') do set VPnumber=%%U
-GOTO vp-uninstall-selection-check-12
-:vp-uninstall-selection-check-12
-:: Loop to check if VPnumber variable is 0 or not.
-%Print%{0;255;50} %VPnumber% Uninstalls Remaining \n
-IF %VPnumber% EQU 0 GOTO vp-uninstall-selection-fin-12
-IF %VPnumber% GEQ 1 GOTO vp-uninstall-selection-start12-1
-
-:vp-uninstall-selection-start12-1
-color 0C
-@echo off
-%Print%{244;255;0} !Line_Select_%VPnumber%! 2>nul \n
-For /F Delims^=^ EOL^=^  %%G In ('%SystemRoot%\System32\reg.exe Query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "!Line_Select_%VPnumber%!" /D /E 2^>NUL') Do @For /F "EOL=H Tokens=2,*" %%H In ('%SystemRoot%\System32\reg.exe Query "%%G" /V "UninstallString" 2^>NUL') Do @Set MsiStr=%%I && set MsiStr=!MsiStr:/I=/X! && !MsiStr!
-set /a VPnumber-=1
-GOTO vp-uninstall-selection-check-12
-@pause
-
-
-:vp-uninstall-selection-fin-12
-echo Finished all tasks
-cd /d "%~dp0"
-timeout /T 5 /nobreak >nul
-if %Magix-Alr-Installed% EQU 0 GOTO Plug-Select-Queue-Setup
-if %Magix-Alr-Installed% EQU 1 GOTO Pre-SelectPlugins
-
-:Plug-Already-Installed-skip
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaphAlr% EQU 1 set plugcountbfxsaphfinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmochaAlr% EQU 1 set plugcountbfxmochafinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontinAlr% EQU 1 set plugcountbfxcontinfinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilhoAlr% EQU 1 set plugcountbfxsilhofinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountigniteAlr% EQU 1 set plugcountignitefinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountmblAlr% EQU 1 set plugcountmblfinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountuniAlr% EQU 1 set plugcountunifinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitlerAlr% EQU 1 set plugcountnfxtitlerfinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotalAlr% EQU 1 set plugcountnfxtotalfinal=0
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeffAlr% EQU 1 set plugcountrfxefffinal=0
-if %MainMagixSelection% EQU 1 IF %magixcountvpAlr% EQU 1 set magixcountvpfinal=0
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlmAlr% EQU 1 set magixcountvpdlmfinal=0
-if %MainMagixSelection% EQU 1 IF %magixcountveAlr% EQU 1 set magixcountvefinal=0
-if %MainMagixSelection% EQU 1 IF %magixcountviAlr% EQU 1 set magixcountvifinal=0
-
-set "PLUGKEY11="
-IF %plugcountbfxsaphfinal% EQU 1 set PLUGKEY11=1
-IF %plugcountbfxmochafinal% EQU 1 set PLUGKEY11=1
-IF %plugcountbfxcontinfinal% EQU 1 set PLUGKEY11=1
-IF %plugcountbfxsilhofinal% EQU 1 set PLUGKEY11=1
-IF %plugcountignitefinal% EQU 1 set PLUGKEY11=1
-IF %plugcountmblfinal% EQU 1 set PLUGKEY11=1
-IF %plugcountunifinal% EQU 1 set PLUGKEY11=1
-IF %plugcountnfxtitlerfinal% EQU 1 set PLUGKEY11=1
-IF %plugcountnfxtotalfinal% EQU 1 set PLUGKEY11=1
-IF %plugcountrfxefffinal% EQU 1 set PLUGKEY11=1
-IF %magixcountvpfinal% EQU 1 set PLUGKEY11=1
-IF %magixcountvpdlmfinal% EQU 1 set PLUGKEY11=1
-IF %magixcountvefinal% EQU 1 set PLUGKEY11=1
-IF %magixcountvifinal% EQU 1 set PLUGKEY11=1
-IF defined PLUGKEY11 (
-GOTO Plug-Select-Queue-Setup-1
-)
-GOTO Plug-Select-error
-:Plug-Select-error
+:DoVPUninstalls
 cls
 color 0C
-echo Error
-echo Plugin Queue is empty
-@pause
-set getOptionsPlugCountCheck=0 & GOTO Pre-SelectPlugins
+for %%N in (%vpchoices%) do (
+    call :UninstallByDisplayName "%%VPU_%%N%%"
+)
+echo Finished uninstalling selected items
+timeout /T 3 /nobreak >nul
+goto :CheckAlreadyDownloaded
 
-:Plug-Select-Queue-Setup
-cd /d "%~dp0"
-if not defined plugkeymagixinstallcheck set plugkeymagixinstallcheck=0
-if not defined plugcountbfxsaphAlr set plugcountbfxsaphAlr=0
-if not defined plugcountbfxmochaAlr set plugcountbfxmochaAlr=0
-if not defined plugcountbfxcontinAlr set plugcountbfxcontinAlr=0
-if not defined plugcountbfxsilhoAlr set plugcountbfxsilhoAlr=0
-if not defined plugcountigniteAlr set plugcountigniteAlr=0
-if not defined plugcountmblAlr set plugcountmblAlr=0
-if not defined plugcountuniAlr set plugcountuniAlr=0
-if not defined plugcountnfxtitlerAlr set plugcountnfxtitlerAlr=0
-if not defined plugcountnfxtotalAlr set plugcountnfxtotalAlr=0
-if not defined plugcountrfxeffAlr set plugcountrfxeffAlr=0
-if not defined magixcountvpAlr set magixcountvpAlr=0
-if not defined magixcountvpdlmAlr set magixcountvpdlmAlr=0
-if not defined magixcountveAlr set magixcountveAlr=0
-if not defined magixcountviAlr set magixcountviAlr=0
-:: Check selected programs if its already installed previously
-set "PLUGKEYMAGIXINST="
-IF %plugkeymagixinstallcheck% EQU 0 IF %magixcountvpfinal% EQU 1 set PLUGKEYMAGIXINST=1
-IF %plugkeymagixinstallcheck% EQU 0 IF %magixcountvpdlmfinal% EQU 1 set PLUGKEYMAGIXINST=1
-IF %plugkeymagixinstallcheck% EQU 0 IF %magixcountvefinal% EQU 1 set PLUGKEYMAGIXINST=1
-IF %plugkeymagixinstallcheck% EQU 0 IF %magixcountvifinal% EQU 1 set PLUGKEYMAGIXINST=1
-IF defined PLUGKEYMAGIXINST (
-set Magix-Alr-Installed=0 & GOTO Magix-Already-Installed-Prompt
+
+:: ======================================================================================================================
+::  Check if items are already downloaded
+:CheckAlreadyDownloaded
+set "ALR_ANY=0"
+for %%I in (%ITEMS%) do (
+    if defined PICK.%%I call :CheckItemAlreadyDownloaded %%I
 )
-:: Check selected plugins if it's already downloaded previously
-if %plugcountbfxsaphfinal% EQU 1 if exist ".\Installer-files\Plugins\Boris FX - Sapph*" set plugcountbfxsaphAlr=1
-if %plugcountbfxmochafinal% EQU 1  if exist ".\Installer-files\Plugins\Boris FX - Mocha*" set plugcountbfxmochaAlr=1
-if %plugcountbfxcontinfinal% EQU 1 if exist ".\Installer-files\Plugins\Boris FX - Cont*" set plugcountbfxcontinAlr=1
-if %plugcountbfxsilhofinal% EQU 1 if exist ".\Installer-files\Plugins\Boris FX - Silho*" set plugcountbfxsilhoAlr=1
-if %plugcountignitefinal% EQU 1 if exist ".\Installer-files\Plugins\FXHOME - Ign*" set plugcountigniteAlr=1
-if %plugcountmblfinal% EQU 1 if exist ".\Installer-files\Plugins\MAXON - Red Giant Magic Bull*" set plugcountmblAlr=1
-if %plugcountunifinal% EQU 1 if exist ".\Installer-files\Plugins\MAXON - Red Giant Uni*" set plugcountuniAlr=1
-if %plugcountnfxtitlerfinal% EQU 1 if exist ".\Installer-files\Plugins\NewBlueFX - Titler*" set plugcountnfxtitlerAlr=1
-if %plugcountnfxtotalfinal% EQU 1 if exist ".\Installer-files\Plugins\NewBlueFX - Total*" set plugcountnfxtotalAlr=1
-if %plugcountrfxefffinal% EQU 1 if exist ".\Installer-files\Plugins\REVisionFX - Eff*" set plugcountrfxeffAlr=1
-if %magixcountvpfinal% EQU 1 if exist ".\Installer-files\Magix Vegas Software\VEGAS Pro" set magixcountvpAlr=1
-if %magixcountvpdlmfinal% EQU 1  if exist ".\Installer-files\Magix Vegas Software\Deep Learning Models" set magixcountvpdlmAlr=1
-if %magixcountvefinal% EQU 1 if exist ".\Installer-files\Magix Vegas Software\VEGAS Effects" set magixcountveAlr=1
-if %magixcountvifinal% EQU 1 if exist ".\Installer-files\Magix Vegas Software\VEGAS Image" set magixcountviAlr=1
-set "PLUGKEY8="
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsaphAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxmochaAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxcontinAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountbfxsilhoAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountigniteAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountmblAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountuniAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtitlerAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountnfxtotalAlr% EQU 1 set PLUGKEY8=1
-if %MainPluginSelection% EQU 1 IF %plugcountrfxeffAlr% EQU 1 set PLUGKEY8=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpAlr% EQU 1 set PLUGKEY8=1
-if %MainMagixSelection% EQU 1 IF %magixcountvpdlmAlr% EQU 1 set PLUGKEY8=1
-if %MainMagixSelection% EQU 1 IF %magixcountveAlr% EQU 1 set PLUGKEY8=1
-if %MainMagixSelection% EQU 1 IF %magixcountviAlr% EQU 1 set PLUGKEY8=1
-IF defined PLUGKEY8 (
-GOTO Plug-Already-Installed-Prompt
-)
-GOTO Plug-Select-Queue-Setup-1
-:Plug-Select-Queue-Setup-1
-:: Set variables for each selected plugin, add counter for task countdown
-:: set first found selected plugin in queue, after queue, minus 1 from queue counter.
-set PlugQueueCounter=0
-set PlugQueueCounterPre=1
-if not defined Mocha-veg-ofx set Mocha-veg-ofx=0
-if %plugcountbfxmochafinal% EQU 1 if %Mocha-veg-ofx% EQU 0 GOTO Mocha-veg-ofx-prompt
-if %plugcountbfxsaphfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin1queue=1 & set plugin1queueInst=1
-if %plugcountbfxmochafinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin2queue=1 & set plugin2queueInst=1
-if %plugcountbfxcontinfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin3queue=1 & set plugin3queueInst=1
-if %plugcountbfxsilhofinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin4queue=1 & set plugin4queueInst=1
-if %plugcountignitefinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin5queue=1 & set plugin5queueInst=1
-if %plugcountmblfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin6queue=1 & set plugin6queueInst=1
-if %plugcountunifinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin7queue=1 & set plugin7queueInst=1
-if %plugcountnfxtitlerfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin8queue=1 & set plugin8queueInst=1
-if %plugcountnfxtotalfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin9queue=1 & set plugin9queueInst=1
-if %plugcountrfxefffinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin10queue=1 & set plugin10queueInst=1
-if %magixcountvpfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin11queue=1 & set plugin11queueInst=1
-if %magixcountvpdlmfinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin12queue=1 & set plugin12queueInst=1
-if %magixcountvefinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin13queue=1 & set plugin13queueInst=1
-if %magixcountvifinal% EQU 1 set /a PlugQueueCounter+=1 & set plugin14queue=1 & set plugin14queueInst=1
+if %ALR_ANY% EQU 0 goto :FetchNamesAndSizes
+:: Prompt the user
 cls
-GOTO Plug-Select-Queue-Setup-2-1
+color 0C
+echo/
+%Print%{231;72;86} You already have these items downloaded: \n
+echo/
+for %%I in (%ITEMS%) do (
+    if defined ALR.%%I call :DisplayItemName %%I
+)
+echo/
+%Print%{231;72;86} Do you want to re-download? \n
+echo/
+%Print%{204;204;204} 1) Re-download these items \n
+%Print%{204;204;204} 2) Skip these items (still install) \n
+%Print%{255;112;0} 3) No, back to Main Menu \n
+echo/
+%SystemRoot%\System32\choice.exe /C 123 /M "Type the number (1-3) of what you want." /N
+set "AD_CHOICE=%errorlevel%"
+cls
+if %AD_CHOICE% EQU 3 goto :Main
+if %AD_CHOICE% EQU 2 (
+    rem Remove the download step for these items, keep them for install
+    for %%I in (%ITEMS%) do (
+        if defined ALR.%%I set "SKIP_DL.%%I=1"
+    )
+    goto :FetchNamesAndSizes
+)
+if %AD_CHOICE% EQU 1 goto :FetchNamesAndSizes
+goto :FetchNamesAndSizes
 
-:Plug-Select-Queue-Setup-2-1
-::downloads data of each plugin name, so we can rename the rar files to the proper names
-cd /d "%~dp0Installer-files\Installer-Scripts"
-%wget% --quiet --no-check-certificate --output-document=Names.txt "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/export?gid=1501927928&format=csv"
-setlocal enabledelayedexpansion 
-:: Trims Names.txt to only keep the names
-if exist Names2.txt del Names2.txt
-for /f "skip=1 delims=*" %%A IN (Names.txt) do echo %%A >> Names2.txt
-:: Parses each line of Sizes.txt and saves it as a variable counting by each line "
-For /F tokens^=* %%i in ('type "Names2.txt"
-')do set /a "_cont+=1+0" && call set "_vari!_cont!=%%~i"
-For /L %%L in (1 1 !_cont!)do For /F tokens^=*usebackq %%i in (
-`echo[!_vari%%~L!`)do if not defined _vari_ (set "_vari_=_vari%%L=!_vari%%~L!"
-     ) else set "_vari_=!_vari_!, _vari%%~L=!_vari%%~L!"
+:CheckItemAlreadyDownloaded
+set "CID=%~1"
+call set "CID_ROOT=%%%CID%.root%%"
+call set "CID_FOLDER=%%%CID%.folder%%"
+if /I "%CID_ROOT%"=="PLG_DIR" (set "CID_FULL=%PLG_DIR%\%CID_FOLDER%") else (set "CID_FULL=%MGX_DIR%\%CID_FOLDER%")
+:: consider "already downloaded" if the plugin folder exists AND is not empty
+if exist "%CID_FULL%\*" (
+    set "ALR.%CID%=1"
+    set "ALR_ANY=1"
 )
-GOTO Plug-Select-Queue-Setup-2-2
-
-:Plug-Select-Queue-Setup-2-2
-::downloads data of each plugin size, so we can parse each size as a variable and verify if the download reached the size
-cd /d "%~dp0Installer-files\Installer-Scripts"
-%wget% --quiet --no-check-certificate --output-document=Sizes.txt "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/export?gid=689881134&format=csv"
-setlocal enabledelayedexpansion 
-:: Trims Sizes.txt to only keep the sizes and remove the names
-if exist Sizes2.txt del Sizes2.txt
-for /f "skip=1 delims=*, tokens=2" %%A IN (Sizes.txt) do echo %%A >> Sizes2.txt
-:: Parses each line of Sizes.txt and saves it as a variable counting by each line "
-For /F tokens^=* %%i in ('type "Sizes2.txt"
-')do set /a "_cnt+=1+0" && call set "_var!_cnt!=%%~i"
-For /L %%L in (1 1 !_cnt!)do For /F tokens^=*usebackq %%i in (
-`echo[!_var%%~L!`)do if not defined _var_ (set "_var_=_var%%L=!_var%%~L!"
-     ) else set "_var_=!_var_!, _var%%~L=!_var%%~L!"
-)
-:: Checks if selected options have a directory, if not Continue
-:: if yes, markdown the number of subdir's, and compare later to verify download succeeded or not.
-setlocal enabledelayedexpansion
-if %plugcountbfxsaphfinal% EQU 1 if exist "%~dp0Installer-files\Plugins\Boris FX - Sapphire" set dircheck="%~dp0Installer-files\Plugins\Boris FX - Sapphire\*" && call :countdir && set plugin1dir1=!countnum!
-if %plugcountbfxmochafinal% EQU 1 if exist "%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS" set dircheck="%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\*" && call :countdir && set plugin2-1dir1=!countnum!
-if %plugcountbfxmochafinal% EQU 1 if exist "%~dp0Installer-files\Plugins\Boris FX - Mocha Pro" set dircheck="%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\*" && call :countdir && set plugin2-2dir1=!countnum!
-if %plugcountbfxcontinfinal% EQU 1 if exist "%~dp0Installer-files\Plugins\Boris FX - Continuum Complete" set dircheck="%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\*" && call :countdir && set plugin3dir1=!countnum!
-if %plugcountbfxsilhofinal% EQU 1 if exist "%~dp0Installer-files\Plugins\Boris FX - Silhouette" set dircheck="%~dp0Installer-files\Plugins\Boris FX - Silhouette\*" && call :countdir && set plugin4dir1=!countnum!
-if %plugcountignitefinal% EQU 1 if exist "%~dp0Installer-files\Plugins\FXHOME - Ignite Pro" set dircheck="%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\*" && call :countdir && set plugin5dir1=!countnum!
-if %plugcountmblfinal% EQU 1 if exist "%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite" set dircheck="%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\*" && call :countdir && set plugin6dir1=!countnum!
-if %plugcountunifinal% EQU 1 if exist "%~dp0Installer-files\Plugins\MAXON - Red Giant Universe" set dircheck="%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\*" && call :countdir && set plugin7dir1=!countnum!
-if %plugcountnfxtitlerfinal% EQU 1 if exist "%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate" set dircheck="%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\*" && call :countdir && set plugin8dir1=!countnum!
-if %plugcountnfxtotalfinal% EQU 1 if exist "%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7" set dircheck="%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\*" && call :countdir && set plugin9dir1=!countnum!
-if %plugcountrfxefffinal% EQU 1 if exist "%~dp0Installer-files\Plugins\REVisionFX - Effections Suite" set dircheck="%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\*" && call :countdir && set plugin10dir1=!countnum!
-if %magixcountvpfinal% EQU 1 if exist "%~dp0Installer-files\Magix Vegas Software\VEGAS Pro" set dircheck="%~dp0Installer-files\Magix Vegas Software\VEGAS Pro\*" && call :countdir && set plugin11dir1=!countnum!
-if %magixcountvpdlmfinal% EQU 1 if exist "%~dp0Installer-files\Magix Vegas Software\Deep Learning Models" set dircheck="%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\*" && call :countdir && set plugin12dir1=!countnum!
-if %magixcountvefinal% EQU 1 if exist "%~dp0Installer-files\Magix Vegas Software\VEGAS Effects" set dircheck="%~dp0Installer-files\Magix Vegas Software\VEGAS Effects\*" && call :countdir && set plugin13dir1=!countnum!
-if %magixcountvifinal% EQU 1 if exist "%~dp0Installer-files\Magix Vegas Software\VEGAS Image" set dircheck="%~dp0Installer-files\Magix Vegas Software\VEGAS Image\*" && call :countdir && set plugin14dir1=!countnum!
-if not defined plugin1dir1 set plugin1dir1=0
-if not defined plugin2-1dir1 set plugin2-1dir1=0
-if not defined plugin2-2dir1 set plugin2-2dir1=0
-if not defined plugin3dir1 set plugin3dir1=0
-if not defined plugin4dir1 set plugin4dir1=0
-if not defined plugin5dir1 set plugin5dir1=0
-if not defined plugin6dir1 set plugin6dir1=0
-if not defined plugin7dir1 set plugin7dir1=0
-if not defined plugin8dir1 set plugin8dir1=0
-if not defined plugin9dir1 set plugin9dir1=0
-if not defined plugin10dir1 set plugin10dir1=0
-if not defined plugin11dir1 set plugin11dir1=0
-if not defined plugin12dir1 set plugin12dir1=0
-if not defined plugin13dir1 set plugin13dir1=0
-if not defined plugin14dir1 set plugin14dir1=0
-GOTO Plug-Select-Queue-Setup-2
-:countdir
-if not defined dircheck echo ERROR, No variable dircheck & pause
-set count=0
-for /d %%a in (%dircheck%) do (
-set /a count += 1
-)
-set countnum=!count!
-exit /b
-:CHECKSIZE
-:: set the size of the file to a variable
-set "fsize=%~z1"
-:: check to see if the file size is the same. IF it is then leave the function
-if not defined CheckSizeVar set CheckSizeVar=0
-if %fSize% GEQ %CheckSizeVar% GOTO :EOF
-:: Go back to the check if the file size is not the same
-if %plugin1queue% EQU 1 GOTO Plug-Queue-1-error
-if %plugin2queue% EQU 1 if %Mocha-veg-ofx% EQU 2 GOTO Plug-Queue-2-1-error
-if %plugin2queue% EQU 1 if %Mocha-veg-ofx% EQU 1 GOTO Plug-Queue-2-2-error
-if %plugin3queue% EQU 1 GOTO Plug-Queue-3-error
-if %plugin4queue% EQU 1 GOTO Plug-Queue-4-error
-if %plugin5queue% EQU 1 GOTO Plug-Queue-5-error
-if %plugin6queue% EQU 1 GOTO Plug-Queue-6-error
-if %plugin7queue% EQU 1 GOTO Plug-Queue-7-error
-if %plugin8queue% EQU 1 GOTO Plug-Queue-8-error
-if %plugin9queue% EQU 1 GOTO Plug-Queue-9-error
-if %plugin10queue% EQU 1 GOTO Plug-Queue-10-error
-if %plugin11queue% EQU 1 GOTO Plug-Queue-11-error
-if %plugin12queue% EQU 1 GOTO Plug-Queue-12-error
-if %plugin13queue% EQU 1 GOTO Plug-Queue-13-error
-if %plugin14queue% EQU 1 GOTO Plug-Queue-14-error
 exit /b
 
-:Plug-Select-Queue-Setup-2
-if not defined plugin1queue set plugin1queue=0
-if not defined plugin2queue set plugin2queue=0
-if not defined plugin3queue set plugin3queue=0
-if not defined plugin4queue set plugin4queue=0
-if not defined plugin5queue set plugin5queue=0
-if not defined plugin6queue set plugin6queue=0
-if not defined plugin7queue set plugin7queue=0
-if not defined plugin8queue set plugin8queue=0
-if not defined plugin9queue set plugin9queue=0
-if not defined plugin10queue set plugin10queue=0
-if not defined plugin11queue set plugin11queue=0
-if not defined plugin12queue set plugin12queue=0
-if not defined plugin13queue set plugin13queue=0
-if not defined plugin14queue set plugin14queue=0
-if not defined plugin1queueInst set plugin1queueInst=0
-if not defined plugin2queueInst set plugin2queueInst=0
-if not defined plugin3queueInst set plugin3queueInst=0
-if not defined plugin4queueInst set plugin4queueInst=0
-if not defined plugin5queueInst set plugin5queueInst=0
-if not defined plugin6queueInst set plugin6queueInst=0
-if not defined plugin7queueInst set plugin7queueInst=0
-if not defined plugin8queueInst set plugin8queueInst=0
-if not defined plugin9queueInst set plugin9queueInst=0
-if not defined plugin10queueInst set plugin10queueInst=0
-if not defined plugin11queueInst set plugin11queueInst=0
-if not defined plugin12queueInst set plugin12queueInst=0
-if not defined plugin13queueInst set plugin13queueInst=0
-if not defined plugin14queueInst set plugin14queueInst=0
-if not defined plugin1results set plugin1results=0
-if not defined plugin2results set plugin2results=0
-if not defined plugin3results set plugin3results=0
-if not defined plugin4results set plugin4results=0
-if not defined plugin5results set plugin5results=0
-if not defined plugin6results set plugin6results=0
-if not defined plugin7results set plugin7results=0
-if not defined plugin8results set plugin8results=0
-if not defined plugin9results set plugin9results=0
-if not defined plugin10results set plugin10results=0
-if not defined plugin11results set plugin11results=0
-if not defined plugin12results set plugin12results=0
-if not defined plugin13results set plugin13results=0
-if not defined plugin14results set plugin14results=0
+:: ======================================================================================================================
+::  Build queue of items to download/install, take file sizes from PixelDrain fetch
+:FetchNamesAndSizes
+cd /d "%ROOT%"
+call :BuildQueue
+if %QUEUE_SIZE% EQU 0 goto :DownloadFinished
+set "QUEUE_POS=1"
+goto :DownloadNext
 
-echo/
-set "PLUGKEY4="
-IF %plugin1queue% EQU 1 set PLUGKEY4=1
-IF %plugin2queue% EQU 1 set PLUGKEY4=1
-IF %plugin3queue% EQU 1 set PLUGKEY4=1
-IF %plugin4queue% EQU 1 set PLUGKEY4=1
-IF %plugin5queue% EQU 1 set PLUGKEY4=1
-IF %plugin6queue% EQU 1 set PLUGKEY4=1
-IF %plugin7queue% EQU 1 set PLUGKEY4=1
-IF %plugin8queue% EQU 1 set PLUGKEY4=1
-IF %plugin9queue% EQU 1 set PLUGKEY4=1
-IF %plugin10queue% EQU 1 set PLUGKEY4=1
-IF %plugin11queue% EQU 1 set PLUGKEY4=1
-IF %plugin12queue% EQU 1 set PLUGKEY4=1
-IF %plugin13queue% EQU 1 set PLUGKEY4=1
-IF %plugin14queue% EQU 1 set PLUGKEY4=1
-IF defined PLUGKEY4 GOTO Plug-Queue-Install
-IF not defined PLUGKEY4 GOTO Plugin-Select-Extract
+:BuildQueue
+set "QUEUE="
+set /a QUEUE_SIZE=0
+for %%I in (%ITEMS%) do (
+    if defined PICK.%%I (
+        if not defined SKIP_DL.%%I (
+            set "QUEUE=!QUEUE! %%I"
+            set /a QUEUE_SIZE+=1
+        ) else (
+            rem mark for install even though we skip download
+            set "INSTALL.%%I=1"
+        )
+    )
+)
+exit /b
 
+:: ======================================================================================================================
+::  DOWNLOAD LOOP
+:DownloadNext
+if not defined QUEUE goto :DownloadFinished
+for /f "tokens=1* delims= " %%A in ("%QUEUE%") do (
+    set "DL_ID=%%A"
+    set "QUEUE=%%B"
+)
+if not defined DL_ID goto :DownloadFinished
+call :DownloadOne "%DL_ID%"
+set /a QUEUE_POS+=1
+goto :DownloadNext
 
-:Mocha-veg-ofx-prompt
+:DownloadOne
+set "DL_ID=%~1"
+set "DL_RETRY=0"
+:DownloadTry
 cls
 color 0C
-echo  Before continuing...
-echo  There are two available verisons of Boris FX Mocha
+call set "DL_NAME=%%%DL_ID%.name%%"
+%Print%{0;255;50} Item %QUEUE_POS% of %QUEUE_SIZE% \n
+%Print%{0;185;255}Downloading %DL_NAME%, please be patient... \n
+:: Resolve destination folder + PixelDrain folder/file IDs
+call :ResolveDownloadTarget "%DL_ID%"
+if not defined DL_FS_ID goto :DownloadOneNoConfig
+if not exist "%DL_TARGET%" mkdir "%DL_TARGET%" >nul 2>&1
+call :PixelDrainDownload "%DL_FS_ID%" "%DL_FS_FILE%" "%DL_TARGET%"
+:: PixelDrainDownload sets DL_OK=1 on success; size already verified inside
+if "%DL_OK%"=="1" (
+    set "INSTALL.%DL_ID%=1"
+    set "RESULT.%DL_ID%=downloaded"
+    exit /b
+)
+:: Failed
 echo/
-%Print%{204;204;204} 1 is a specially made version of Mocha by Boris FX for Vegas Pro 21 ONLY. \n
-%Print%{244;255;0} has better integration with VP, although it's missing a few mocha modules \n
-%Print%{0;185;255} Downlad size = (70 MB) \n
-echo/
-%Print%{204;204;204} 2 is the OFX version of Mocha by Boris FX. \n
-%Print%{244;255;0} It works for ALL versions of Vegas Pro, \n
-%Print%{244;255;0} and has all modules like 3d camera tracker. \n
-%Print%{0;185;255} Downlad size = (165 MB) \n
-echo/
-%Print%{231;72;86}  1) Mocha Vegas \n
-%Print%{231;72;86}  2) Mocha Pro OFX \n
-%Print%{231;72;86}  3) Comparison of both (Open's Web Browser) \n
-echo/
-C:\Windows\System32\CHOICE /C 123 /M "Type the number (1-3) of what you want." /N
+%Print%{255;0;0}Download Failed! \n
+if %DL_RETRY% EQU 0 %Print%{231;72;86}Re-trying download... \n
+if %DL_RETRY% EQU 0 set "DL_RETRY=1" & goto :DownloadTry
+%Print%{231;72;86}Skipping queue \n
+set "RESULT.%DL_ID%=failed"
+exit /b
+
+:DownloadOneNoConfig
+%Print%{255;0;0}Item has no PixelDrain folder ID configured. Skipping. \n
+set "RESULT.%DL_ID%=failed"
+timeout /T 3 /nobreak >nul
+exit /b
+
+:ResolveDownloadTarget
+:: Sets DL_TARGET, DL_FS_ID, DL_FS_FILE based on item id
+set "RDT_ID=%~1"
+call set "RDT_ROOT=%%%RDT_ID%.root%%"
+call set "RDT_FOLDER=%%%RDT_ID%.folder%%"
+call set "RDT_FS_ID=%%%RDT_ID%.fs_id%%"
+call set "RDT_FS_FILE=%%%RDT_ID%.fs_file%%"
+if /I "%RDT_ROOT%"=="PLG_DIR" (set "DL_TARGET=%PLG_DIR%\%RDT_FOLDER%") else (set "DL_TARGET=%MGX_DIR%\%RDT_FOLDER%")
+set "DL_FS_ID=%RDT_FS_ID%"
+set "DL_FS_FILE=%RDT_FS_FILE%"
+:: Treat unfilled placeholders as "no ID configured"
+echo %DL_FS_ID% | findstr /B /C:"REPLACE_ME" >nul && set "DL_FS_ID="
+exit /b
+
+:: ======================================================================================================================
+::  PIXELDRAIN DOWNLOAD - per-item folder JSON workflow
+::    %1 = PixelDrain filesystem ID
+::    %2 = filename inside that folder
+::    %3 = local destination folder
+::
+::    DL_OK = 1 on success, 0 on failure
+:PixelDrainDownload
+set "PDD_FS_ID=%~1"
+set "PDD_FILE=%~2"
+set "PDD_DEST=%~3"
+set "DL_OK=0"
+if "%PDD_FS_ID%"=="" exit /b
+if "%PDD_FILE%"=="" exit /b
+
+:: download the folder's JSON manifest
+set "PDD_JSON=%TEMP%\pd_fs_%PDD_FS_ID%.json"
+if exist "%PDD_JSON%" del "%PDD_JSON%" >nul 2>&1
+%wget% -q --no-check-certificate --output-document="%PDD_JSON%" "https://pixeldrain.com/api/filesystem/%PDD_FS_ID%" 2>nul
+if exist "%PDD_JSON%" goto :PDD_FindFile
+%Print%{231;72;86}[ERROR] Failed to download PixelDrain JSON for %PDD_FS_ID% \n
+exit /b
+
+:PDD_FindFile
+:: confirm the file exists in the manifest's children, capture its size
+set "PDD_STATUS=NOT_FOUND"
+set "PDD_SIZE="
+call :ParseJsonSize "%PDD_JSON%" "%PDD_FILE%" PDD_SIZE
+del "%PDD_JSON%" >nul 2>&1
+if defined PDD_SIZE if not "%PDD_SIZE%"=="" set "PDD_STATUS=FOUND"
+if /I "%PDD_STATUS%"=="FOUND" goto :PDD_DoDownload
+%Print%{231;72;86}[ERROR] '%PDD_FILE%' not found in PixelDrain folder %PDD_FS_ID% \n
+exit /b
+
+:PDD_DoDownload
+:: Step 3: download the file directly to the destination with the correct name
+set "PDD_OUT=%PDD_DEST%\%PDD_FILE%"
+set "PDD_TMP=!PDD_FILE: =__SPC__!"
+set "PDD_FILE_URL=!PDD_TMP:__SPC__=%%20!"
+if exist "%PDD_OUT%" del "%PDD_OUT%" >nul 2>&1
+%wget% --no-check-certificate --output-document="%PDD_OUT%" "https://pixeldrain.com/api/filesystem/%PDD_FS_ID%/%PDD_FILE_URL%"
+if exist "%PDD_OUT%" goto :PDD_VerifySize
+%Print%{231;72;86}[ERROR] wget failed to write '%PDD_FILE%' \n
+exit /b
+
+:PDD_VerifySize
+:: verify the downloaded size matches what the manifest reported
+for %%G in ("%PDD_OUT%") do set /a PDD_LOCAL=%%~zG
+if not defined PDD_SIZE set "PDD_SIZE=0"
+if "%PDD_SIZE%"=="0" (
+    if %PDD_LOCAL% GTR 0 set "DL_OK=1"
+) else (
+    if %PDD_LOCAL% EQU %PDD_SIZE% set "DL_OK=1"
+    if not "!DL_OK!"=="1" if %PDD_LOCAL% GEQ %PDD_SIZE% set "DL_OK=1"
+)
+exit /b
+
+:: ======================================================================================================================
+::  PREFETCH LIVE SIZES
+:ShowPrefetchAndRun
 cls
-echo/
-IF ERRORLEVEL 3  start "" https://vfx.borisfx.com/mochavegas & GOTO Mocha-veg-ofx-prompt
-IF ERRORLEVEL 2  set Mocha-veg-ofx=2 & GOTO Plug-Select-Queue-Setup-1
-IF ERRORLEVEL 1  set Mocha-veg-ofx=1 & GOTO Plug-Select-Queue-Setup-1
-echo/
-
-:Plug-Queue-Install
 color 0C
-%Print%{0;255;50}%PlugQueueCounterPre% out of %PlugQueueCounter% \n
-%Print%{0;185;255}Initializing Download... \n
-if %plugin1queue% EQU 1 GOTO Plug-Queue-1
-if %plugin2queue% EQU 1 if %Mocha-veg-ofx% EQU 2 GOTO Plug-Queue-2-1
-if %plugin2queue% EQU 1 if %Mocha-veg-ofx% EQU 1 GOTO Plug-Queue-2-2
-if %plugin3queue% EQU 1 GOTO Plug-Queue-3
-if %plugin4queue% EQU 1 GOTO Plug-Queue-4
-if %plugin5queue% EQU 1 GOTO Plug-Queue-5
-if %plugin6queue% EQU 1 GOTO Plug-Queue-6
-if %plugin7queue% EQU 1 GOTO Plug-Queue-7
-if %plugin8queue% EQU 1 GOTO Plug-Queue-8
-if %plugin9queue% EQU 1 GOTO Plug-Queue-9
-if %plugin10queue% EQU 1 GOTO Plug-Queue-10
-if %plugin11queue% EQU 1 GOTO Plug-Queue-11
-if %plugin12queue% EQU 1 GOTO Plug-Queue-12
-if %plugin13queue% EQU 1 GOTO Plug-Queue-13
-if %plugin14queue% EQU 1 GOTO Plug-Queue-14
-
-:Plug-Queue-1
-:: Boris FX Sapphire
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/MkziKReb" -P ".\Plugins\Boris FX - Sapphire"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\Boris FX - Sapphire"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari9%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var9!"
-for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set plugcountbfxsaphfinal=0
-set plugin1queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-1-error
 echo/
-%Print%{255;0;0}Download Failed!
-if %plugin1results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin1results% LEQ 1 echo/
-if %plugin1results% LEQ 1 set plugin1results=2 & GOTO Plug-Queue-1
-if %plugin1results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin1results% EQU 2 echo/
-if %plugin1results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountbfxsaphfinal=0 & set plugin1queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
-
-:Plug-Queue-2-1
-:: Boris FX Mocha Pro OFX
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/4etrsASn" -P ".\Plugins\Boris FX - Mocha Pro"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\Boris FX - Mocha Pro"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari7%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var7!"
-for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set plugcountbfxmochafinal=0
-set plugin2queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-2-1-error
 echo/
-%Print%{255;0;0}Download Failed!
-if %plugin2results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin2results% LEQ 1 echo/
-if %plugin2results% LEQ 1 set plugin2results=2 & GOTO Plug-Queue-2-1
-if %plugin2results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin2results% EQU 2 echo/
-if %plugin2results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountbfxmochafinal=0 & set plugin2queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
-
-:Plug-Queue-2-2
-:: Boris FX Mocha Vegas
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/WUyebEQD" -P ".\Plugins\Boris FX - Mocha VEGAS"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\Boris FX - Mocha VEGAS"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari8%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var8!"
-for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set plugcountbfxmochafinal=0
-set plugin2queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-2-2-error
+%Print%{0;185;255}           Fetching latest script information \n
 echo/
-%Print%{255;0;0}Download Failed!
-if %plugin2results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin2results% LEQ 1 echo/
-if %plugin2results% LEQ 1 set plugin2results=2 & GOTO Plug-Queue-2-2
-if %plugin2results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin2results% EQU 2 echo/
-if %plugin2results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountbfxmochafinal=0 & set plugin2queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+%Print%{204;204;204}          (this only happens once per session) \n
+call :PrefetchLiveSizes
+call :RestoreConsole
+set "PREFETCH_DONE=1"
+exit /b
 
-:Plug-Queue-3
-:: Boris FX Continuum
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/P1xTXJT3" -P ".\Plugins\Boris FX - Continuum Complete"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\Boris FX - Continuum Complete"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari6%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var6!"
-for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
+:RestoreConsole
+:: Re-applies the console code page + window size that the script was started with
+%SystemRoot%\System32\chcp.com 28591 >nul
+%SystemRoot%\System32\mode.com con cols=105 lines=35 >nul
+exit /b
+
+:PrefetchLiveSizes
+:: Skip the whole prefetch if user disabled it
+set "PFS_ANY=0"
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
+> "%LOG_DIR%\prefetch_debug.log" echo --- prefetch run at %DATE% %TIME% ---
+
+for %%I in (%ITEMS%) do call :PrefetchOne %%I
+exit /b
+
+:PrefetchOne
+set "PF_ID=%~1"
+call set "PF_FS_ID=%%%PF_ID%.fs_id%%"
+call set "PF_FS_FILE=%%%PF_ID%.fs_file%%"
+:: Skip blanks
+if not defined PF_FS_ID exit /b
+if not defined PF_FS_FILE exit /b
+echo %PF_FS_ID% | findstr /B /C:"REPLACE_ME" >nul && exit /b
+call :FetchOneSize "%PF_FS_ID%" "%PF_FS_FILE%" "%PF_ID%"
+exit /b
+
+:FetchOneSize
+:: %1 = fs_id, %2 = filename, %3 = key suffix for live_size.<key>
+set "FOS_FS=%~1"
+set "FOS_FILE=%~2"
+set "FOS_KEY=%~3"
+:: logging
+>>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] fs=%FOS_FS% file=%FOS_FILE%
+
+set "FOS_JSON=%TEMP%\pd_size_%FOS_FS%.json"
+if exist "%FOS_JSON%" del "%FOS_JSON%" >nul 2>&1
+%wget% -q --no-check-certificate --output-document="%FOS_JSON%" "https://pixeldrain.com/api/filesystem/%FOS_FS%" 2>nul
+if not exist "%FOS_JSON%" (
+    >>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] FAIL: JSON download failed
+    exit /b
 )
-set /a PlugQueueCounterPre+=1
-set plugcountbfxcontinfinal=0
-set plugin3queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-3-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin3results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin3results% LEQ 1 echo/
-if %plugin3results% LEQ 1 set plugin3results=2 & GOTO Plug-Queue-3
-if %plugin3results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin3results% EQU 2 echo/
-if %plugin3results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountbfxcontinfinal=0 & set plugin3queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+set "FOS_BYTES="
+call :ParseJsonSize "%FOS_JSON%" "%FOS_FILE%" FOS_BYTES
+del "%FOS_JSON%" >nul 2>&1
+:: logging
+>>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] bytes=%FOS_BYTES%
 
-:Plug-Queue-4
-:: Boris FX Silhouette
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/gLbinhBV" -P ".\Plugins\Boris FX - Silhouette"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\Boris FX - Silhouette"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari10%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var10!"
-for %%G in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
+if not defined FOS_BYTES exit /b
+if "%FOS_BYTES%"=="" exit /b
+:: Convert bytes to a readable string (MB / GB)
+set "FOS_PRETTY="
+call :BytesToHuman %FOS_BYTES% FOS_PRETTY
+:: logging
+>>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] pretty=%FOS_PRETTY%
+
+if defined FOS_PRETTY if not "%FOS_PRETTY%"=="" set "live_size.%FOS_KEY%=%FOS_PRETTY%"
+set "live_bytes.%FOS_KEY%=%FOS_BYTES%"
+exit /b
+
+:ParseJsonSize
+:: PixelDrain JSON parser. Uses a tiny inline JScript run under cscript
+:: %1 = path to JSON file
+:: %2 = filename to look up inside the "children" array
+:: %3 = output variable name (will receive the byte count, or be left unset)
+set "PJS_IN=%~1"
+set "PJS_FILE=%~2"
+set "PJS_OUT=%~3"
+:: Use a versioned filename so any old/broken pd_json_size.js cached from a previous run of the script doesn't interfere
+set "PJS_JS=%SCR_DIR%\pd_json_size.js"
+if not defined PJS_WRITTEN call :WritePdJsonScript
+if not exist "%PJS_JS%" exit /b
+set "PJS_BYTES="
+for /f "usebackq delims=" %%S in (`cscript //nologo //E:JScript "%PJS_JS%" "%PJS_IN%" "%PJS_FILE%" 2^>nul`) do set "PJS_BYTES=%%S"
+if defined PJS_BYTES if not "%PJS_BYTES%"=="" set "%PJS_OUT%=%PJS_BYTES%"
+set "PJS_BYTES="
+exit /b
+
+:WritePdJsonScript
+:: Writes a small JScript file to parse PixelDrain JSON
+> "%PJS_JS%" echo var fso=new ActiveXObject("Scripting.FileSystemObject"^);
+>>"%PJS_JS%" echo if (WScript.Arguments.length^<2){WScript.Quit(1);}
+>>"%PJS_JS%" echo var p=WScript.Arguments(0), n=WScript.Arguments(1);
+>>"%PJS_JS%" echo if (^^^!fso.FileExists(p)){WScript.Quit(2);}
+>>"%PJS_JS%" echo var f=fso.OpenTextFile(p,1,false), d=f.ReadAll(); f.Close(^);
+>>"%PJS_JS%" echo var j; try{j=eval('('+d+')');}catch(e){WScript.Quit(3);}
+>>"%PJS_JS%" echo if (^^^!j ^|^| ^^^!j.children){WScript.Quit(4);}
+>>"%PJS_JS%" echo for (var i=0;i^<j.children.length;i++){
+>>"%PJS_JS%" echo if (j.children[i].name===n){
+>>"%PJS_JS%" echo WScript.StdOut.Write(j.children[i].file_size); WScript.Quit(0);
+>>"%PJS_JS%" echo }
+>>"%PJS_JS%" echo }
+>>"%PJS_JS%" echo WScript.Quit(5);
+set "PJS_WRITTEN=1"
+exit /b
+
+:WriteChangelogScript
+:: Writes a small JScript that reads a GitHub release JSON, extracts the
+:: 'body' field (the markdown release notes), strips Markdown formatting,
+:: and emits one tagged line per source line for the batch renderer:
+::   H<TAB>text   -> Markdown header (#, ##, ### etc.)
+::   B<TAB>text   -> Bullet point (-, *, +)
+::   T<TAB>text   -> Plain text
+::   -<TAB>       -> Blank line
+:: The leading character lets the renderer dispatch colors without parsing.
+:: Implementation note: avoid regex anchors (^/$) inside the source because
+:: writing ^ literally through CMD echo requires ^^^^ doubling and gets
+:: error-prone. Use charAt/indexOf checks instead.
+> "%CLG_JS%" echo var fso=new ActiveXObject("Scripting.FileSystemObject"^);
+>>"%CLG_JS%" echo if (WScript.Arguments.length^<1){WScript.Quit(1);}
+>>"%CLG_JS%" echo var p=WScript.Arguments(0);
+>>"%CLG_JS%" echo if (^^^!fso.FileExists(p)){WScript.Quit(2);}
+>>"%CLG_JS%" echo var f=fso.OpenTextFile(p,1,false), d=f.ReadAll(); f.Close(^);
+>>"%CLG_JS%" echo var j; try{j=eval('('+d+')');}catch(e){WScript.Quit(3);}
+>>"%CLG_JS%" echo if (^^^!j ^|^| typeof j.body^^^!=='string'){WScript.Quit(4);}
+>>"%CLG_JS%" echo function strip(s){return s.replace(/[*_`]/g,'');}
+>>"%CLG_JS%" echo function trim(s){var a=0,b=s.length;while(a^<b ^&^& s.charAt(a)^<=' ')a++;while(b^>a ^&^& s.charAt(b-1)^<=' ')b--;return s.substring(a,b);}
+>>"%CLG_JS%" echo var lines=j.body.replace(/\r/g,'').split('\n');
+>>"%CLG_JS%" echo for (var i=0;i^<lines.length;i++){
+>>"%CLG_JS%" echo var t=trim(lines[i]);
+>>"%CLG_JS%" echo if (t.length===0){WScript.Echo('-\t');continue;}
+>>"%CLG_JS%" echo var c=t.charAt(0);
+>>"%CLG_JS%" echo if (c==='#'){var k=0;while(k^<t.length ^&^& t.charAt(k)==='#')k++;WScript.Echo('H\t'+strip(trim(t.substring(k))));continue;}
+>>"%CLG_JS%" echo if ((c==='-'^|^|c==='*'^|^|c==='+') ^&^& t.charAt(1)===' '){WScript.Echo('B\t'+strip(trim(t.substring(2))));continue;}
+>>"%CLG_JS%" echo WScript.Echo('T\t'+strip(t^));
+>>"%CLG_JS%" echo }
+set "CLG_WRITTEN=1"
+exit /b
+
+:RenderChangelog
+:: Downloads the full GitHub release JSON, runs the JScript parser to extract
+:: the markdown body, and prints each line in the appropriate color.
+:: Headers (#, ##, ###) -> blue. Bullets (-, *, +) -> white. Plain text -> light gray.
+:: Blank lines -> blank line.
+set "CLG_JS=%SCR_DIR%\release_notes.js"
+set "CLG_JSON=%TEMP%\release.json"
+set "CLG_OUT=%TEMP%\release_notes.txt"
+:: --- DIAGNOSTIC LOG (remove after debugging) ---
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
+> "%LOG_DIR%\changelog_debug.log" echo --- changelog run at %DATE% %TIME% ---
+:: ----
+if not defined CLG_WRITTEN call :WriteChangelogScript
+if not exist "%CLG_JS%" (
+    >>"%LOG_DIR%\changelog_debug.log" echo [FAIL] release_notes.js not written
+    exit /b
 )
-set /a PlugQueueCounterPre+=1
-set plugcountbfxsilhofinal=0
-set plugin4queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-4-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin4results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin4results% LEQ 1 echo/
-if %plugin4results% LEQ 1 set plugin4results=2 & GOTO Plug-Queue-4
-if %plugin4results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin4results% EQU 2 echo/
-if %plugin4results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountbfxsilhofinal=0 & set plugin4queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
-
-:Plug-Queue-5
-:: FXHome Ignite Pro
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/3iT9T18Z" -P ".\Plugins\FXHOME - Ignite Pro"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\FXHOME - Ignite Pro"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari11%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var11!"
-for %%G in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
+:: Fetch the full release JSON
+if exist "%CLG_JSON%" del "%CLG_JSON%" >nul 2>&1
+curl -kLsA "Mozilla/5.0" "https://api.github.com/repos/ItsNifer/Nifer-Installer-Script/releases/latest" -o "%CLG_JSON%" 2>nul
+if not exist "%CLG_JSON%" (
+    >>"%LOG_DIR%\changelog_debug.log" echo [FAIL] curl produced no release.json
+    exit /b
 )
-set /a PlugQueueCounterPre+=1
-set plugcountignitefinal=0
-set plugin5queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-5-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin5results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin5results% LEQ 1 echo/
-if %plugin5results% LEQ 1 set plugin5results=2 & GOTO Plug-Queue-5
-if %plugin5results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin5results% EQU 2 echo/
-if %plugin5results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountignitefinal=0 & set plugin5queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
-
-:Plug-Queue-6
-:: Maxon Red Giant Magic Bullet Suite
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/ysg6ZBnT" -P ".\Plugins\MAXON - Red Giant Magic Bullet Suite"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\MAXON - Red Giant Magic Bullet Suite"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari12%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var12!"
-for %%G in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
+for %%G in ("%CLG_JSON%") do >>"%LOG_DIR%\changelog_debug.log" echo [OK] release.json size=%%~zG
+:: Run JScript -> parsed output to file
+if exist "%CLG_OUT%" del "%CLG_OUT%" >nul 2>&1
+cscript //nologo //E:JScript "%CLG_JS%" "%CLG_JSON%" > "%CLG_OUT%" 2>>"%LOG_DIR%\changelog_debug.log"
+if not exist "%CLG_OUT%" (
+    >>"%LOG_DIR%\changelog_debug.log" echo [FAIL] cscript produced no output file
+    del "%CLG_JSON%" >nul 2>&1
+    exit /b
 )
-set /a PlugQueueCounterPre+=1
-set plugcountmblfinal=0
-set plugin6queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-6-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin6results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin6results% LEQ 1 echo/
-if %plugin6results% LEQ 1 set plugin6results=2 & GOTO Plug-Queue-6
-if %plugin6results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin6results% EQU 2 echo/
-if %plugin6results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountmblfinal=0 & set plugin6queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
-
-:Plug-Queue-7
-:: Maxon Red Giant Universe
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/eYMouNf4" -P ".\Plugins\MAXON - Red Giant Universe"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\MAXON - Red Giant Universe"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari13%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var13!"
-for %%G in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
+for %%G in ("%CLG_OUT%") do >>"%LOG_DIR%\changelog_debug.log" echo [OK] release_notes.txt size=%%~zG
+:: If the parsed file is empty, bail before printing the header
+for %%G in ("%CLG_OUT%") do if %%~zG EQU 0 (
+    >>"%LOG_DIR%\changelog_debug.log" echo [FAIL] parsed output empty - body field missing or unparseable
+    del "%CLG_JSON%" >nul 2>&1
+    del "%CLG_OUT%" >nul 2>&1
+    exit /b
 )
-set /a PlugQueueCounterPre+=1
-set plugcountunifinal=0
-set plugin7queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-7-error
+:: Header label so the user knows what's about to print
+%Print%{0;185;255}           ==== What's New in This Release ==== \n
 echo/
-%Print%{255;0;0}Download Failed!
-if %plugin7results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin7results% LEQ 1 echo/
-if %plugin7results% LEQ 1 set plugin7results=2 & GOTO Plug-Queue-7
-if %plugin7results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin7results% EQU 2 echo/
-if %plugin7results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountunifinal=0 & set plugin7queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:: Iterate parsed output. Each line is "<TAG><TAB><TEXT>".
+for /f "usebackq tokens=1,* delims=	" %%A in ("%CLG_OUT%") do call :RenderChangelogLine "%%A" "%%B"
+del "%CLG_JSON%" >nul 2>&1
+del "%CLG_OUT%" >nul 2>&1
+exit /b
 
-:Plug-Queue-8
-:: NewBlue FX Titler Pro
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/UHJ6PYTP" -P ".\Plugins\NewBlueFX - Titler Pro 7 Ultimate"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\NewBlueFX - Titler Pro 7 Ultimate"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari14%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var14!"
-for %%G in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set plugcountnfxtitlerfinal=0
-set plugin8queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-8-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin8results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin8results% LEQ 1 echo/
-if %plugin8results% LEQ 1 set plugin8results=2 & GOTO Plug-Queue-8
-if %plugin8results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin8results% EQU 2 echo/
-if %plugin8results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountnfxtitlerfinal=0 & set plugin8queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:RenderChangelogLine
+:: %1 = tag character (H / B / T / -)
+:: %2 = the line text (may contain shell metacharacters like & | < > ^)
+:: Uses delayed expansion so %Print% is fed an already-resolved string and
+:: doesn't re-parse any special characters in the body text.
+set "RCL_TAG=%~1"
+set "RCL_TXT=%~2"
+if /I "%RCL_TAG%"=="H" %Print%{0;185;255}     !RCL_TXT! \n
+if /I "%RCL_TAG%"=="B" %Print%{255;255;255}       - !RCL_TXT! \n
+if /I "%RCL_TAG%"=="T" %Print%{204;204;204}     !RCL_TXT! \n
+if /I "%RCL_TAG%"=="-" echo/
+exit /b
 
-:Plug-Queue-9
-:: NewBlue FX TotalFX
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/G61gUBhS" -P ".\Plugins\NewBlueFX - TotalFX 7"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\NewBlueFX - TotalFX 7"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari15%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var15!"
-for %%G in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set plugcountnfxtotalfinal=0
-set plugin9queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-9-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin9results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin9results% LEQ 1 echo/
-if %plugin9results% LEQ 1 set plugin9results=2 & GOTO Plug-Queue-9
-if %plugin9results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin9results% EQU 2 echo/
-if %plugin9results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountnfxtotalfinal=0 & set plugin9queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:BytesToHuman
+:: %1 = byte count, %2 = output var name
+:: CMD's set /a is 32-bit signed (max 2,147,483,647), anything larger overflows
+set "BTH_RAW=%~1"
+set "BTH_OUT="
+if not defined BTH_RAW goto :BTH_Done
 
-:Plug-Queue-10
-:: REVision FX Effections
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/pygxrhhN" -P ".\Plugins\REVisionFX - Effections Suite"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Plugins\REVisionFX - Effections Suite"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari16%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var16!"
-for %%G in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set plugcountrfxefffinal=0
-set plugin10queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-14-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin10results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin10results% LEQ 1 echo/
-if %plugin10results% LEQ 1 set plugin10results=2 & GOTO Plug-Queue-10
-if %plugin10results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin10results% EQU 2 echo/
-if %plugin10results% EQU 2 set /a PlugQueueCounterPre+=1 & set plugcountrfxefffinal=0 & set plugin10queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+call :StrLen "%BTH_RAW%" BTH_LEN
+if %BTH_LEN% GEQ 11 goto :BTH_BigGB
+if %BTH_LEN% LEQ 9 goto :BTH_Numeric
+if "%BTH_RAW%" GTR "2147483647" goto :BTH_BigGB
 
-:Plug-Queue-11
-:: VEGAS Pro
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/mgyNdxKS" -P ".\Magix Vegas Software\Vegas Pro"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Magix Vegas Software\Vegas Pro"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari2%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var2!"
-for %%G in ("%~dp0Installer-files\Magix Vegas Software\Vegas Pro\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set magixcountvpfinal=0
-set plugin11queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-11-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin11results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin11results% LEQ 1 echo/
-if %plugin11results% LEQ 1 set plugin11results=2 & GOTO Plug-Queue-11
-if %plugin11results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin11results% EQU 2 echo/
-if %plugin11results% EQU 2 set /a PlugQueueCounterPre+=1 & set magixcountvpfinal=0 & set plugin11queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:BTH_Numeric
+:: Safe to use 32-bit set /a here
+set /a BTH_B=%BTH_RAW%
+if %BTH_B% GEQ 1073741824 goto :BTH_GB
+if %BTH_B% GEQ 1048576 goto :BTH_MB
+if %BTH_B% GEQ 1024 goto :BTH_KB
+set "BTH_OUT=%BTH_B% B"
+goto :BTH_Done
 
-:Plug-Queue-12
-:: VEGAS Pro Deep Learning Models
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/2UZcZPVS" -P ".\Magix Vegas Software\Deep Learning Models"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Magix Vegas Software\Deep Learning Models"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari3%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var3!"
-for %%G in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set magixcountvpdlmfinal=0
-set plugin12queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-12-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin12results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin12results% LEQ 1 echo/
-if %plugin12results% LEQ 1 set plugin12results=2 & GOTO Plug-Queue-12
-if %plugin12results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin12results% EQU 2 echo/
-if %plugin12results% EQU 2 set /a PlugQueueCounterPre+=1 & set magixcountvpdlmfinal=0 & set plugin12queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:BTH_GB
+set /a BTH_INT=BTH_B / 1073741824
+set /a BTH_REM=BTH_B - BTH_INT * 1073741824
+set /a BTH_FRAC=BTH_REM / 10737418
+if %BTH_FRAC% LSS 10 set "BTH_OUT=%BTH_INT%.0%BTH_FRAC% GB"
+if %BTH_FRAC% GEQ 10 set "BTH_OUT=%BTH_INT%.%BTH_FRAC% GB"
+goto :BTH_Done
 
-:Plug-Queue-13
-:: VEGAS Effects
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/9S3AYo9L" -P ".\Magix Vegas Software\Vegas Effects"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Magix Vegas Software\Vegas Effects"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari4%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var4!"
-for %%G in ("%~dp0Installer-files\Magix Vegas Software\Vegas Effects\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set magixcountvefinal=0
-set plugin13queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-13-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin13results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin13results% LEQ 1 echo/
-if %plugin13results% LEQ 1 set plugin13results=2 & GOTO Plug-Queue-13
-if %plugin13results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin13results% EQU 2 echo/
-if %plugin13results% EQU 2 set /a PlugQueueCounterPre+=1 & set magixcountvefinal=0 & set plugin13queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:BTH_MB
+set /a BTH_MB=BTH_B / 1048576
+set "BTH_OUT=%BTH_MB% MB"
+goto :BTH_Done
 
-:Plug-Queue-14
-:: VEGAS Image
-cd /d "%~dp0Installer-files"
-%Print%{0;185;255}Downloading, please be patient... \n
-%wget% "https://pixeldrain.com/api/file/ATHL5d4Y" -P ".\Magix Vegas Software\Vegas Image"
-:: Parses the most recent file in the downloads folder to rename.
-cd /d ".\Magix Vegas Software\Vegas Image"
-for /f %%i in ('dir /b/a/od/t:c') do set RECENT_FILE=%%i >NUL
-REN "%RECENT_FILE%" "%_vari5%.rar"
-cd /d "%~dp0Installer-files"
-set CheckSizeVar="!_var5!"
-for %%G in ("%~dp0Installer-files\Magix Vegas Software\Vegas Image\*.rar") DO (
-    CALL :CHECKSIZE "%%G"
-)
-set /a PlugQueueCounterPre+=1
-set magixcountvifinal=0
-set plugin14queue=0
-GOTO Plug-Select-Queue-Setup-2
-:Plug-Queue-14-error
-echo/
-%Print%{255;0;0}Download Failed!
-if %plugin14results% LEQ 1 %Print%{231;72;86}Re-trying download... \n
-if %plugin14results% LEQ 1 echo/
-if %plugin14results% LEQ 1 set plugin14results=2 & GOTO Plug-Queue-14
-if %plugin14results% EQU 2 %Print%{231;72;86}Skipping Queue \n
-if %plugin14results% EQU 2 echo/
-if %plugin14results% EQU 2 set /a PlugQueueCounterPre+=1 & set magixcountvifinal=0 & set plugin14queue=0 & GOTO Plug-Select-Queue-Setup-2
-GOTO Plug-Select-Queue-Setup-2
+:BTH_KB
+set /a BTH_KB=BTH_B / 1024
+set "BTH_OUT=%BTH_KB% KB"
+goto :BTH_Done
 
-:Plugin-Select-Extract
-cd /d "%~dp0"
-::set UnRAR variable
-set UnRAR="%~dp0Installer-files\Installer-Scripts\UnRAR.exe"
+:BTH_BigGB
+:: For cases that overflow 32-bit. divide by 10^7
+set "BTH_TRUNC=%BTH_RAW:~0,-7%"
+set /a BTH_INT=BTH_TRUNC / 107
+set /a BTH_REM=BTH_TRUNC - BTH_INT * 107
+set /a BTH_FRAC=BTH_REM * 100 / 107
+if %BTH_FRAC% LSS 10 set "BTH_OUT=%BTH_INT%.0%BTH_FRAC% GB"
+if %BTH_FRAC% GEQ 10 set "BTH_OUT=%BTH_INT%.%BTH_FRAC% GB"
+goto :BTH_Done
+
+:BTH_Done
+set "%~2=%BTH_OUT%"
+exit /b
+
+:StrLen
+:: %1 = string, %2 = output var name
+set "SL_S=%~1"
+set /a SL_N=0
+:SL_Loop
+if not defined SL_S goto :SL_Done
+set "SL_S=%SL_S:~1%"
+set /a SL_N+=1
+goto :SL_Loop
+:SL_Done
+set "%~2=%SL_N%"
+exit /b
+
+:: ======================================================================================================================
+::  EXTRACT PHASE — unpack all downloaded .rar archives in plugin folders
+:DownloadFinished
 cls
 color 0C
 echo Downloads Finished!
 echo Extracting .rar files
-color 0C
-set pluginresultsEcounter=0
-if %plugin1results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin2results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin3results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin4results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin5results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin6results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin7results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin8results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin9results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin10results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin11results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin12results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin13results% EQU 2 set /a pluginresultsEcounter+=1
-if %plugin14results% EQU 2 set /a pluginresultsEcounter+=1
-if defined qextract1 set qextract1=
-if defined qextract2 set qextract2=
-if defined qextract3 set qextract3=
-if defined qextract4 set qextract4=
-if defined qextract5 set qextract5=
-if defined qextract6 set qextract6=
-if defined qextract7 set qextract7=
-if defined qextract8 set qextract8=
-if defined qextract9 set qextract9=
-if defined qextract10 set qextract10=
-if defined qextract11 set qextract11=
-if defined qextract12 set qextract12=
-if defined qextract13 set qextract13=
-if defined qextract14 set qextract14=
+echo/
+for %%I in (%ITEMS%) do (
+    if defined INSTALL.%%I call :ExtractOne %%I
+)
+goto :InstallModePrompt
 
-if %plugin1queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\.rar") do (set "qextract1=%%A")
-if defined qextract1 cd "%~dp0Installer-files\Plugins\Boris FX - Sapphire" & %Print%{244;255;0} Extracting Boris FX - Sapphire \n
-if defined qextract1 %UnRAR% x -u -y -inul "%qextract1%"
-if defined qextract1 del "%qextract1%" 2>nul
-if defined qextract1 echo Finished
-color 0c
-if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\*.rar") do (set "qextract2-1=%%A")
-if defined qextract2-1 cd "%~dp0Installer-files\Plugins\Boris FX - Mocha Pro" & %Print%{244;255;0} Extracting Boris FX - Mocha Pro \n
-if defined qextract2-1 %UnRAR% x -u -y -inul "%qextract2-1%"
-if defined qextract2-1 del "%qextract2-1%" 2>nul
-if defined qextract2-1 echo Finished
-color 0c
-if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\*.rar") do (set "qextract2-2=%%A")
-if defined qextract2-2 cd "%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS" & %Print%{244;255;0} Extracting Boris FX - Mocha VEGAS \n
-if defined qextract2-2 %UnRAR% x -u -y -inul "%qextract2-2%"
-if defined qextract2-2 del "%qextract2-2%" 2>nul
-if defined qextract2-2 echo Finished
-color 0c
-if %plugin3queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\*.rar") do (set "qextract3=%%A")
-if defined qextract3 cd "%~dp0Installer-files\Plugins\Boris FX - Continuum Complete" & %Print%{244;255;0} Extracting Boris FX - Continuum Complete \n
-if defined qextract3 %UnRAR% x -u -y -inul "%qextract3%"
-if defined qextract3 del "%qextract3%" 2>nul
-if defined qextract3 echo Finished
-color 0c
-if %plugin4queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\*.rar") do (set "qextract4=%%A")
-if defined qextract4 cd "%~dp0Installer-files\Plugins\Boris FX - Silhouette" & %Print%{244;255;0} Extracting Boris FX - Silhouette \n
-if defined qextract4 %UnRAR% x -u -y -inul "%qextract4%"
-if defined qextract4 del "%qextract4%" 2>nul
-if defined qextract4 echo Finished
-color 0c
-if %plugin5queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\*.rar") do (set "qextract5=%%A")
-if defined qextract5 cd "%~dp0Installer-files\Plugins\FXHOME - Ignite Pro" & %Print%{244;255;0} Extracting FXHOME - Ignite Pro \n
-if defined qextract5 %UnRAR% x -u -y -inul "%qextract5%"
-if defined qextract5 del "%qextract5%" 2>nul
-if defined qextract5 echo Finished
-color 0c
-if %plugin6queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\*.rar") do (set "qextract6=%%A")
-if defined qextract6 cd "%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite" & %Print%{244;255;0} Extracting MAXON - Red Giant Magic Bullet Suite \n
-if defined qextract6 %UnRAR% x -u -y -inul "%qextract6%"
-if defined qextract6 del "%qextract6%" 2>nul
-if defined qextract6 echo Finished
-color 0c
-if %plugin7queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\*.rar") do (set "qextract7=%%A")
-if defined qextract7 cd "%~dp0Installer-files\Plugins\MAXON - Red Giant Universe" & %Print%{244;255;0} Extracting MAXON - Red Giant Universe \n
-if defined qextract7 %UnRAR% x -u -y -inul "%qextract7%"
-if defined qextract7 del "%qextract7%" 2>nul
-if defined qextract7 echo Finished
-color 0c
-if %plugin8queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\*.rar") do (set "qextract8=%%A")
-if defined qextract8 cd "%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate" & %Print%{244;255;0} Extracting NewBlueFX - Titler Pro 7 Ultimate \n
-if defined qextract8 %UnRAR% x -u -y -inul "%qextract8%"
-if defined qextract8 del "%qextract8%" 2>nul
-if defined qextract8 echo Finished
-color 0c
-if %plugin9queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\*.rar") do (set "qextract9=%%A")
-if defined qextract9 cd "%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7" & %Print%{244;255;0} Extracting NewBlueFX - TotalFX 7 \n
-if defined qextract9 %UnRAR% x -u -y -inul "%qextract9%"
-if defined qextract9 del "%qextract9%" 2>nul
-if defined qextract9 echo Finished
-color 0c
-if %plugin10queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\*.rar") do (set "qextract10=%%A")
-if defined qextract10 cd "%~dp0Installer-files\Plugins\REVisionFX - Effections Suite" & %Print%{244;255;0} Extracting REVisionFX - Effections Suite \n
-if defined qextract10 %UnRAR% x -u -y -inul "%qextract10%"
-if defined qextract10 del "%qextract10%" 2>nul
-if defined qextract10 echo Finished
-color 0c
-if %plugin11queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Pro\*.rar") do (set "qextract11=%%A")
-if defined qextract11 cd "%~dp0Installer-files\Magix Vegas Software\VEGAS Pro" & %Print%{244;255;0} Extracting VEGAS Pro \n
-if defined qextract11 %UnRAR% x -u -y -inul "%qextract11%"
-if defined qextract11 del "%qextract11%" 2>nul
-if defined qextract11 echo Finished
-color 0c
-if %plugin12queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\*.rar") do (set "qextract12=%%A")
-if defined qextract12 cd "%~dp0Installer-files\Magix Vegas Software\Deep Learning Models" & %Print%{244;255;0} Extracting VEGAS Pro Deep Learning Models \n
-if defined qextract12 %UnRAR% x -u -y -inul "%qextract12%"
-if defined qextract12 del "%qextract12%" 2>nul
-if defined qextract12 echo Finished
-color 0c
-if %plugin13queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Effects\*.rar") do (set "qextract13=%%A")
-if defined qextract13 cd "%~dp0Installer-files\Magix Vegas Software\VEGAS Effects" & %Print%{244;255;0} Extracting VEGAS Effects \n
-if defined qextract13 %UnRAR% x -u -y -inul "%qextract13%"
-if defined qextract13 del "%qextract13%" 2>nul
-if defined qextract13 echo Finished
-color 0c
-if %plugin14queueInst% EQU 1 FOR %%A in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Image\*.rar") do (set "qextract14=%%A")
-if defined qextract14 cd "%~dp0Installer-files\Magix Vegas Software\VEGAS Image" & %Print%{244;255;0} Extracting VEGAS Image \n
-if defined qextract14 %UnRAR% x -u -y -inul "%qextract14%"
-if defined qextract14 del "%qextract14%" 2>nul
-if defined qextract14 echo Finished
+:ExtractOne
+set "EX_ID=%~1"
+call :ResolveDownloadTarget "%EX_ID%"
+:: DL_TARGET holds the destination folder
+if not exist "%DL_TARGET%" exit /b
+pushd "%DL_TARGET%"
+set "EX_RAR="
+for %%A in (*.rar) do set "EX_RAR=%%A"
+if not defined EX_RAR (popd & exit /b)
+call set "EX_NAME=%%%EX_ID%.name%%"
+%Print%{244;255;0} Extracting %EX_NAME% \n
+%UnRAR% x -u -y -inul "%EX_RAR%"
+del "%EX_RAR%" 2>nul
+echo Finished
+popd
+exit /b
 
-Timeout /T 5 /Nobreak >nul
-if %MainMagixSelection% EQU 1 cls & color 0C & GOTO Plug-Select-autoinst0
-GOTO Plug-Select-auto-prompt
-
-:Plug-Select-auto-prompt
-set PlugQueueCounterPre=1
+:: ======================================================================================================================
+::  INSTALL MODE PROMPT
+:InstallModePrompt
+:: Count failures for display
+set /a FAIL_CT=0
+for %%I in (%ITEMS%) do (
+    if "!RESULT.%%I!"=="failed" set /a FAIL_CT+=1
+)
 cls
 color 0C
 echo/
-echo How do you want to install the plugins?
+echo How do you want to install?
 echo/
 echo 1) Auto Install
 echo 2) Manual Install
 echo/
-if %pluginresultsEcounter% GEQ 1 %Print%{244;255;0} %pluginresultsEcounter% out of %PlugQueueCounter% plugins failed to download. \n
-if %pluginresultsEcounter% GEQ 1 %Print%{244;255;0} If you decide to Auto Install, failed plugins will be skipped. \n
+if %FAIL_CT% GEQ 1 %Print%{244;255;0} %FAIL_CT% item(s) failed to download. Auto Install will skip those. \n
 echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+set "IM_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 2  GOTO Plug-Select-manualinst
-IF ERRORLEVEL 1  cls & color 0C & GOTO Plug-Select-autoinst0
-echo/
-:Plug-Select-manualinst
-color 0c
+if %IM_CHOICE% EQU 2 goto :ManualInstallInfo
+if %IM_CHOICE% EQU 1 goto :AutoInstallLoop
+goto :AutoInstallLoop
+
+:ManualInstallInfo
 cls
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-echo/
-@pause
-GOTO Pre-SelectPlugins
-
-:Plug-Select-autoinst0
-echo/
-set "PLUGKEY5="
-IF %plugin1queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin2queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin3queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin4queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin5queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin6queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin7queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin8queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin9queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin10queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin11queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin12queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin13queueInst% EQU 1 set PLUGKEY5=1
-IF %plugin14queueInst% EQU 1 set PLUGKEY5=1
-IF defined PLUGKEY5 (
-GOTO Plug-Select-autoinst
-)
-IF not defined PLUGKEY5 GOTO Plug-Queue-Results
-
-:Plug-Select-autoinst
 color 0C
-%Print%{0;255;50}%PlugQueueCounterPre% out of %PlugQueueCounter% \n
-if %plugin1queueInst% EQU 1 GOTO Plug-Queue-Install-1
-if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 2 GOTO Plug-Queue-Install-2-1
-if %plugin2queueInst% EQU 1 if %Mocha-veg-ofx% EQU 1 GOTO Plug-Queue-Install-2-2
-if %plugin3queueInst% EQU 1 GOTO Plug-Queue-Install-3
-if %plugin4queueInst% EQU 1 GOTO Plug-Queue-Install-4
-if %plugin5queueInst% EQU 1 GOTO Plug-Queue-Install-5
-if %plugin6queueInst% EQU 1 GOTO Plug-Queue-Install-6
-if %plugin7queueInst% EQU 1 GOTO Plug-Queue-Install-7
-if %plugin8queueInst% EQU 1 GOTO Plug-Queue-Install-8
-if %plugin9queueInst% EQU 1 GOTO Plug-Queue-Install-9
-if %plugin10queueInst% EQU 1 GOTO Plug-Queue-Install-10
-if %plugin11queueInst% EQU 1 GOTO Plug-Queue-Install-11
-if %plugin12queueInst% EQU 1 GOTO Plug-Queue-Install-12
-if %plugin13queueInst% EQU 1 GOTO Plug-Queue-Install-13
-if %plugin140queueInst% EQU 1 GOTO Plug-Queue-Install-14
-GOTO Plug-Select-autoinst0
-
-:: 1st auto install
-:Plug-Queue-Install-1
-echo Launching auto install script for Boris FX Sapphire
-cd /d "%~dp0Installer-files\Plugins\Boris FX - Sapphire"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-1
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Sapphire\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin1queueInst=0
-set plugin1results=1
-GOTO Plug-Select-autoinst0
-:no-auto-1
-if %plugin1results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin1queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for Boris FX Sapphire.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
+echo For manual installation, open this folder:
+echo "Installer-files > Plugins > (Plugin Name)" or
+echo "Installer-files > Magix Vegas Software > (Software Name)"
 echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin1queueInst=0
-set plugin1results=3
-GOTO Plug-Select-autoinst0
+echo/
+pause
+goto :ResultsReport
 
-:: 2nd-1 auto install
-:Plug-Queue-Install-2-1
-echo Launching auto install script for Boris FX Mocha Pro OFX
-cd /d "%~dp0Installer-files\Plugins\Boris FX - Mocha Pro"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Mocha Pro\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin2queueInst=0
-set plugin2results=1
-GOTO Plug-Select-autoinst0
-:no-auto-2
-if %plugin2results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin2queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for Boris FX Mocha Pro OFX.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
+:: ======================================================================================================================
+::  AUTO-INSTALL LOOP
+:AutoInstallLoop
+set /a INST_POS=0
+set /a INST_TOTAL=0
+for %%I in (%ITEMS%) do (
+    if defined INSTALL.%%I set /a INST_TOTAL+=1
+)
+if %INST_TOTAL% EQU 0 goto :ResultsReport
+for %%I in (%ITEMS%) do (
+    if defined INSTALL.%%I (
+        set /a INST_POS+=1
+        call :AutoInstallOne %%I
+    )
+)
+goto :ResultsReport
+
+:AutoInstallOne
+set "AI_ID=%~1"
+call set "AI_NAME=%%%AI_ID%.name%%"
+call :ResolveDownloadTarget "%AI_ID%"
+:: DL_TARGET holds plugin folder
+cls
+color 0C
+%Print%{0;255;50}%INST_POS% out of %INST_TOTAL% \n
+echo Launching auto install script for %AI_NAME%
+if not exist "%DL_TARGET%" (
+    call :NoAutoInstall "%AI_ID%"
+    exit /b
+)
+pushd "%DL_TARGET%"
+set "AI_SUB="
+for /f "delims=" %%i in ('dir /b /ad-h /t:c /od 2^>nul') do set "AI_SUB=%%i"
+if not defined AI_SUB (
+    popd
+    call :NoAutoInstall "%AI_ID%"
+    exit /b
+)
+if not exist "%AI_SUB%\INSTALL.cmd" (
+    popd
+    call :NoAutoInstall "%AI_ID%"
+    exit /b
+)
+start "" /wait "%AI_SUB%\INSTALL.cmd"
+popd
+set "RESULT.%AI_ID%=installed"
+exit /b
+
+:NoAutoInstall
+set "NAI_ID=%~1"
+call set "NAI_NAME=%%%NAI_ID%.name%%"
+echo There is no auto install script for %NAI_NAME%.
+echo For manual installation, please open:
+call set "NAI_ROOT=%%%NAI_ID%.root%%"
+call set "NAI_FOLDER=%%%NAI_ID%.folder%%"
+if /I "%NAI_ROOT%"=="PLG_DIR" (
+    echo "Installer-files\Plugins\%NAI_FOLDER%"
+) else (
+    echo "Installer-files\Magix Vegas Software\%NAI_FOLDER%"
+)
 echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin2queueInst=0
-set plugin2results=3
-GOTO Plug-Select-autoinst0
+timeout /T 5 /nobreak >nul
+:: Keep RESULT as "downloaded" so report shows it correctly
+if not defined RESULT.%NAI_ID% set "RESULT.%NAI_ID%=downloaded"
+exit /b
 
-:: 2nd-2 auto install
-:Plug-Queue-Install-2-2
-echo Launching auto install script for Boris FX Mocha Vegas
-cd /d "%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-2-2
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Mocha VEGAS\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin2queueInst=0
-set plugin2results=1
-GOTO Plug-Select-autoinst0
-:no-auto-2-2
-if %plugin2results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin2queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for Boris FX Mocha Vegas.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin2queueInst=0
-set plugin2results=3
-GOTO Plug-Select-autoinst0
-
-:: 3rd auto install
-:Plug-Queue-Install-3
-echo Launching auto install script for Boris FX Continuum Complete
-cd /d "%~dp0Installer-files\Plugins\Boris FX - Continuum Complete"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-3
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Continuum Complete\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin3queueInst=0
-set plugin3results=1
-GOTO Plug-Select-autoinst0
-:no-auto-3
-if %plugin3results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin3queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for Boris FX Continuum Complete.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin3queueInst=0
-set plugin3results=3
-GOTO Plug-Select-autoinst0
-
-:: 4th auto install
-:Plug-Queue-Install-4
-echo Launching auto install script for Boris FX Silhouette
-cd /d "%~dp0Installer-files\Plugins\Boris FX - Silhouette"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-4
-for /D %%I in ("%~dp0Installer-files\Plugins\Boris FX - Silhouette\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin4queueInst=0
-set plugin4results=1
-GOTO Plug-Select-autoinst0
-:no-auto-4
-if %plugin4results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin4queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for Boris FX Silhouette.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin4queueInst=0
-set plugin4results=3
-GOTO Plug-Select-autoinst0
-
-:: 5th auto install
-:Plug-Queue-Install-5
-echo Launching auto install script for FXHOME Ignite Pro
-cd /d "%~dp0Installer-files\Plugins\Boris FX - Ignite Pro"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-5
-for /D %%I in ("%~dp0Installer-files\Plugins\FXHOME - Ignite Pro\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin5queueInst=0
-set plugin5results=1
-GOTO Plug-Select-autoinst0
-:no-auto-5
-if %plugin5results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin5queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for FXHOME Ignite Pro.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin5queueInst=0
-set plugin5results=3
-GOTO Plug-Select-autoinst0
-
-:: 6th auto install
-:Plug-Queue-Install-6
-echo Launching auto install script for MAXON Red Giant Magic Bullet Suite
-cd /d "%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-6
-for /D %%I in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Magic Bullet Suite\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin6queueInst=0
-set plugin6results=1
-GOTO Plug-Select-autoinst0
-:no-auto-6
-if %plugin6results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin6queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for MAXON Red Giant Magic Bullet Suite.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin6queueInst=0
-set plugin6results=3
-GOTO Plug-Select-autoinst0
-
-:: 7th auto install
-:Plug-Queue-Install-7
-echo Launching auto install script for MAXON Red Giant Universe
-cd /d "%~dp0Installer-files\Plugins\MAXON - Red Giant Universe"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-7
-for /D %%I in ("%~dp0Installer-files\Plugins\MAXON - Red Giant Universe\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin7queueInst=0
-set plugin7results=1
-GOTO Plug-Select-autoinst0
-:no-auto-7
-if %plugin7results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin7queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for MAXON Red Giant Universe.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin7queueInst=0
-set plugin7results=3
-GOTO Plug-Select-autoinst0
-
-:: 8th auto install
-:Plug-Queue-Install-8
-echo Launching auto install script for NewBlueFX Titler Pro 7 Ultimate
-cd /d "%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-8
-for /D %%I in ("%~dp0Installer-files\Plugins\NewBlueFX - Titler Pro 7 Ultimate\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin8queueInst=0
-set plugin8results=1
-GOTO Plug-Select-autoinst0
-:no-auto-8
-if %plugin8results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin8queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for NewBlueFX Titler Pro 7 Ultimate.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin8queueInst=0
-set plugin8results=3
-GOTO Plug-Select-autoinst0
-
-:: 9th auto install
-:Plug-Queue-Install-9
-echo Launching auto install script for NewBlueFX TotalFX 7
-cd /d "%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-9
-for /D %%I in ("%~dp0Installer-files\Plugins\NewBlueFX - TotalFX 7\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin9queueInst=0
-set plugin9results=1
-GOTO Plug-Select-autoinst0
-:no-auto-9
-if %plugin9results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin9queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for NewBlueFX TotalFX 7.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin9queueInst=0
-set plugin9results=3
-GOTO Plug-Select-autoinst0
-
-:: 10th auto install
-:Plug-Queue-Install-10
-echo Launching auto install script for REVisionFX Effections
-cd /d "%~dp0Installer-files\Plugins\REVisionFX - Effections Suite"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-10
-for /D %%I in ("%~dp0Installer-files\Plugins\REVisionFX - Effections Suite\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin10queueInst=0
-set plugin10results=1
-GOTO Plug-Select-autoinst0
-:no-auto-10
-if %plugin10results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin10queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for REVisionFX Effections.
-echo For manual installation, please open this directory
-echo "Installer-files > Plugins > (Plugin Name)"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin10queueInst=0
-set plugin10results=3
-GOTO Plug-Select-autoinst0
-
-:: 11th auto install
-:Plug-Queue-Install-11
-echo Launching auto install script for VEGAS Pro
-cd /d "%~dp0Installer-files\Magix Vegas Software\VEGAS Pro"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Pro\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-11
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Pro\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin11queueInst=0
-set plugin11results=1
-GOTO Plug-Select-autoinst0
-:no-auto-11
-if %plugin11results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin11queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for VEGAS Pro.
-echo For manual installation, please open this directory
-echo "Installer-files > Magix Vegas Software > VEGAS Pro"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin11queueInst=0
-set plugin11results=3
-GOTO Plug-Select-autoinst0
-
-:: 12th auto install
-:Plug-Queue-Install-12
-echo Launching auto install script for VEGAS Pro Deep Learning Models
-cd /d "%~dp0Installer-files\Magix Vegas Software\Deep Learning Models"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-12
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\Deep Learning Models\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin12queueInst=0
-set plugin12results=1
-GOTO Plug-Select-autoinst0
-:no-auto-12
-if %plugin12results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin12queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for VEGAS Pro Deep Learning Models.
-echo For manual installation, please open this directory
-echo "Installer-files > Magix Vegas Software > Deep Learning Models"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin12queueInst=0
-set plugin12results=3
-GOTO Plug-Select-autoinst0
-
-:: 13th auto install
-:Plug-Queue-Install-13
-echo Launching auto install script for VEGAS Effects
-cd /d "%~dp0Installer-files\Magix Vegas Software\VEGAS Effects"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Effects\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-13
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Effects\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin13queueInst=0
-set plugin13results=1
-GOTO Plug-Select-autoinst0
-:no-auto-13
-if %plugin13results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin13queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for VEGAS Effects.
-echo For manual installation, please open this directory
-echo "Installer-files > Magix Vegas Software > VEGAS Effects"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin13queueInst=0
-set plugin13results=3
-GOTO Plug-Select-autoinst0
-
-:: 14th auto install
-:Plug-Queue-Install-14
-echo Launching auto install script for VEGAS Image
-cd /d "%~dp0Installer-files\Magix Vegas Software\VEGAS Image"
-FOR /F "delims=" %%i IN ('dir /b /ad-h /t:c /od') DO SET installdir=%%i
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Image\%installdir%") do if not exist "%%~I\INSTALL.cmd" GOTO no-auto-14
-for /D %%I in ("%~dp0Installer-files\Magix Vegas Software\VEGAS Image\%installdir%") do start "" /wait "%%~I\INSTALL.cmd"
-set /a PlugQueueCounterPre+=1
-set plugin14queueInst=0
-set plugin14results=1
-GOTO Plug-Select-autoinst0
-:no-auto-14
-if %plugin14results% EQU 2 %PlugQueueCounter% set /a PlugQueueCounterPre+=1 & set plugin14queueInst=0 & GOTO Plug-Select-autoinst0
-echo There is no auto install script for VEGAS Image.
-echo For manual installation, please open this directory
-echo "Installer-files > Magix Vegas Software > VEGAS Image"
-echo and follow the instructions in the text file.
-Timeout /T 5 /Nobreak >nul
-set /a PlugQueueCounterPre+=1
-set plugin14queueInst=0
-set plugin14results=3
-GOTO Plug-Select-autoinst0
-
-
-
-:: Display results of plugin process
-:: 1=downloaded/installed, 2=downloaded, 3=failed
-:Plug-Queue-Results
-cd /d "%~dp0"
+:: ======================================================================================================================
+::  RESULTS REPORT
+:ResultsReport
+cd /d "%ROOT%"
+:: Save an env dump for debugging
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
+set > "%LOG_DIR%\Logs_%_my_datetime%.txt" 2>nul
 cls
 echo/
 %Print%{204;204;204}           Queue Report - Results: \n
 echo/
-echo/
-set "PLUGKEY3="
-IF %plugin1results% EQU 1 set PLUGKEY3=1
-IF %plugin2results% EQU 1 set PLUGKEY3=1
-IF %plugin3results% EQU 1 set PLUGKEY3=1
-IF %plugin4results% EQU 1 set PLUGKEY3=1
-IF %plugin5results% EQU 1 set PLUGKEY3=1
-IF %plugin6results% EQU 1 set PLUGKEY3=1
-IF %plugin7results% EQU 1 set PLUGKEY3=1
-IF %plugin8results% EQU 1 set PLUGKEY3=1
-IF %plugin9results% EQU 1 set PLUGKEY3=1
-IF %plugin10results% EQU 1 set PLUGKEY3=1
-IF %plugin11results% EQU 1 set PLUGKEY3=1
-IF %plugin12results% EQU 1 set PLUGKEY3=1
-IF %plugin13results% EQU 1 set PLUGKEY3=1
-IF %plugin14results% EQU 1 set PLUGKEY3=1
-IF defined PLUGKEY3 (
-%Print%{0;255;50}             Downloaded ^& Installed \n
-%Print%{0;255;50}        -------------------------------- \n
-)
-echo/
-if %plugin1results% EQU 1 %Print%{0;255;50}            BORIS FX - Sapphire 
-if %plugin1results% EQU 1 %Print%{0;185;255}(595 MB) \n
-if %plugin2results% EQU 1 %Print%{0;255;50}            BORIS FX - Continuum Complete 
-if %plugin2results% EQU 1 %Print%{0;185;255}(790 MB) \n
-if %plugin3results% EQU 1 %Print%{0;255;50}            BORIS FX - Mocha Pro 
-if %plugin3results% EQU 1 %Print%{0;185;255}(165 MB) \n
-if %plugin4results% EQU 1 %Print%{0;255;50}            BORIS FX - Silhouette 
-if %plugin4results% EQU 1 %Print%{0;185;255}(1.45 GB) \n
-if %plugin5results% EQU 1 %Print%{0;255;50}            FXHOME - Ignite Pro 
-if %plugin5results% EQU 1 %Print%{0;185;255}(430 MB) \n
-if %plugin6results% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Magic Bullet Suite 
-if %plugin6results% EQU 1 %Print%{0;185;255}(385 MB) \n
-if %plugin7results% EQU 1 %Print%{0;255;50}            MAXON - Red Giant Universe 
-if %plugin7results% EQU 1 %Print%{0;185;255}(1.91 GB) \n
-if %plugin8results% EQU 1 %Print%{0;255;50}            NEWBLUEFX - Titler Pro 7 
-if %plugin8results% EQU 1 %Print%{0;185;255}(630 MB) \n
-if %plugin9results% EQU 1 %Print%{0;255;50}            NEWBLUEFX - TotalFX 7 
-if %plugin9results% EQU 1 %Print%{0;185;255}(790 MB) \n
-if %plugin10results% EQU 1 %Print%{0;255;50}            REVISIONFX - Effections 
-if %plugin10results% EQU 1 %Print%{0;185;255}(50 MB) \n
-if %plugin11results% EQU 1 %Print%{0;255;50}            VEGAS Pro
-if %plugin11results% EQU 1 %Print%{0;185;255}(665 MB) \n
-if %plugin12results% EQU 1 %Print%{0;255;50}            VEGAS Pro Deep Learning Models 
-if %plugin12results% EQU 1 %Print%{0;185;255}(1.38 GB) \n
-if %plugin13results% EQU 1 %Print%{0;255;50}            VEGAS Effects
-if %plugin13results% EQU 1 %Print%{0;185;255}(205 MB) \n
-if %plugin14results% EQU 1 %Print%{0;255;50}            VEGAS Image
-if %plugin14results% EQU 1 %Print%{0;185;255}(105 MB) \n
-echo/
-set "PLUGKEY6="
-IF %plugin1results% EQU 2 set PLUGKEY6=1
-IF %plugin2results% EQU 2 set PLUGKEY6=1
-IF %plugin3results% EQU 2 set PLUGKEY6=1
-IF %plugin4results% EQU 2 set PLUGKEY6=1
-IF %plugin5results% EQU 2 set PLUGKEY6=1
-IF %plugin6results% EQU 2 set PLUGKEY6=1
-IF %plugin7results% EQU 2 set PLUGKEY6=1
-IF %plugin8results% EQU 2 set PLUGKEY6=1
-IF %plugin9results% EQU 2 set PLUGKEY6=1
-IF %plugin10results% EQU 2 set PLUGKEY6=1
-IF %plugin11results% EQU 2 set PLUGKEY6=1
-IF %plugin12results% EQU 2 set PLUGKEY6=1
-IF %plugin13results% EQU 2 set PLUGKEY6=1
-IF %plugin14results% EQU 2 set PLUGKEY6=1
-IF defined PLUGKEY6 (
-%Print%{244;255;0}           Downloaded ^& Not Installed \n
-%Print%{244;255;0}        -------------------------------- \n
-)
-if %plugin1results% GEQ 3 %Print%{244;255;0}            BORIS FX - Sapphire 
-if %plugin1results% GEQ 3 %Print%{0;185;255}(595 MB) \n
-if %plugin2results% GEQ 3 %Print%{244;255;0}            BORIS FX - Continuum Complete 
-if %plugin2results% GEQ 3 %Print%{0;185;255}(790 MB) \n
-if %plugin3results% GEQ 3 %Print%{244;255;0}            BORIS FX - Mocha Pro 
-if %plugin3results% GEQ 3 %Print%{0;185;255}(165 MB) \n
-if %plugin4results% GEQ 3 %Print%{244;255;0}            BORIS FX - Silhouette 
-if %plugin4results% GEQ 3 %Print%{0;185;255}(1.45 GB) \n
-if %plugin5results% GEQ 3 %Print%{244;255;0}            FXHOME - Ignite Pro 
-if %plugin5results% GEQ 3 %Print%{0;185;255}(430 MB) \n
-if %plugin6results% GEQ 3 %Print%{244;255;0}            MAXON - Red Giant Magic Bullet Suite 
-if %plugin6results% GEQ 3 %Print%{0;185;255}(385 MB) \n
-if %plugin7results% GEQ 3 %Print%{244;255;0}            MAXON - Red Giant Universe 
-if %plugin7results% GEQ 3 %Print%{0;185;255}(1.91 GB) \n
-if %plugin8results% GEQ 3 %Print%{244;255;0}            NEWBLUEFX - Titler Pro 7 
-if %plugin8results% GEQ 3 %Print%{0;185;255}(630 MB) \n
-if %plugin9results% GEQ 3 %Print%{244;255;0}            NEWBLUEFX - TotalFX 7 
-if %plugin9results% GEQ 3 %Print%{0;185;255}(790 MB) \n
-if %plugin10results% GEQ 3 %Print%{244;255;0}            REVISIONFX - Effections 
-if %plugin10results% GEQ 3 %Print%{0;185;255}(50 MB) \n
-if %plugin11results% GEQ 3 %Print%{244;255;0}            VEGAS Pro 
-if %plugin11results% GEQ 3 %Print%{0;185;255}(665 MB) \n
-if %plugin12results% GEQ 3 %Print%{244;255;0}            VEGAS Pro Deep Learning Models 
-if %plugin12results% GEQ 3 %Print%{0;185;255}(1.38 GB) \n
-if %plugin13results% GEQ 3 %Print%{244;255;0}            VEGAS Effects 
-if %plugin13results% GEQ 3 %Print%{0;185;255}(205 MB) \n
-if %plugin14results% GEQ 3 %Print%{244;255;0}            VEGAS Image 
-if %plugin14results% GEQ 3 %Print%{0;185;255}(105 MB) \n
-echo/
-set "PLUGKEY7="
-IF %plugin1results% GEQ 3 set PLUGKEY7=1
-IF %plugin2results% GEQ 3 set PLUGKEY7=1
-IF %plugin3results% GEQ 3 set PLUGKEY7=1
-IF %plugin4results% GEQ 3 set PLUGKEY7=1
-IF %plugin5results% GEQ 3 set PLUGKEY7=1
-IF %plugin6results% GEQ 3 set PLUGKEY7=1
-IF %plugin7results% GEQ 3 set PLUGKEY7=1
-IF %plugin8results% GEQ 3 set PLUGKEY7=1
-IF %plugin9results% GEQ 3 set PLUGKEY7=1
-IF %plugin10results% GEQ 3 set PLUGKEY7=1
-IF %plugin11results% GEQ 3 set PLUGKEY7=1
-IF %plugin12results% GEQ 3 set PLUGKEY7=1
-IF %plugin13results% GEQ 3 set PLUGKEY7=1
-IF %plugin14results% GEQ 3 set PLUGKEY7=1
-IF defined PLUGKEY7 (
-%Print%{231;72;86}         Not Downloaded ^& Not Installed \n
-%Print%{231;72;86}        -------------------------------- \n
-)
-if %plugin1results% EQU 2 %Print%{231;72;86}            BORIS FX - Sapphire 
-if %plugin1results% EQU 2 %Print%{0;185;255}(595 MB) \n
-if %plugin2results% EQU 2 %Print%{231;72;86}            BORIS FX - Continuum Complete 
-if %plugin2results% EQU 2 %Print%{0;185;255}(790 MB) \n
-if %plugin3results% EQU 2 %Print%{231;72;86}            BORIS FX - Mocha Pro 
-if %plugin3results% EQU 2 %Print%{0;185;255}(165 MB) \n
-if %plugin4results% EQU 2 %Print%{231;72;86}            BORIS FX - Silhouette 
-if %plugin4results% EQU 2 %Print%{0;185;255}(1.45 GB) \n
-if %plugin5results% EQU 2 %Print%{231;72;86}            FXHOME - Ignite Pro 
-if %plugin5results% EQU 2 %Print%{0;185;255}(430 MB) \n
-if %plugin6results% EQU 2 %Print%{231;72;86}            MAXON - Red Giant Magic Bullet Suite 
-if %plugin6results% EQU 2 %Print%{0;185;255}(385 MB) \n
-if %plugin7results% EQU 2 %Print%{231;72;86}            MAXON - Red Giant Universe 
-if %plugin7results% EQU 2 %Print%{0;185;255}(1.91 GB) \n
-if %plugin8results% EQU 2 %Print%{231;72;86}            NEWBLUEFX - Titler Pro 7 
-if %plugin8results% EQU 2 %Print%{0;185;255}(630 MB) \n
-if %plugin9results% EQU 2 %Print%{231;72;86}            NEWBLUEFX - TotalFX 7 
-if %plugin9results% EQU 2 %Print%{0;185;255}(790 MB) \n
-if %plugin10results% EQU 2 %Print%{231;72;86}            REVISIONFX - Effections 
-if %plugin10results% EQU 2 %Print%{0;185;255}(50 MB) \n
-if %plugin11results% EQU 2 %Print%{231;72;86}            VEGAS Pro 
-if %plugin11results% EQU 2 %Print%{0;185;255}(665 MB) \n
-if %plugin12results% EQU 2 %Print%{231;72;86}            VEGAS Pro Deep Learning Models 
-if %plugin12results% EQU 2 %Print%{0;185;255}(1.38 GB) \n
-if %plugin13results% EQU 2 %Print%{231;72;86}            VEGAS Effects 
-if %plugin13results% EQU 2 %Print%{0;185;255}(205 MB) \n
-if %plugin14results% EQU 2 %Print%{231;72;86}            VEGAS Image 
-if %plugin14results% EQU 2 %Print%{0;185;255}(105 MB) \n
-echo/
+:: Installed successfully
+set "HAS_INSTALLED=0"
+for %%I in (%ITEMS%) do if "!RESULT.%%I!"=="installed" set "HAS_INSTALLED=1"
+if "%HAS_INSTALLED%"=="1" %Print%{0;255;50}             Downloaded ^& Installed \n
+if "%HAS_INSTALLED%"=="1" %Print%{0;255;50}        -------------------------------- \n
+if "%HAS_INSTALLED%"=="1" for %%I in (%ITEMS%) do if "!RESULT.%%I!"=="installed" call :ReportLine %%I "0;255;50"
+if "%HAS_INSTALLED%"=="1" echo/
+:: Downloaded only
+set "HAS_DLONLY=0"
+for %%I in (%ITEMS%) do if "!RESULT.%%I!"=="downloaded" set "HAS_DLONLY=1"
+if "%HAS_DLONLY%"=="1" %Print%{244;255;0}           Downloaded ^& Not Installed \n
+if "%HAS_DLONLY%"=="1" %Print%{244;255;0}        -------------------------------- \n
+if "%HAS_DLONLY%"=="1" for %%I in (%ITEMS%) do if "!RESULT.%%I!"=="downloaded" call :ReportLine %%I "244;255;0"
+if "%HAS_DLONLY%"=="1" echo/
+:: Failed
+set "HAS_FAILED=0"
+for %%I in (%ITEMS%) do if "!RESULT.%%I!"=="failed" set "HAS_FAILED=1"
+if "%HAS_FAILED%"=="1" %Print%{231;72;86}         Not Downloaded ^& Not Installed \n
+if "%HAS_FAILED%"=="1" %Print%{231;72;86}        -------------------------------- \n
+if "%HAS_FAILED%"=="1" for %%I in (%ITEMS%) do if "!RESULT.%%I!"=="failed" call :ReportLine %%I "231;72;86"
+if "%HAS_FAILED%"=="1" echo/
 echo/
 %Print%{204;204;204}        -------------------------------- \n
 echo/
-C:\Windows\System32\CHOICE /C 1 /M "        1) Return to the Main Menu" /N
+%SystemRoot%\System32\choice.exe /C 1 /M "        1) Return to the Main Menu" /N
+goto :Main
+
+:ReportLine
+set "RL_ID=%~1"
+set "RL_COLOR=%~2"
+call set "RL_NAME=%%%RL_ID%.name%%"
+call :ResolveSizeFor "%RL_ID%" RL_SIZE
+%Print%{%RL_COLOR%}            %RL_NAME%
+%Print%{0;185;255}(%RL_SIZE%) \n
+exit /b
+
+
+:: ======================================================================================================================
+::  UNINSTALL FLOW — uninstall selected installed items
+:UninstallPicker
+if exist "%SET_DIR%\System-Check-0.txt" goto :UninstallNeedsSysCheck
+
+:: Build a list of actually installed items in current group
+set /a UNINST_ROWS=0
+set "UNINST_ROW_IDS="
+for %%I in (%ITEMS%) do call :UninstallPickerRow %%I
+if %UNINST_ROWS% EQU 0 goto :NothingToUninstall
 cls
-echo/
-IF ERRORLEVEL 1  GOTO Pre-SelectPlugins
-echo/
-
-:Pre-SelectPlugins
-cd /d "%~dp0"
-if not exist ".\Installer-files\Logs\" mkdir ".\Installer-files\Logs"
-SET > ".\Installer-files\Logs\Logs_%_my_datetime%.txt
-set plugin1results=
-set plugin2results=
-set plugin3results=
-set plugin4results=
-set plugin5results=
-set plugin6results=
-set plugin7results=
-set plugin8results=
-set plugin9results=
-set plugin10results=
-set plugin11results=
-set plugin12results=
-set plugin13results=
-set plugin14results=
-set PLUGKEY0=
-set PLUGKEY1=
-set PLUGKEY2=
-set PLUGKEY3=
-set PLUGKEY4=
-set PLUGKEY5=
-set PLUGKEY6=
-set PLUGKEY7=
-set plugin1queue=
-set plugin2queue=
-set plugin3queue=
-set plugin4queue=
-set plugin5queue=
-set plugin6queue=
-set plugin7queue=
-set plugin8queue=
-set plugin9queue=
-set plugin10queue=
-set plugin11queue=
-set plugin12queue=
-set plugin13queue=
-set plugin14queue=
-set plugin1queueInst=
-set plugin2queueInst=
-set plugin3queueInst=
-set plugin4queueInst=
-set plugin5queueInst=
-set plugin6queueInst=
-set plugin7queueInst=
-set plugin8queueInst=
-set plugin9queueInst=
-set plugin10queueInst=
-set plugin11queueInst=
-set plugin12queueInst=
-set plugin13queueInst=
-set plugin14queueInst=
-set PlugQueueCounter=
-set PlugQueueCounterPre=
-set pluginresultsEcounter=
-set plugcountbfxsaphfinal=
-set plugcountbfxmochafinal=
-set plugcountbfxcontinfinal=
-set plugcountbfxsilhofinal=
-set plugcountignitefinal=
-set plugcountmblfinal=
-set plugcountunifinal=
-set plugcountnfxtitlerfinal=
-set plugcountnfxtotalfinal=
-set plugcountrfxefffinal=
-set magixcountvpfinal=
-set magixcountvpdlmfinal=
-set magixcountvefinal=
-set magixcountvifinal=
-set plugcountall=
-set plugcountbfxsaph=
-set plugcountbfxmocha=
-set plugcountbfxcontin=
-set plugcountbfxsilho=
-set plugcountignite=
-set plugcountmbl=
-set plugcountuni=
-set plugcountnfxtitler=
-set plugcountnfxtotal=
-set plugcountrfxeff=
-set magixcountvp=
-set magixcountvpdlm=
-set magixcountve=
-set magixcountvi=
-set plugcountbfxsaphAlr=
-set plugcountbfxmochaAlr=
-set plugcountbfxcontinAlr=
-set plugcountbfxsilhoAlr=
-set plugcountigniteAlr=
-set plugcountmblAlr=
-set plugcountuniAlr=
-set plugcountnfxtitlerAlr=
-set plugcountnfxtotalAlr=
-set plugcountrfxeffAlr=
-set magixcountvpAlr=
-set magixcountvpdlmAlr=
-set magixcountveAlr=
-set magixcountviAlr=
-set PlugQueueCounterFinal=
-set PlugQueueCounter=
-set PlugQueueInstallCounter=
-set PlugQueueInstallCounterFinal=
-set Mocha-veg-ofx=
-set getOptionsPlugCountCheck=
-set PlugQueueCounterPre=
-set pluginresultsEcounter=
-set qextract1=
-set qextract2=
-set qextract3=
-set qextract4=
-set qextract5=
-set qextract6=
-set qextract7=
-set qextract8=
-set qextract9=
-set qextract10=
-set qextract11=
-set qextract12=
-set qextract13=
-set qextract14=
-set Magix-Alr-Installed=
-set VPnumber=
-set plugkeymagixinstallcheck=
-cls
-if %MainPluginSelection% EQU 1 if %MainMagixSelection% EQU 1 GOTO Main
-if %MainPluginSelection% EQU 1 GOTO 2
-if %MainMagixSelection% EQU 1 GOTO 2
-GOTO Main
-
-
-:::::::::::::::::::::::::::::::::::::::
-
-
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-:3-Main-check
-:: Checks various preferences that are needed later in script, same as Main-check
-:: VP-patch-1
-cd /d "%~dp0"
-if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 3-Main
-if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" & GOTO 3-Main
-if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul del ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" >nul & GOTO 3-Main
-if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 3-Main
-cls
-GOTO 3-Main
-
-
-:3
-GOTO 3-Main-check
-:3-Main
-cd /d "%~dp0"
 color 0C
+echo/
+%Print%{231;72;86} Select which program(s) you want to uninstall \n
+echo ---------------------------------
+echo/
+set /a _i=0
+for %%I in (%UNINST_ROW_IDS%) do (
+    set /a _i+=1
+    call :EchoNumberedName "!_i!" "%%I"
+)
+set /a _all=UNINST_ROWS+1
+echo/
+%Print%{0;185;255} %_all% - ALL OPTIONS \n
+echo/
+echo ---------------------------------
+echo/
+%Print%{231;72;86}Type your choices with a space after each choice
+%Print%{255;112;0}(ie: 1 2 3 4) \n
+set "unchoices="
+set /p "unchoices=Type and press Enter when finished: "
+if not defined unchoices goto :UninstallPicker
+call :ExpandNumericAll "%unchoices%" %UNINST_ROWS% %_all% unchoices
 cls
-@ECHO OFF
 color 0C
-Echo            ************************************
-Echo            ***    (Option #3) Settings      ***
-Echo            ************************************
 echo/
-%Print%{255;255;255}		 Select what option you want. \n
+%Print%{231;72;86} Are you sure you want to Uninstall these selected programs? \n
+echo ---------------------------------
 echo/
-%Print%{244;255;0}            1) Check Software Versions \n
+for %%N in (%unchoices%) do (
+    call :PrintNthFromList %%N "%UNINST_ROW_IDS%"
+    call :EchoItemName "!PICKED_ID!"
+)
 echo/
-%Print%{231;72;86}            2) Toggle Vegas Pro Patch:
-if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{0;255;50} [Enabled] \n
-if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" %Print%{255;0;50} [Disabled] \n
+echo ---------------------------------
+%Print%{204;204;204} 1 = Yes, Uninstall \n
+%Print%{255;112;0} 2 = No, Cancel \n
 echo/
-%Print%{231;72;86}            3) Toggle System Checks:
-if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" %Print%{255;0;50} [Disabled] \n
-if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" %Print%{0;255;50} [Enabled] \n
-echo/
-%Print%{231;72;86}            4) Clear Vegas Pro Plugin Cache \n
-echo/
-%Print%{231;72;86}            5) Clean Installer Files \n
-echo/
-echo/
-%Print%{231;72;86}            6) Preferences \n
-echo/
-%Print%{255;112;0}            7) Main Menu \n
-echo/
-C:\Windows\System32\CHOICE /C 12345678 /M "Type the number (1-8) of what you want to Select." /N
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+if errorlevel 2 goto :UninstallPicker
+if errorlevel 1 goto :DoUninstalls
+goto :UninstallPicker
+
+:UninstallPickerRow
+:: Only rows where count >= 1
+set "UPR_ID=%~1"
+call set "UPR_GROUP=%%%UPR_ID%.group%%"
+call set "UPR_CNT=%%count.%UPR_ID%%%"
+if not "%UPR_GROUP%"=="%ACTIVE_GROUP%" exit /b
+if not defined UPR_CNT exit /b
+if %UPR_CNT% LSS 1 exit /b
+set /a UNINST_ROWS+=1
+set "UNINST_ROW_IDS=%UNINST_ROW_IDS% %UPR_ID%"
+exit /b
+
+:NothingToUninstall
 cls
-echo/
-IF ERRORLEVEL 7  GOTO Main
-IF ERRORLEVEL 6  GOTO 34
-IF ERRORLEVEL 5  GOTO 33
-IF ERRORLEVEL 4  GOTO 33-VPplugincache
-IF ERRORLEVEL 3  GOTO 33-syscheck
-IF ERRORLEVEL 2  GOTO 32
-IF ERRORLEVEL 1  GOTO 31
-echo/
-
-:::::::::::::::::::::::::::::::::::::::
-:31
-start "" https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/edit?usp=sharing
-GOTO 3-Main
-
-:::::::::::::::::::::::::::::::::::::::
-:32
-cd /d "%~dp0"
-if exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 32-enabled
-if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.UNBAK" if exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.UNBAK" >nul GOTO 32-disabled
-if not exist ".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" if not exist "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" >nul GOTO 32-disabled-prompt
-GOTO 3
-
-:32-enabled
 color 0C
-::Patch is enabled, proceeds to unpatch and save patched files for later
-::Regular=patched > .UNBAK=patched copy, .bak=unpatched > Regular=unpatched, .UNBAK=patched copy
-del "%~dp0Installer-files\Installer-Scripts\Settings\VP-patch-1.txt"
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-REN "vegas210.exe" "vegas210.exe.UNBAK" >nul 2>nul
-xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe*" /I /Q /Y /F
-del "C:\Program Files\VEGAS\VEGAS Pro 21.0\vegas210.exe.BAK"
+echo Nothing installed in this group that the script can uninstall.
+echo Returning to menu...
+timeout /T 4 /nobreak >nul
+goto :GroupMenu
 
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-REN "ScriptPortal.Vegas.dll" "ScriptPortal.Vegas.dll.UNBAK" >nul 2>nul
-xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll*" /I /Q /Y /F >nul 2>nul
-del "C:\Program Files\VEGAS\VEGAS Pro 21.0\ScriptPortal.Vegas.dll.BAK"
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
-REN "Protein.4.2.dll" "Protein.4.2.dll.UNBAK" >nul 2>nul
-xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll*" /I /Q /Y /F >nul 2>nul
-del "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein.4.2.dll.BAK"
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
-REN "Protein_x64.4.2.dll" "Protein_x64.4.2.dll.UNBAK" >nul 2>nul
-xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll*" /I /Q /Y /F >nul 2>nul
-del "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein\Protein_x64.4.2.dll.BAK"
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-REN "TransitionWPFLibrary.dll" "TransitionWPFLibrary.dll.UNBAK" >nul 2>nul
-xcopy "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK" "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll*" /I /Q /Y /F >nul 2>nul
-del "C:\Program Files\VEGAS\VEGAS Pro 21.0\TransitionWPFLibrary.dll.BAK"
-cd /d "%~dp0"
-GOTO 3
-
-:32-disabled
-color 0C
-::Patch is disable, proceeds to patch and save unpatched files for later
-::Regular=unpatched > .bak=unpatched, .UNBAK=patched > Regular=patched
-cd /d "%~dp0"
-break>".\Installer-files\Installer-Scripts\Settings\VP-patch-1.txt" >nul
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-REN "vegas210.exe" "vegas210.exe.BAK" >nul 2>nul
-del "vegas210.exe" >nul 2>nul
-REN "vegas210.exe.UNBAK" "vegas210.exe" >nul 2>nul
-del "vegas210.exe.UNBAK" >nul 2>nul
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-REN "ScriptPortal.Vegas.dll" "ScriptPortal.Vegas.dll.BAK" >nul 2>nul
-del "ScriptPortal.Vegas.dll" >nul 2>nul
-REN "ScriptPortal.Vegas.dll.UNBAK" "ScriptPortal.Vegas.dll" >nul 2>nul
-del "ScriptPortal.Vegas.dll.UNBAK" >nul 2>nul
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
-REN "Protein.4.2.dll" "Protein.4.2.dll.BAK" >nul 2>nul
-del "Protein.4.2.dll" >nul 2>nul
-REN "Protein.4.2.dll.UNBAK" "Protein.4.2.dll" >nul 2>nul
-del "Protein.4.2.dll.UNBAK" >nul 2>nul
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0\Protein"
-REN "Protein_x64.4.2.dll" "Protein_x64.4.2.dll.BAK" >nul 2>nul
-del "Protein_x64.4.2.dll" >nul 2>nul
-REN "Protein_x64.4.2.dll.UNBAK" "Protein_x64.4.2.dll" >nul 2>nul
-del "Protein_x64.4.2.dll.UNBAK" >nul 2>nul
-
-cd /d "C:\Program Files\VEGAS\VEGAS Pro 21.0"
-REN "TransitionWPFLibrary.dll" "TransitionWPFLibrary.dll.BAK" >nul 2>nul
-del "TransitionWPFLibrary.dll" >nul 2>nul
-REN "TransitionWPFLibrary.dll.UNBAK" "TransitionWPFLibrary.dll" >nul 2>nul
-del "TransitionWPFLibrary.dll.UNBAK" >nul 2>nul
-
-cd /d "%~dp0"
-GOTO 3
-
-:32-disabled-prompt
-color 0C
+:UninstallNeedsSysCheck
 cls
+color 0C
 echo/
-echo No Backup patched files found.
-echo Please run the patch through the Main Menu under Vegas Pro
+%Print%{231;72;86}To Uninstall with the script, you need
+%Print%{244;255;0} System Checks enabled
+%Print%{231;72;86} under the script Settings. \n
+echo/
+%Print%{231;72;86}Returning to the Main Menu...
 timeout /T 6 /nobreak >nul
-GOTO 3-Main
-:::::::::::::::::::::::::::::::::::::::
+goto :GroupMenu
 
-:33-syscheck
-cd /d "%~dp0"
-if not exist ".\Installer-files\Installer-Scripts\Settings\System-Check*.txt" break>".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt"
-if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" GOTO 33-syscheck-disable
-if exist ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" GOTO 33-syscheck-enable
+:DoUninstalls
+cls
+color 0C
+for %%N in (%unchoices%) do (
+    call :PrintNthFromList %%N "%UNINST_ROW_IDS%"
+    call :UninstallItem "!PICKED_ID!"
+)
+echo/
+echo Finished all uninstall tasks
+timeout /T 4 /nobreak >nul
+goto :GroupHub
 
-:33-syscheck-disable
-REN ".\Installer-files\Installer-Scripts\Settings\System-Check-1.txt" "System-Check-0.txt" 2>nul
-GOTO 3-Main
+:UninstallItem
+set "UI_ID=%~1"
+call set "UI_NAME=%%%UI_ID%.name%%"
+call set "UI_PATTERNS=%%%UI_ID%.regs%%"
+%Print%{244;255;0} %UI_NAME% \n
+:UI_NextPat
+if not defined UI_PATTERNS exit /b
+if "%UI_PATTERNS%"=="" exit /b
+set "UI_PAT="
+set "_UI_NEXT="
+for /f "tokens=1* delims=|" %%A in ("%UI_PATTERNS%") do (
+    set "UI_PAT=%%A"
+    set "_UI_NEXT=%%B"
+)
+set "UI_PATTERNS=!_UI_NEXT!"
+if defined UI_PAT call :UninstallByDisplayNamePrefix "!UI_PAT!"
+:: MAXON MBL + UNI drop their OFX plugin folder
+if /I "%UI_ID%"=="rg" forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M "Magic Bullet Suite*" /C "cmd /c if @isdir==TRUE rmdir /s /q @path" 2>nul
+if /I "%UI_ID%"=="rg" forfiles /P "C:\Program Files\Common Files\OFX\Plugins" /M "Red Giant Universe*" /C "cmd /c if @isdir==TRUE rmdir /s /q @path" 2>nul
+goto :UI_NextPat
 
-:33-syscheck-enable
-REN ".\Installer-files\Installer-Scripts\Settings\System-Check-0.txt" "System-Check-1.txt" 2>nul
-GOTO 3-Main
+:UninstallByDisplayName
+:: Exact match version used for VP uninstalls
+set "UDN_NAME=%~1"
+for /f "delims=" %%G in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "%UDN_NAME%" /D /E 2^>nul ^| findstr /V "DisplayName"') do (
+    for /f "tokens=2,*" %%H in ('reg query "%%G" /V "UninstallString" 2^>nul ^| findstr /I "UninstallString"') do (
+        set "MsiStr=%%I"
+        call set "MsiStr=%%MsiStr:/I=/X%%"
+        call :RunUninstallString
+    )
+)
+exit /b
 
-:::::::::::::::::::::::::::::::::::::::
+:UninstallByDisplayNamePrefix
+:: Matches entries whose DisplayName contains the substring
+set "UDN_PAT=%~1"
+for /f "delims=" %%G in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "%UDN_PAT%" /D 2^>nul ^| findstr /V "DisplayName"') do (
+    for /f "tokens=2,*" %%H in ('reg query "%%G" /V "UninstallString" 2^>nul ^| findstr /I "UninstallString"') do (
+        set "MsiStr=%%I"
+        call set "MsiStr=%%MsiStr:/I=/X%%"
+        call :RunUninstallString
+    )
+)
+for /f "delims=" %%G in ('reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /S /F "%UDN_PAT%" /D 2^>nul ^| findstr /V "DisplayName"') do (
+    for /f "tokens=2,*" %%H in ('reg query "%%G" /V "UninstallString" 2^>nul ^| findstr /I "UninstallString"') do (
+        set "MsiStr=%%I"
+        call set "MsiStr=%%MsiStr:/I=/X%%"
+        call :RunUninstallString
+    )
+)
+exit /b
 
-:33-VPplugincache
+:RunUninstallString
+:: Run a registry UninstallString silently in the background
+if not defined MsiStr exit /b
+set "_RUS_LOWER=%MsiStr%"
+set "_RUS_FLAGS="
+set "_RUS_ISBAT="
+:: Batch-file uninstallers
+echo %MsiStr%|findstr /I /L /C:".bat" >nul && set "_RUS_ISBAT=1"
+echo %MsiStr%|findstr /I /L /C:".cmd" >nul && set "_RUS_ISBAT=1"
+if defined _RUS_ISBAT (
+    call %MsiStr%
+    set "MsiStr="
+    set "_RUS_FLAGS="
+    set "_RUS_LOWER="
+    set "_RUS_ISBAT="
+    exit /b
+)
+echo %MsiStr%|findstr /I /C:"msiexec" >nul && set "_RUS_FLAGS=/quiet /norestart"
+:: BitRock/InstallBuilder uninstallers (Red Giant products) need unattended mode
+if not defined _RUS_FLAGS echo %MsiStr%|findstr /I /C:"Red Giant" >nul && set "_RUS_FLAGS=--mode unattended --unattendedmodeui none"
+if not defined _RUS_FLAGS echo %MsiStr%|findstr /I /C:"unins" >nul && set "_RUS_FLAGS=/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+if not defined _RUS_FLAGS set "_RUS_FLAGS=/S"
+start "" /B /wait %MsiStr% %_RUS_FLAGS% 2>nul
+set "MsiStr="
+set "_RUS_FLAGS="
+set "_RUS_LOWER="
+set "_RUS_ISBAT="
+exit /b
+
+
+:: ======================================================================================================================
+::  SETTINGS MENU
+:SettingsMenu
+cd /d "%ROOT%"
+cls
+color 0C
+echo            ************************************
+echo            ***    ^(Option #3^) Settings      ***
+echo            ************************************
+echo/
+%Print%{255;255;255}          Select what option you want. \n
+echo/
+%Print%{244;255;0}            1) Check Software Versions (opens web browser) \n
+echo/
+%Print%{204;204;204}            2) Toggle System Checks:
+if exist "%SET_DIR%\System-Check-0.txt"     %Print%{255;0;50} [Disabled] \n
+if not exist "%SET_DIR%\System-Check-0.txt" %Print%{0;255;50} [Enabled] \n
+echo/
+%Print%{204;204;204}            3) Clear VEGAS Pro Plugin Cache \n
+echo/
+%Print%{204;204;204}            4) Clean Installer Files \n
+echo/
+echo/
+%Print%{204;204;204}            5) Preferences \n
+echo/
+%Print%{255;112;0}            6) Main Menu \n
+echo/
+%SystemRoot%\System32\choice.exe /C 123456 /M "Type the number (1-6) of what you want." /N
+set "SM_CHOICE=%errorlevel%"
+cls
+if %SM_CHOICE% EQU 6 goto :Main
+if %SM_CHOICE% EQU 5 goto :PreferencesMenu
+if %SM_CHOICE% EQU 4 goto :CleanInstallerFiles
+if %SM_CHOICE% EQU 3 goto :ClearVPPluginCache
+if %SM_CHOICE% EQU 2 goto :ToggleSysCheck
+if %SM_CHOICE% EQU 1 (
+    start "" "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/edit?usp=sharing"
+    goto :SettingsMenu
+)
+goto :SettingsMenu
+
+:ToggleSysCheck
+if not exist "%SET_DIR%\System-Check*.txt" type nul > "%SET_DIR%\System-Check-1.txt"
+if exist "%SET_DIR%\System-Check-1.txt" (
+    ren "%SET_DIR%\System-Check-1.txt" "System-Check-0.txt" 2>nul
+) else if exist "%SET_DIR%\System-Check-0.txt" (
+    ren "%SET_DIR%\System-Check-0.txt" "System-Check-1.txt" 2>nul
+)
+goto :SettingsMenu
+
+:ClearVPPluginCache
 cls
 color 0C
 echo/
 %Print%{231;72;86}Are you sure you want to delete your
 %Print%{244;255;0} VEGAS Pro Plugin Cache? \n
-%Print%{231;72;86}This will remove the plugin cache for 
-%Print%{244;255;0}all current installations of Vegas Pro 
+%Print%{231;72;86}This will remove the plugin cache for
+%Print%{244;255;0}all current installations of VEGAS Pro
 %Print%{231;72;86}on your system. \n
 %Print%{231;72;86}Upon re-opening VEGAS Pro, it will re-build your plugin cache \n
-%Print%{231;72;86}(may take a while depending on how many plugins you have installed) \n
+%Print%{231;72;86}(may take a while depending on how many plugins you have installed). \n
 echo/
 %Print%{231;72;86}Re-building your plugin cache may resolve issues with \n
 %Print%{0;255;50} - Plugins not being detected by VP \n
 %Print%{0;255;50} - Plugins crashing VP \n
-%Print%{0;255;50} - Clearing up cache's of old or uninstalled plugins \n
+%Print%{0;255;50} - Old/uninstalled plugins still appearing in the cache \n
 echo/
+%Print%{204;204;204} 1) Yes \n
+%Print%{255;112;0} 2) No  \n
 echo/
-%Print%{231;72;86} 1) Yes \n
-%Print%{231;72;86} 2) No \n
-echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+set "CP_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 2  GOTO 3-Main
-IF ERRORLEVEL 1  GOTO 33-VPplugincache-continue
-echo/
-
-:33-VPplugincache-continue
+if %CP_CHOICE% EQU 2 goto :SettingsMenu
+:: 1) Clear the per-user cache under %localappdata%\VEGAS Pro
 for /r "%localappdata%\VEGAS Pro" %%a in (svfx_Ofx*.log) do del "%%~fa" 2>nul
 for /r "%localappdata%\VEGAS Pro" %%a in (plugin_manager_cache.bin) do del "%%~fa" 2>nul
 for /r "%localappdata%\VEGAS Pro" %%a in (svfx_plugin_cache.bin) do del "%%~fa" 2>nul
+:: 2) Newer Boris FX-branded VEGAS Pro builds (e.g. "Vegas Pro 2026") install
+::    under C:\Program Files\BorisFX\ instead of C:\Program Files\VEGAS\.
+::    Walk every "Vegas Pro*" subfolder in there and wipe the same cache files
+::    that may live inside those install dirs.
+if exist "C:\Program Files\BorisFX" (
+    for /d %%V in ("C:\Program Files\BorisFX\Vegas Pro*") do (
+        for /r "%%V" %%a in (svfx_Ofx*.log) do del "%%~fa" 2>nul
+        for /r "%%V" %%a in (plugin_manager_cache.bin) do del "%%~fa" 2>nul
+        for /r "%%V" %%a in (svfx_plugin_cache.bin) do del "%%~fa" 2>nul
+    )
+)
 %Print%{0;255;50} Finished clearing your VEGAS Pro Plugin Cache \n
 timeout /T 5 /nobreak >nul
-GOTO 3-Main
+goto :SettingsMenu
 
-:::::::::::::::::::::::::::::::::::::::
-:33
-color 0C
+:CleanInstallerFiles
 cls
+color 0C
 echo Are you sure you want to clean all files from the installer?
-echo This will remove all downloaded files, but will not uninstall any Vegas software or any Plugin.
+echo This will remove all downloaded files, but will NOT uninstall any VEGAS software or plugin.
 echo 1 = Yes
 echo 2 = No
 echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+set "CF_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 2  GOTO Main
-IF ERRORLEVEL 1  GOTO clean-33
-echo/
-:clean-33
-cd /d "%~dp0"
-cls
-color 0C
-echo Cleaning up Vegas files
-forfiles /P ".\Installer-files" /M Magix Vegas Software* /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul
-echo Cleaning up Plugin files
-forfiles /P ".\Installer-files" /M Plugins* /C "cmd /c if @isdir==TRUE rmdir /s /q @file" 2>nul
-echo Cleaning up extra files
-del ".\Installer-files\*.rar" 2>nul
-del ".\Installer-files\*.zip" 2>nul
-echo Finished cleaning up all installer Files
-timeout /T 3 /nobreak >nul
-GOTO 3
-:::::::::::::::::::::::::::::::::::::::
+if %CF_CHOICE% EQU 2 goto :SettingsMenu
+if %CF_CHOICE% EQU 1 goto :DoCleanFiles
+goto :SettingsMenu
 
-:34
-cd /d "%~dp0"
-color 0C
+:DoCleanFiles
+cd /d "%ROOT%"
 cls
-@ECHO OFF
 color 0C
-Echo            ***************************
-Echo            ***    Preferences      ***
-Echo            ***************************
+echo Cleaning up VEGAS software files
+if exist "%MGX_DIR%" (
+    for /d %%D in ("%MGX_DIR%\*") do rmdir /s /q "%%D" 2>nul
+    del /q "%MGX_DIR%\*.rar" 2>nul
+)
+echo Cleaning up plugin files
+if exist "%PLG_DIR%" (
+    for /d %%D in ("%PLG_DIR%\*") do rmdir /s /q "%%D" 2>nul
+    del /q "%PLG_DIR%\*.rar" 2>nul
+)
+echo Cleaning up extra archive files
+del "%IF_DIR%\*.rar" 2>nul
+del "%IF_DIR%\*.zip" 2>nul
+echo Finished cleaning up all installer files
+timeout /T 3 /nobreak >nul
+goto :SettingsMenu
+
+:: ======================================================================================================================
+::  PREFERENCES MENU
+:PreferencesMenu
+cls
+color 0C
+echo            ***************************
+echo            ***    Preferences      ***
+echo            ***************************
 echo/
-%Print%{255;255;255}		 Select what option you want. \n
+%Print%{255;255;255}          Select what option you want. \n
 echo/
-%Print%{231;72;86}            1) Toggle Auto Updating:
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" %Print%{0;255;50} [Enabled] \n
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" %Print%{255;0;50} [Disabled] \n
-if not exist ".\Installer-files\Installer-Scripts\Settings\auto-update*.txt" %Print%{255;0;50} [N/A] \n
+%Print%{204;204;204}            1) Toggle Auto Updating:
+if exist "%SET_DIR%\auto-update-1.txt" %Print%{0;255;50} [Enabled] \n
+if exist "%SET_DIR%\auto-update-2.txt" %Print%{255;0;50} [Disabled] \n
+if not exist "%SET_DIR%\auto-update-1.txt" if not exist "%SET_DIR%\auto-update-2.txt" %Print%{255;0;50} [N/A] \n
 echo/
-%Print%{231;72;86}            2) Reset All Preferences \n
+%Print%{204;204;204}            2) Reset All Preferences \n
 echo/
 %Print%{255;112;0}            3) Main Menu \n
 echo/
-C:\Windows\System32\CHOICE /C 12345 /M "Type the number (1-4) of what you want to Select." /N
+%SystemRoot%\System32\choice.exe /C 123 /M "Type the number (1-3) of what you want." /N
+set "PM_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 3  GOTO Python-check
-IF ERRORLEVEL 2  GOTO 333
-IF ERRORLEVEL 1  GOTO 331
-echo/
-:::::::::::::::::::::::::::::::::::::::
+if %PM_CHOICE% EQU 3 goto :Main
+if %PM_CHOICE% EQU 2 goto :ResetAllPrefs
+if %PM_CHOICE% EQU 1 goto :ToggleAutoUpdate
+goto :PreferencesMenu
 
-:331
-cd /d "%~dp0"
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" GOTO 331-enabled-toggle
-if exist ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" GOTO 331-disabled-toggle
-:331-enabled-toggle
-REN ".\Installer-files\Installer-Scripts\Settings\auto-update-1.txt" "auto-update-2.txt" 2>nul
-GOTO 34
-:331-disabled-toggle
-REN ".\Installer-files\Installer-Scripts\Settings\auto-update-2.txt" "auto-update-1.txt" 2>nul
-GOTO 34
-:::::::::::::::::::::::::::::::::::::::
+:ToggleAutoUpdate
+if exist "%SET_DIR%\auto-update-1.txt" (
+    ren "%SET_DIR%\auto-update-1.txt" "auto-update-2.txt" 2>nul
+) else if exist "%SET_DIR%\auto-update-2.txt" (
+    ren "%SET_DIR%\auto-update-2.txt" "auto-update-1.txt" 2>nul
+) else (
+    type nul > "%SET_DIR%\auto-update-1.txt"
+)
+goto :PreferencesMenu
 
-:333
+:ResetAllPrefs
 cls
-cd /d "%~dp0"
 color 0C
 echo/
 %Print%{231;72;86}Are you sure you want to delete
@@ -3432,34 +1669,382 @@ echo/
 %Print%{231;72;86} preferences? \n
 %Print%{231;72;86}The script will ask you for these preferences when opened again. \n
 echo/
-%Print%{231;72;86}1 = Yes \n
-%Print%{231;72;86}2 = No \n
+%Print%{204;204;204}1 = Yes \n
+%Print%{255;112;0}2 = No  \n
 echo/
-C:\Windows\System32\CHOICE /C 12 /M "Type the number (1-2) of what you want." /N
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+set "RP_CHOICE=%errorlevel%"
 cls
-echo/
-IF ERRORLEVEL 2  GOTO 34
-IF ERRORLEVEL 1  GOTO 333-cont
-echo/
-:333-cont
-color 0C
-echo/
+if %RP_CHOICE% EQU 2 goto :PreferencesMenu
 echo Deleting all user-made preferences
-del ".\Installer-files\Installer-Scripts\Settings\*.txt" 2>nul
+del "%SET_DIR%\*.txt" 2>nul
 echo Finished.
 timeout /T 3 /nobreak >nul
-GOTO 34
-
-:::::::::::::::::::::::::::::::::::::::
-:Donate
-start "" https://paypal.me/ItsNifer?country.x=US&locale.x=en_US
-GOTO Main
+goto :PreferencesMenu
 
 
-:::::::::::::::::::::::::::::::::::::::
-:Quit
+:: ======================================================================================================================
+::  HELPER SUBROUTINES
+:FatalNotExtracted
 cls
-echo Quitting Nifer's Installer Script
-echo Twitter - @NiferEdits
-Timeout /T 3 /Nobreak >nul
-@exit
+color 0C
+echo/
+%Print%{231;72;86}             Error: Script contents not found. \n
+%Print%{0;185;255}        Please ensure script contents are properly \n
+%Print%{0;185;255}              extracted from its zipped file. \n
+echo/
+%Print%{231;72;86}To extract files: Right click on "Nifer Installer Script.rar" and press "Extract files" \n
+%Print%{231;72;86}   Choose a destination to extract the files to, or extract to the current directory. \n
+echo/
+%Print%{231;72;86}If you have WinRAR or 7zip installed, simply extract the zipped contents. \n
+pause
+exit /b
+
+:ResetRunState
+:: Called at the start of every top-level navigation to clear per-run state
+:: NOTE: ACTIVE_GROUP is deliberately NOT cleared here, because it is set by the caller (Main -> GroupHub) right before we arrive
+set "VPUADD_CONFIRMED=" 2>nul
+set "QUEUE=" 2>nul
+set "QUEUE_SIZE=" 2>nul
+set "QUEUE_POS=" 2>nul
+set "FAIL_CT=" 2>nul
+set "INST_POS=" 2>nul
+set "INST_TOTAL=" 2>nul
+set "HAS_INSTALLED=" 2>nul
+set "HAS_DLONLY=" 2>nul
+set "HAS_FAILED=" 2>nul
+set "ALR_ANY=" 2>nul
+set "PICKS_ANY=" 2>nul
+set "GROUP_COUNT=" 2>nul
+set "GROUP_COUNT_PLUS1=" 2>nul
+set "UNINST_ROWS=" 2>nul
+set "UNINST_ROW_IDS=" 2>nul
+:: Clear per-item flags
+for %%I in (%ITEMS%) do (
+    set "count.%%I=" 2>nul
+    set "PICK.%%I=" 2>nul
+    set "ALR.%%I=" 2>nul
+    set "SKIP_DL.%%I=" 2>nul
+    set "INSTALL.%%I=" 2>nul
+    set "RESULT.%%I=" 2>nul
+)
+:: Clear scan counters for the VPU bundle sub-products
+for %%I in (%VPU_SUBS%) do set "count.%%I=" 2>nul
+exit /b
+
+:ClearPicks
+set "PICKS_ANY=0"
+for %%I in (%ITEMS%) do set "PICK.%%I="
+exit /b
+
+:: Scan routines
+:ScanAllForGroup
+:: %1 = "magix" or "plugin"
+set "SG=%~1"
+for %%I in (%ITEMS%) do (
+    call :ScanIfGroup %%I "%SG%"
+)
+exit /b
+
+:ScanIfGroup
+set "SI_ID=%~1"
+set "SI_GROUP=%~2"
+call set "SI_ITEMGRP=%%%SI_ID%.group%%"
+if /I "%SI_ITEMGRP%"=="%SI_GROUP%" call :ScanItem %SI_ID%
+exit /b
+
+:ScanItem
+:: Sets count.<id>=N where N is the number of installed matches
+set "SCAN_ID=%~1"
+call set "SCAN_PATTERNS=%%%SCAN_ID%.regs%%"
+call set "SCAN_EXCL=%%%SCAN_ID%.regexclude%%"
+set /a SCAN_CNT=0
+:: Forget any _SEEN_* markers from a previous item's scan
+for /f "tokens=1 delims==" %%A in ('set _SEEN_ 2^>nul') do set "%%A="
+if not defined SCAN_PATTERNS (
+    set "count.%SCAN_ID%=0"
+    exit /b
+)
+:ScanItemLoop
+if not defined SCAN_PATTERNS goto :ScanItemFinish
+if "%SCAN_PATTERNS%"=="" goto :ScanItemFinish
+:: Split on first | — first part to %%A, rest to %%B
+set "_NEXT_PAT="
+for /f "tokens=1* delims=|" %%A in ("%SCAN_PATTERNS%") do (
+    call :ScanOnePattern "%%A"
+    set "_NEXT_PAT=%%B"
+)
+:: When the for variable %%B is empty, _NEXT_PAT stays unset, terminating the loop
+set "SCAN_PATTERNS=!_NEXT_PAT!"
+goto :ScanItemLoop
+:ScanItemFinish
+set "count.%SCAN_ID%=%SCAN_CNT%"
+exit /b
+
+:ScanOnePattern
+:: %1 = display-name search pattern
+set "SCAN_PAT=%~1"
+if "%SCAN_PAT%"=="" exit /b
+for /f "tokens=1,2*" %%J in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "%SCAN_PAT%" 2^>nul ^| findstr /C:"DisplayName"') do call :ScanOneLine "%%J" "%%L"
+for /f "tokens=1,2*" %%J in ('reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "%SCAN_PAT%" 2^>nul ^| findstr /C:"DisplayName"') do call :ScanOneLine "%%J" "%%L"
+exit /b
+
+:ScanOneLine
+:: %1 = the token we expect to be "DisplayName"
+:: %2 = the actual display-name value
+:: Increments SCAN_CNT unless excluded OR already seen for this item
+if /I not "%~1"=="DisplayName" exit /b
+set "SCAN_DN=%~2"
+call :ScanCheckExcluded
+if not "%_excluded%"=="0" exit /b
+set "SCAN_KEY=%SCAN_DN: =_%"
+set "SCAN_KEY=%SCAN_KEY:.=_%"
+set "SCAN_KEY=%SCAN_KEY:-=_%"
+set "SCAN_KEY=%SCAN_KEY:(=_%"
+set "SCAN_KEY=%SCAN_KEY:)=_%"
+set "SCAN_KEY=%SCAN_KEY:,=_%"
+set "SCAN_KEY=%SCAN_KEY::=_%"
+set "SCAN_KEY=%SCAN_KEY:/=_%"
+if defined _SEEN_%SCAN_KEY% exit /b
+set "_SEEN_%SCAN_KEY%=1"
+set /a SCAN_CNT+=1
+exit /b
+
+:ScanCheckExcluded
+set "_excluded=0"
+if not defined SCAN_EXCL exit /b
+if "%SCAN_EXCL%"=="" exit /b
+set "_rem=%SCAN_EXCL%"
+:SCE_Loop
+if not defined _rem exit /b
+if "%_rem%"=="" exit /b
+set "_one="
+for /f "tokens=1* delims=|" %%A in ("%_rem%") do (
+    set "_one=%%A"
+    set "_rem=%%B"
+)
+if not defined _one exit /b
+set "_check=!SCAN_DN:%_one%=!"
+if not "!_check!"=="!SCAN_DN!" set "_excluded=1" & exit /b
+goto :SCE_Loop
+
+::Display routines
+:DisplayGroup
+:: %1 = 1 to show row numbers, 0 to hide them
+set "DG_SHOWNUM=%~1"
+for %%I in (%ITEMS%) do (
+    call :DisplayItemIfInGroup %%I %DG_SHOWNUM%
+)
+exit /b
+
+:DisplayItemIfInGroup
+set "DI_ID=%~1"
+set "DI_NUMS=%~2"
+call set "DI_GROUP=%%%DI_ID%.group%%"
+if /I "%DI_GROUP%"=="%ACTIVE_GROUP%" call :DisplayItem %DI_ID% %DI_NUMS%
+exit /b
+
+:DisplayItem
+:: %1 = item id, %2 = show row number? (0/1)
+set "DI_ID=%~1"
+set "DI_NUMS=%~2"
+call set "DI_NAME=%%%DI_ID%.name%%"
+call :ResolveSizeFor "%DI_ID%" DI_SIZE
+call set "DI_ROW=%%%DI_ID%.optrow%%"
+call set "DI_CNT=%%count.%DI_ID%%%"
+if not defined DI_CNT set "DI_CNT=0"
+call :ColorForCount %DI_CNT%
+if "%DI_NUMS%"=="1"     %Print%{%COLOR_RGB%}            %DI_ROW%) %DI_NAME%
+if not "%DI_NUMS%"=="1" %Print%{%COLOR_RGB%}            %DI_NAME%
+%Print%{0;185;255}(%DI_SIZE%) \n
+exit /b
+
+:ResolveSizeFor
+:: %1 = item id, %2 = output var name. Prefers live_size.<id>, else <id>.size
+set "RSF_ID=%~1"
+call set "RSF_LIVE=%%live_size.%RSF_ID%%%"
+call set "RSF_STATIC=%%%RSF_ID%.size%%"
+if defined RSF_LIVE if not "%RSF_LIVE%"=="" (set "%~2=%RSF_LIVE%" & exit /b)
+set "%~2=%RSF_STATIC%"
+exit /b
+
+:DisplayItemName
+set "DIN_ID=%~1"
+call set "DIN_NAME=%%%DIN_ID%.name%%"
+%Print%{244;255;0} %DIN_NAME% \n
+exit /b
+
+:ColorForCount
+set /a _n=%~1
+if %_n% LEQ 0 set "COLOR_RGB=231;72;86" & exit /b
+if %_n% EQU 1 set "COLOR_RGB=0;255;50"  & exit /b
+set "COLOR_RGB=244;255;0"
+exit /b
+
+:DisplayLegend
+set "HAS_RED=0" & set "HAS_GRN=0" & set "HAS_YEL=0"
+for %%I in (%ITEMS%) do call :LegendCheck %%I
+if "%HAS_RED%"=="1" %Print%{231;72;86}        Red =        not installed \n
+if "%HAS_GRN%"=="1" %Print%{0;255;50}        Green =      installed \n
+if "%HAS_YEL%"=="1" if /I "%ACTIVE_GROUP%"=="plugin"     %Print%{244;255;0}        Yellow =     multiple installed [May detect AE plugins] \n
+if "%HAS_YEL%"=="1" if /I not "%ACTIVE_GROUP%"=="plugin" %Print%{244;255;0}        Yellow =     multiple installed \n
+exit /b
+
+:LegendCheck
+set "LC_ID=%~1"
+call set "LC_GROUP=%%%LC_ID%.group%%"
+if /I not "%LC_GROUP%"=="%ACTIVE_GROUP%" exit /b
+call set "LC_CNT=%%count.%LC_ID%%%"
+if not defined LC_CNT set "LC_CNT=0"
+if %LC_CNT% LEQ 0 set "HAS_RED=1"
+if %LC_CNT% EQU 1 set "HAS_GRN=1"
+if %LC_CNT% GEQ 2 set "HAS_YEL=1"
+exit /b
+
+:CountGroupItems
+set /a GROUP_COUNT=0
+for %%I in (%ITEMS%) do (
+    call :CountIfGroup %%I
+)
+set /a GROUP_COUNT_PLUS1=GROUP_COUNT+1
+exit /b
+
+:CountIfGroup
+set "CIG_ID=%~1"
+call set "CIG_GROUP=%%%CIG_ID%.group%%"
+if /I "%CIG_GROUP%"=="%ACTIVE_GROUP%" set /a GROUP_COUNT+=1
+exit /b
+
+:: Selection routines
+:ExpandAll
+:: %1 = input choices string, %2 = out var name
+setlocal enabledelayedexpansion
+set "_in=%~1"
+set "_allnum=%GROUP_COUNT_PLUS1%"
+set "_out="
+set "_found=0"
+for %%X in (%_in%) do if %%X EQU %_allnum% set "_found=1"
+if "!_found!"=="1" (
+    for /L %%I in (1,1,%GROUP_COUNT%) do set "_out=!_out! %%I"
+) else (
+    set "_out=%_in%"
+)
+endlocal & set "%~2=%_out%"
+exit /b
+
+:ExpandNumericAll
+setlocal enabledelayedexpansion
+set "_in=%~1"
+set /a _max=%~2
+set /a _allnum=%~3
+set "_out="
+set "_found=0"
+for %%X in (%_in%) do if %%X EQU !_allnum! set "_found=1"
+if "!_found!"=="1" (
+    for /L %%I in (1,1,!_max!) do set "_out=!_out! %%I"
+) else (
+    set "_out=%_in%"
+)
+endlocal & set "%~4=%_out%"
+exit /b
+
+:ApplyPicksByRow
+:: %1 = space-separated row numbers, sets PICK.<id> for matching rows
+set "PICKS_ANY=0"
+for %%N in (%~1) do (
+    call :PickByRow %%N
+)
+exit /b
+
+:PickByRow
+set "PBR_N=%~1"
+for %%I in (%ITEMS%) do (
+    call :PickByRowCheck %%I %PBR_N%
+)
+exit /b
+
+:PickByRowCheck
+set "PBC_ID=%~1"
+set "PBC_N=%~2"
+call set "PBC_GROUP=%%%PBC_ID%.group%%"
+call set "PBC_ROW=%%%PBC_ID%.optrow%%"
+if /I not "%PBC_GROUP%"=="%ACTIVE_GROUP%" exit /b
+if not "%PBC_ROW%"=="%PBC_N%" exit /b
+set "PICK.%PBC_ID%=1"
+set "PICKS_ANY=1"
+exit /b
+
+:DisplayPicked
+for %%I in (%ITEMS%) do (
+    if defined PICK.%%I call :DisplayPickedOne %%I
+)
+exit /b
+
+:DisplayPickedOne
+set "DPO_ID=%~1"
+call set "DPO_CNT=%%count.%DPO_ID%%%"
+if not defined DPO_CNT set "DPO_CNT=0"
+call :ColorForCount %DPO_CNT%
+call set "DPO_NAME=%%%DPO_ID%.name%%"
+call :ResolveSizeFor "%DPO_ID%" DPO_SIZE
+%Print%{%COLOR_RGB%}            %DPO_NAME%
+%Print%{0;185;255}(%DPO_SIZE%) \n
+exit /b
+
+:PrintNthFromList
+set "PNFL_N=%~1"
+set "PNFL_LIST=%~2"
+set /a _i=0
+set "PICKED_ID="
+for %%X in (%PNFL_LIST%) do (
+    set /a _i+=1
+    if !_i! EQU %PNFL_N% set "PICKED_ID=%%X"
+)
+exit /b
+
+:EchoItemName
+set "EIN_ID=%~1"
+if not defined EIN_ID exit /b
+call set "EIN_NAME=%%%EIN_ID%.name%%"
+echo   %EIN_NAME%
+exit /b
+
+:EchoNumberedName
+set "ENN_N=%~1"
+set "ENN_ID=%~2"
+if not defined ENN_ID exit /b
+call set "ENN_NAME=%%%ENN_ID%.name%%"
+echo   %ENN_N% - %ENN_NAME%
+exit /b
+
+:: VP specific helpers
+:ListInstalledVP
+:: Writes the unique VP installation display names to VP-Installations-found.txt and sets VP_INSTALLED_COUNT
+set "VP_LOG=%SET_DIR%\VP-Installations-found.txt"
+set "VP_LOG_TMP=%SET_DIR%\VP-Installations-found.tmp"
+if exist "%VP_LOG%"     del "%VP_LOG%"     2>nul
+if exist "%VP_LOG_TMP%" del "%VP_LOG_TMP%" 2>nul
+for /f "tokens=1,2*" %%J in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "VEGAS Pro" 2^>nul ^| findstr /C:"DisplayName"')        do call :ListInstalledVPLine "%%J" "%%L"
+for /f "tokens=1,2*" %%J in ('reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "VEGAS Pro" 2^>nul ^| findstr /C:"DisplayName"') do call :ListInstalledVPLine "%%J" "%%L"
+:: De-duplicate
+if exist "%VP_LOG_TMP%" (
+    for /f "usebackq delims=" %%L in ("%VP_LOG_TMP%") do (
+        findstr /ixc:"%%L" "%VP_LOG%" >nul 2>&1 || >>"%VP_LOG%" echo %%L
+    )
+)
+set /a VP_INSTALLED_COUNT=0
+if exist "%VP_LOG%" (
+    for /f %%C in ('find /c /v "" ^< "%VP_LOG%" 2^>nul') do set /a VP_INSTALLED_COUNT=%%C
+)
+if exist "%VP_LOG_TMP%" del "%VP_LOG_TMP%" 2>nul
+exit /b
+
+:ListInstalledVPLine
+:: %1 = the registry token
+:: %2 = the actual DisplayName value
+if /I not "%~1"=="DisplayName" exit /b
+set "VP_LINE=%~2"
+echo %VP_LINE%|findstr /I /C:"Voukoder" /C:"Mocha" /C:"Deep Learning" /C:"Effects" /C:"Image" /C:"Capture" /C:"Patch" >nul && exit /b
+if /I "%VP_LINE:~0,9%"=="Boris FX " set "VP_LINE=%VP_LINE:~9%"
+>>"%VP_LOG_TMP%" echo %VP_LINE%
+exit /b
