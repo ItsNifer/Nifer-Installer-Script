@@ -26,13 +26,13 @@
 
 ## Screenshots
 <p align="center">
-  <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/4f67702b11829893a4a78e5a30ae3ab1ccabb8be/imgs/Screenshot_100.png" alt="Screenshot 1"/>
+  <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/b0977d52bf5eeaa249cfbb888ad96b79753e6ebe/imgs/Screenshot_255.png" alt="Screenshot 1"/>
 </p>
 <p align="center">
-  <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/4f67702b11829893a4a78e5a30ae3ab1ccabb8be/imgs/Screenshot_101.png" alt="Screenshot 2"/>
+  <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/b0977d52bf5eeaa249cfbb888ad96b79753e6ebe/imgs/Screenshot_256.png" alt="Screenshot 2"/>
 </p>
 <p align="center">
-  <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/4f67702b11829893a4a78e5a30ae3ab1ccabb8be/imgs/Screenshot_102.png" alt="Screenshot 3"/>
+  <img src="https://github.com/ItsNifer/Nifer-Installer-Script/blob/b0977d52bf5eeaa249cfbb888ad96b79753e6ebe/imgs/Screenshot_254.png" alt="Screenshot 3"/>
 </p>
 
 ## Roadmap
