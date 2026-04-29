@@ -51,7 +51,7 @@ set wget="%SCR_DIR%\wget.exe"
 set UnRAR="%SCR_DIR%\UnRAR.exe"
 
 :: Script version
-set "ScriptVersion=v7.2.1"
+set "ScriptVersion=v7.2.2"
 set "ScriptVersion2=%ScriptVersion:v=%"
 set "ScriptVersionDisplay=Version - %ScriptVersion2%"
 
@@ -104,14 +104,14 @@ set "vp.regs=VEGAS Pro 2026|VEGAS Pro 23.0|VEGAS Pro 22.0|VEGAS Pro 21.0|VEGAS P
 set "vp.regexclude=Voukoder|Mocha|Deep Learning|Capture"
 set "vp.optrow=1"
 
-set "vpdlm.name=VEGAS Pro Deep Learning Models"
+set "vpdlm.name=VEGAS Pro AI Models"
 set "vpdlm.group=magix"
 set "vpdlm.root=MGX_DIR"
-set "vpdlm.folder=Deep Learning Models"
+set "vpdlm.folder=VEGAS Pro AI Models"
 set "vpdlm.fs_id=bYnZa9LR"
 set "vpdlm.fs_file=AI Models.rar"
 set "vpdlm.size=1.38 GB"
-set "vpdlm.regs=Deep Learning Models"
+set "vpdlm.regs=Deep Learning Models|Vegas AI Models"
 set "vpdlm.regexclude="
 set "vpdlm.optrow=2"
 
@@ -189,7 +189,7 @@ set "ignite.folder=FXHOME - Ignite Pro"
 set "ignite.fs_id=8yM3boe7"
 set "ignite.fs_file=FXH-Ignite.rar"
 set "ignite.size=430 MB"
-set "ignite.regs=Ignite Pro|Ignite Pro by Nifer"
+set "ignite.regs=Ignite Pro OFX|Ignite Pro for OFX"
 set "ignite.regexclude="
 set "ignite.optrow=5"
 
@@ -198,10 +198,10 @@ set "rg.group=plugin"
 set "rg.root=PLG_DIR"
 set "rg.folder=MAXON - Red Giant Suite"
 set "rg.fs_id=8yM3boe7"
-set "rg.fs_file=MXN-RG.rar"
+set "rg.fs_file=MXN-RGSuite.rar"
 set "rg.size=2.30 GB"
-set "rg.regs=Magic Bullet Suite|Universe"
-set "rg.regexclude="
+set "rg.regs=Red Giant"
+set "rg.regexclude=Magic Bullet PhotoLooks"
 set "rg.optrow=6"
 
 set "nfxtitler.name=NEWBLUEFX - Titler Pro 7"
@@ -211,7 +211,7 @@ set "nfxtitler.folder=NewBlueFX - Titler Pro 7 Ultimate"
 set "nfxtitler.fs_id=8yM3boe7"
 set "nfxtitler.fs_file=NFX-Titler.rar"
 set "nfxtitler.size=630 MB"
-set "nfxtitler.regs=NewBlue Titler Pro 7 Ultimate"
+set "nfxtitler.regs=NewBlue Titler Pro 7 Ultimate|NewBlue TotalFX 7"
 set "nfxtitler.regexclude="
 set "nfxtitler.optrow=7"
 
@@ -222,14 +222,14 @@ set "nfxtotal.folder=NewBlueFX - TotalFX 360"
 set "nfxtotal.fs_id=8yM3boe7"
 set "nfxtotal.fs_file=NFX-TotalFX.rar"
 set "nfxtotal.size=790 MB"
-set "nfxtotal.regs=NewBlue TotalFX 7|NewBlue TotalFX 360"
+set "nfxtotal.regs=NewBlue TotalFX 360"
 set "nfxtotal.regexclude="
 set "nfxtotal.optrow=8"
 
-set "rfxeff.name=REVISIONFX - Effections"
+set "rfxeff.name=REVISIONFX - Effections Plus"
 set "rfxeff.group=plugin"
 set "rfxeff.root=PLG_DIR"
-set "rfxeff.folder=REVisionFX - Effections Suite"
+set "rfxeff.folder=REVisionFX - Effections Plus"
 set "rfxeff.fs_id=8yM3boe7"
 set "rfxeff.fs_file=RFX-Effections.rar"
 set "rfxeff.size=50 MB"
@@ -248,7 +248,7 @@ set "vpuadd.regs=Boris FX Continuum 2026.1 OFX|Boris FX Continuum 2026 OFX|Boris
 set "vpuadd.regexclude="
 set "vpuadd.optrow=10"
 
-:: VEGAS Pro 2026 Ultimate Addons — bundle definition
+:: VEGAS Pro 2026 Ultimate Addons bundle
 set "VPU_SUBS=vpu_bcc vpu_crumpl vpu_forge vpu_optics vpu_soundapp"
 
 set "vpu_bcc.name=Boris FX Continuum 2026.1 OFX (for VEGAS Pro 2026)"
@@ -270,6 +270,22 @@ set "vpu_optics.regexclude="
 set "vpu_soundapp.name=Boris FX SoundApp"
 set "vpu_soundapp.regs=Boris FX SoundApp"
 set "vpu_soundapp.regexclude="
+
+:: ======================================================================================================================
+:: PATCH ITEMS
+set "patch_partilu.name=Boris FX Particle Illusion 2025.5"
+set "patch_partilu.regs=Boris FX Particle Illusion 2025.5|Particle Illusion 2025.5"
+set "patch_partilu.regexclude="
+
+set "patch_vp2026.name=Boris FX VEGAS Pro 2026"
+set "patch_vp2026.regs=Boris FX VEGAS Pro 2026|Boris FX Vegas Pro 2026"
+set "patch_vp2026.regexclude="
+
+set "patch_mocha2026.name=Boris FX Mocha Plug-ins 2026 for OFX"
+set "patch_mocha2026.regs=Boris FX Mocha Plug-ins 2026 for OFX"
+set "patch_mocha2026.regexclude=for After Effects|for Adobe|for Photoshop"
+
+set "PATCH_ITEMS=vpu_bcc vpu_crumpl vpu_forge vpu_optics vpu_soundapp patch_partilu patch_vp2026 patch_mocha2026"
 
 goto :CheckAutoUpdate
 
@@ -417,8 +433,8 @@ if /I "%ACTIVE_GROUP%"=="magix"  call :PrintMagixHeader
 if /I "%ACTIVE_GROUP%"=="plugin" call :PrintPluginHeader
 echo/
 %Print%{255;255;255}          Currently installed / available items: \n
-echo         --------------------------------
 echo/
+call :DisplayItemTableHeader
 :: Show items without row numbers
 call :DisplayGroup 0
 echo/
@@ -451,7 +467,7 @@ echo *****************************************************************
 exit /b
 
 :: ======================================================================================================================
-::  DOWNLOAD PICKER — user selects which items to download/install
+::  DOWNLOAD PICKER
 :DownloadPicker
 cls
 color 0C
@@ -460,15 +476,14 @@ if /I "%ACTIVE_GROUP%"=="magix"  call :PrintMagixHeader
 if /I "%ACTIVE_GROUP%"=="plugin" call :PrintPluginHeader
 if /I "%ACTIVE_GROUP%"=="magix"  %Print%{255;255;255}         Available software to Download: \n
 if /I "%ACTIVE_GROUP%"=="plugin" %Print%{255;255;255}         Available plugins to Download: \n
-echo         --------------------------------
 echo/
-:: Show items WITH row numbers
+call :DisplayItemTableHeader
 call :DisplayGroup 1
-:: Show an "ALL" option
 call :CountGroupItems
+call :GroupTotalSize
+if /I "%ACTIVE_GROUP%"=="plugin" (set "GROUP_LABEL=PLUGINS") else (set "GROUP_LABEL=SOFTWARE")
 echo/
-if /I "%ACTIVE_GROUP%"=="plugin" %Print%{0;185;255}            %GROUP_COUNT_PLUS1%) ALL PLUGINS (15 GB) \n
-if /I not "%ACTIVE_GROUP%"=="plugin" %Print%{0;185;255}            %GROUP_COUNT_PLUS1%) ALL SOFTWARE (2.15 GB) \n
+%Print%{0;185;255}            %GROUP_COUNT_PLUS1%) ALL %GROUP_LABEL% (%GROUP_TOTAL_SIZE%) \n
 echo/
 echo         --------------------------------
 call :DisplayLegend
@@ -482,11 +497,8 @@ if not defined choices (
     echo Please enter a valid option
     goto :DownloadPicker
 )
-:: Expand "ALL" (the GROUP_COUNT_PLUS1 number) into every row
 call :ExpandAll "%choices%" choices
-:: Clear old picks
 call :ClearPicks
-:: numeric choices into PICK.<id>=1
 call :ApplyPicksByRow "%choices%"
 if %PICKS_ANY% EQU 0 (
     echo/
@@ -502,9 +514,10 @@ color 0C
 echo/
 if /I "%ACTIVE_GROUP%"=="plugin"     %Print%{231;72;86} Are you sure you want to install these selected plugins? \n
 if /I not "%ACTIVE_GROUP%"=="plugin" %Print%{231;72;86} Are you sure you want to install these selected programs? \n
-echo         --------------------------------
 echo/
+call :DisplayItemTableHeader
 call :DisplayPicked
+echo/
 echo         --------------------------------
 echo/
 %Print%{204;204;204}            1) Yes, continue \n
@@ -513,16 +526,16 @@ echo/
 %SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
 set "CD_CHOICE=%errorlevel%"
 cls
-if %CD_CHOICE% EQU 2 goto :DownloadPicker
-:: For the Ultimate Addons bundle, show a one-time info popup so the user
-:: knows what's bundled inside before committing to the ~8 GB download.
+if %CD_CHOICE% EQU 2 (
+    for /f "tokens=1 delims==" %%A in ('set PICK. 2^>nul') do set "%%A="
+    goto :GroupHub
+)
 if defined PICK.vpuadd if not defined VPUADD_CONFIRMED goto :VPUAddPicker
 goto :CheckExistingVPBeforeInstall
 
 :: ======================================================================================================================
-::  VPU ADD-ONS BUNDLE
+::  VPU ADDONS BUNDLE
 :VPUAddPicker
-:: Scan registry for each sub-product so we can show installed/not-installed.
 for %%I in (%VPU_SUBS%) do call :ScanItem %%I
 cls
 color 0C
@@ -558,8 +571,6 @@ if %VPU_CHOICE% EQU 1 (set "VPUADD_CONFIRMED=1" & goto :CheckExistingVPBeforeIns
 goto :VPUAddPicker
 
 :VPUAddSkip
-:: User chose to skip Ultimate Addons but keep the rest of the queue
-:: If nothing else is queued, send them back to the picker
 set "VPU_OTHER=0"
 for %%I in (%ITEMS%) do if defined PICK.%%I set "VPU_OTHER=1"
 if "%VPU_OTHER%"=="0" (
@@ -571,7 +582,6 @@ if "%VPU_OTHER%"=="0" (
 goto :CheckExistingVPBeforeInstall
 
 :VPUAddDisplaySub
-:: Renders one sub-product line with [INSTALLED] / [NOT INSTALLED] tag
 set "VDS_ID=%~1"
 call set "VDS_NAME=%%%VDS_ID%.name%%"
 call set "VDS_CNT=%%count.%VDS_ID%%%"
@@ -581,11 +591,86 @@ if %VDS_CNT% LSS 1 %Print%{231;72;86}      [NOT INSTALLED]  %VDS_NAME% \n
 exit /b
 
 :: ======================================================================================================================
+::  RE-PATCH
+:RepatchPicker
+for %%I in (%PATCH_ITEMS%) do call :ScanItem %%I
+cls
+color 0C
+echo/
+%Print%{231;72;86}      Re-Patch - Detected Installations \n
+echo         --------------------------------
+echo/
+%Print%{0;185;255} The following items will be re-patched if installed: \n
+echo/
+for %%I in (%PATCH_ITEMS%) do call :RepatchDisplay %%I
+echo/
+echo         --------------------------------
+echo/
+%Print%{244;255;0} This will reapply the NiferEdits patch to every detected install. \n
+%Print%{244;255;0} Items not installed will be skipped automatically by the patcher. \n
+echo/
+%Print%{204;204;204}            1) Continue - Patch all installed software \n
+%Print%{255;112;0}            2) Cancel - go back \n
+echo/
+%SystemRoot%\System32\choice.exe /C 12 /M "Type the number (1-2) of what you want." /N
+set "RP_CHOICE=%errorlevel%"
+cls
+if %RP_CHOICE% EQU 2 goto :SettingsMenu
+if %RP_CHOICE% EQU 1 goto :RepatchRun
+goto :RepatchPicker
+
+:RepatchDisplay
+set "RPD_ID=%~1"
+call set "RPD_NAME=%%%RPD_ID%.name%%"
+call set "RPD_CNT=%%count.%RPD_ID%%%"
+if not defined RPD_CNT set "RPD_CNT=0"
+if %RPD_CNT% GEQ 1 %Print%{0;255;50}      [INSTALLED]      %RPD_NAME% \n
+if %RPD_CNT% LSS 1 %Print%{231;72;86}      [NOT INSTALLED]  %RPD_NAME% \n
+exit /b
+
+:RepatchRun
+cls
+color 0C
+echo/
+%Print%{0;185;255}     Downloading the latest NiferEdits patch... \n
+echo/
+:: Download the patch executable from the PixelDrain folder
+set "RP_OUT=%SCR_DIR%\NiferEdits_VEGAS_Pro_2026_Patch.exe"
+if exist "%RP_OUT%" del "%RP_OUT%" >nul 2>&1
+%wget% -q --no-check-certificate --output-document="%RP_OUT%" "https://pixeldrain.com/api/filesystem/3rVxkRD5/NiferEdits_VEGAS_Pro_2026_Patch.exe" 2>nul
+if not exist "%RP_OUT%" (
+    %Print%{231;72;86}     Download failed. Please check your connection and try again. \n
+    echo/
+    pause
+    goto :SettingsMenu
+)
+for %%G in ("%RP_OUT%") do if %%~zG LEQ 0 (
+    %Print%{231;72;86}     Downloaded file is empty. Please try again later. \n
+    del "%RP_OUT%" >nul 2>&1
+    echo/
+    pause
+    goto :SettingsMenu
+)
+echo/
+%Print%{0;185;255}     Running the patch silently. This may take a moment... \n
+echo/
+start "" /wait "%RP_OUT%" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+del "%RP_OUT%" >nul 2>&1
+cls
+color 0C
+echo/
+echo/
+%Print%{0;255;50}     Everything has been Patched. \n
+echo/
+%Print%{255;255;255}     Press any key to return to Settings. \n
+echo/
+pause >nul
+goto :SettingsMenu
+
+:: ======================================================================================================================
 ::  Prompt to uninstall existing VEGAS Pro(s) before installing VP2026
 :CheckExistingVPBeforeInstall
-:: Only relevant if VP is in the pick list
 if not defined PICK.vp goto :CheckAlreadyDownloaded
-:: Build list of installed VP entries
 call :ListInstalledVP
 if %VP_INSTALLED_COUNT% EQU 0 goto :CheckAlreadyDownloaded
 cls
@@ -770,7 +855,7 @@ call :ResolveDownloadTarget "%DL_ID%"
 if not defined DL_FS_ID goto :DownloadOneNoConfig
 if not exist "%DL_TARGET%" mkdir "%DL_TARGET%" >nul 2>&1
 call :PixelDrainDownload "%DL_FS_ID%" "%DL_FS_FILE%" "%DL_TARGET%"
-:: PixelDrainDownload sets DL_OK=1 on success; size already verified inside
+:: PixelDrainDownload sets DL_OK=1 on success
 if "%DL_OK%"=="1" (
     set "INSTALL.%DL_ID%=1"
     set "RESULT.%DL_ID%=downloaded"
@@ -810,7 +895,6 @@ exit /b
 ::    %1 = PixelDrain filesystem ID
 ::    %2 = filename inside that folder
 ::    %3 = local destination folder
-::
 ::    DL_OK = 1 on success, 0 on failure
 :PixelDrainDownload
 set "PDD_FS_ID=%~1"
@@ -821,7 +905,7 @@ if "%PDD_FS_ID%"=="" exit /b
 if "%PDD_FILE%"=="" exit /b
 
 :: download the folder's JSON manifest
-set "PDD_JSON=%TEMP%\pd_fs_%PDD_FS_ID%.json"
+set "PDD_JSON=%SCR_DIR%\pd_fs_%PDD_FS_ID%.json"
 if exist "%PDD_JSON%" del "%PDD_JSON%" >nul 2>&1
 %wget% -q --no-check-certificate --output-document="%PDD_JSON%" "https://pixeldrain.com/api/filesystem/%PDD_FS_ID%" 2>nul
 if exist "%PDD_JSON%" goto :PDD_FindFile
@@ -840,7 +924,7 @@ if /I "%PDD_STATUS%"=="FOUND" goto :PDD_DoDownload
 exit /b
 
 :PDD_DoDownload
-:: Step 3: download the file directly to the destination with the correct name
+:: download the file directly to the destination with the correct name
 set "PDD_OUT=%PDD_DEST%\%PDD_FILE%"
 set "PDD_TMP=!PDD_FILE: =__SPC__!"
 set "PDD_FILE_URL=!PDD_TMP:__SPC__=%%20!"
@@ -869,12 +953,146 @@ cls
 color 0C
 echo/
 echo/
+call :LoadPrefetchCache
+if "%CACHE_HIT%"=="1" goto :PrefetchUseCache
 %Print%{0;185;255}           Fetching latest script information \n
 echo/
 %Print%{204;204;204}          (this only happens once per session) \n
 call :PrefetchLiveSizes
+:: When the "Live Versions" toggle is on, also pull the latest plugin/program versions from the public Google Sheet so DisplayItem can show them
+if exist "%SET_DIR%\Live-Versions-1.txt" call :PrefetchLatestVersions
+:: Save the parsed results to a disk cache so the next run can skip the network
+call :SavePrefetchCache
 call :RestoreConsole
 set "PREFETCH_DONE=1"
+exit /b
+
+:PrefetchUseCache
+%Print%{0;185;255}           Using cached script information \n
+echo/
+%Print%{204;204;204}             (cache refreshes every hour) \n
+call :RestoreConsole
+set "PREFETCH_DONE=1"
+exit /b
+
+:LoadPrefetchCache
+:: Sets CACHE_HIT=1 and populates live_size.*, live_bytes.*, latest_ver.* from the cache file IF it exists AND was modified within the last hour. Otherwise CACHE_HIT=0
+set "CACHE_HIT=0"
+set "CACHE_FILE=%SCR_DIR%\prefetch_cache.txt"
+if not exist "%CACHE_FILE%" exit /b
+call :WriteCacheAgeScript
+set "CACHE_AGE="
+for /f "usebackq delims=" %%A in (`cscript //nologo //E:JScript "%SCR_DIR%\cache_age.js" "%CACHE_FILE%" 60 2^>nul`) do set "CACHE_AGE=%%A"
+if /I not "%CACHE_AGE%"=="FRESH" exit /b
+:: Cache is fresh — load it. Each line is "key=value" and we set them directly
+set "_HAS_LATEST=0"
+for /f "usebackq delims=" %%L in ("%CACHE_FILE%") do call :LoadCacheLine "%%L"
+if exist "%SET_DIR%\Live-Versions-1.txt" if "%_HAS_LATEST%"=="0" exit /b
+set "CACHE_HIT=1"
+exit /b
+
+:WriteCacheAgeScript
+:: Writes a tiny JScript that reports whether a file was modified within the last N minutes
+set "CAS_JS=%SCR_DIR%\cache_age.js"
+if exist "%CAS_JS%" exit /b
+if not exist "%SCR_DIR%" mkdir "%SCR_DIR%" >nul 2>&1
+> "%CAS_JS%" echo var args=WScript.Arguments;
+>>"%CAS_JS%" echo if(args.length^<2){WScript.StdOut.Write("STALE");WScript.Quit(0);}
+>>"%CAS_JS%" echo var fso=new ActiveXObject("Scripting.FileSystemObject");
+>>"%CAS_JS%" echo try{var f=fso.GetFile(args(0));var modified=new Date(f.DateLastModified);var now=new Date();var diffMs=now-modified;var maxMs=parseInt(args(1),10)*60*1000;WScript.StdOut.Write(diffMs^<=maxMs?"FRESH":"STALE");}catch(e){WScript.StdOut.Write("STALE");}
+exit /b
+
+:LoadCacheLine
+set "_LINE=%~1"
+if not defined _LINE exit /b
+:: Skip comment / empty lines
+if "%_LINE:~0,1%"=="#" exit /b
+if "%_LINE:~0,1%"==";" exit /b
+:: Track whether the cache contains latest_ver entries
+if /I "%_LINE:~0,11%"=="latest_ver." set "_HAS_LATEST=1"
+:: Set the variable. set's parser handles "key=value" format directly.
+set "%_LINE%"
+exit /b
+
+:SavePrefetchCache
+:: Writes all live_size.*, live_bytes.*, latest_ver.* vars to the cache file.
+set "CACHE_FILE=%SCR_DIR%\prefetch_cache.txt"
+> "%CACHE_FILE%" echo # Prefetch cache - auto-generated, refreshed hourly
+>> "%CACHE_FILE%" echo # Delete this file or change Settings to force a refresh
+:: Iterate the var space for each prefix. CMD's "set <prefix>" lists matching vars.
+for /f "usebackq delims=" %%V in (`set live_size. 2^>nul`) do >>"%CACHE_FILE%" echo %%V
+for /f "usebackq delims=" %%V in (`set live_bytes. 2^>nul`) do >>"%CACHE_FILE%" echo %%V
+for /f "usebackq delims=" %%V in (`set latest_ver. 2^>nul`) do >>"%CACHE_FILE%" echo %%V
+exit /b
+
+:PrefetchLatestVersions
+:: Downloads the same CSV the Settings menu uses
+set "SHEET_JS=%SCR_DIR%\sheet_renderer.js"
+set "PLV_CSV=%SCR_DIR%\version_sheet.csv"
+set "PLV_OUT=%SCR_DIR%\version_sheet.txt"
+set "PLV_JS=%SHEET_JS%"
+:: DIAGNOSTIC LOG
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
+> "%LOG_DIR%\latest_debug.log" echo --- latest run at %DATE% %TIME% ---
+:: Force the renderer JS to exist
+call :WriteSheetScript
+if not exist "%PLV_JS%" (
+    >>"%LOG_DIR%\latest_debug.log" echo [FAIL] sheet_renderer.js missing
+    exit /b
+)
+:: Fetch CSV
+if exist "%PLV_CSV%" del "%PLV_CSV%" >nul 2>&1
+curl -kLsA "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/gviz/tq?tqx=out:csv&range=A2:B200&headers=0" -o "%PLV_CSV%" 2>nul
+if not exist "%PLV_CSV%" (
+    >>"%LOG_DIR%\latest_debug.log" echo [FAIL] curl produced no version_sheet.csv
+    exit /b
+)
+for %%G in ("%PLV_CSV%") do >>"%LOG_DIR%\latest_debug.log" echo [OK] version_sheet.csv size=%%~zG
+for %%G in ("%PLV_CSV%") do if %%~zG EQU 0 (del "%PLV_CSV%" >nul 2>&1 & exit /b)
+:: Run JS
+if exist "%PLV_OUT%" del "%PLV_OUT%" >nul 2>&1
+cscript //nologo //E:JScript "%PLV_JS%" "%PLV_CSV%" > "%PLV_OUT%" 2>nul
+if not exist "%PLV_OUT%" (
+    >>"%LOG_DIR%\latest_debug.log" echo [FAIL] cscript produced no output
+    exit /b
+)
+for %%G in ("%PLV_OUT%") do >>"%LOG_DIR%\latest_debug.log" echo [OK] version_sheet.txt size=%%~zG
+:: For each "R<TAB>name<TAB>version" row, find a matching item id and stash the version in latest_ver.<id>
+for /f "usebackq tokens=1,2,* delims=	" %%A in ("%PLV_OUT%") do call :StashLatestForRow "%%A" "%%B" "%%C"
+:: Dump final state
+>>"%LOG_DIR%\latest_debug.log" echo --- final latest_ver.* values ---
+for %%I in (%ITEMS%) do call :LogLatestForItem %%I
+del "%PLV_CSV%" >nul 2>&1
+del "%PLV_OUT%" >nul 2>&1
+exit /b
+
+:LogLatestForItem
+call set "LLI_VAL=%%latest_ver.%~1%%"
+>>"%LOG_DIR%\latest_debug.log" echo   latest_ver.%~1=!LLI_VAL!
+exit /b
+
+:StashLatestForRow
+:: %1 = tag (R / S), %2 = sheet name, %3 = version
+:: Looks up an item id whose .sheet_name (or .name as fallback) matches the sheet's name cell, and stores latest_ver.<id> = version
+if /I not "%~1"=="R" exit /b
+set "SLR_NAME=%~2"
+set "SLR_VER=%~3"
+if not defined SLR_NAME exit /b
+if not defined SLR_VER exit /b
+for %%I in (%ITEMS%) do call :StashLatestMatch "%%I" "%SLR_NAME%" "%SLR_VER%"
+exit /b
+
+:StashLatestMatch
+:: %1 = item id, %2 = sheet name, %3 = version
+:: Tries .sheet_name first, falls back to .name
+set "SLM_ID=%~1"
+set "SLM_NAME=%~2"
+set "SLM_VER=%~3"
+call set "SLM_SHEET=%%%SLM_ID%.sheet_name%%"
+call set "SLM_REAL=%%%SLM_ID%.name%%"
+:: Match via sheet_name if defined, otherwise via .name
+if defined SLM_SHEET if /I "%SLM_SHEET%"=="%SLM_NAME%" set "latest_ver.%SLM_ID%=%SLM_VER%" & exit /b
+if /I "%SLM_REAL%"=="%SLM_NAME%" set "latest_ver.%SLM_ID%=%SLM_VER%"
 exit /b
 
 :RestoreConsole
@@ -908,30 +1126,28 @@ exit /b
 set "FOS_FS=%~1"
 set "FOS_FILE=%~2"
 set "FOS_KEY=%~3"
-:: logging
->>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] fs=%FOS_FS% file=%FOS_FILE%
-
-set "FOS_JSON=%TEMP%\pd_size_%FOS_FS%.json"
+set "FOS_PRETTY="
+set "FOS_BYTES="
+set "FOS_JSON=%SCR_DIR%\pd_size_%FOS_FS%.json"
 if exist "%FOS_JSON%" del "%FOS_JSON%" >nul 2>&1
 %wget% -q --no-check-certificate --output-document="%FOS_JSON%" "https://pixeldrain.com/api/filesystem/%FOS_FS%" 2>nul
 if not exist "%FOS_JSON%" (
-    >>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] FAIL: JSON download failed
+    >>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] FAIL: JSON download failed (fs=%FOS_FS% file=%FOS_FILE%)
     exit /b
 )
-set "FOS_BYTES="
 call :ParseJsonSize "%FOS_JSON%" "%FOS_FILE%" FOS_BYTES
 del "%FOS_JSON%" >nul 2>&1
-:: logging
->>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] bytes=%FOS_BYTES%
-
-if not defined FOS_BYTES exit /b
-if "%FOS_BYTES%"=="" exit /b
-:: Convert bytes to a readable string (MB / GB)
-set "FOS_PRETTY="
+if not defined FOS_BYTES (
+    >>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] FAIL: parse returned empty (fs=%FOS_FS% file=%FOS_FILE%)
+    exit /b
+)
+if "%FOS_BYTES%"=="" (
+    >>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] FAIL: parse returned empty (fs=%FOS_FS% file=%FOS_FILE%)
+    exit /b
+)
 call :BytesToHuman %FOS_BYTES% FOS_PRETTY
-:: logging
->>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] pretty=%FOS_PRETTY%
-
+:: One summary line per item — much cheaper than 4 separate redirects.
+>>"%LOG_DIR%\prefetch_debug.log" echo [%FOS_KEY%] OK fs=%FOS_FS% file=%FOS_FILE% bytes=%FOS_BYTES% pretty=%FOS_PRETTY%
 if defined FOS_PRETTY if not "%FOS_PRETTY%"=="" set "live_size.%FOS_KEY%=%FOS_PRETTY%"
 set "live_bytes.%FOS_KEY%=%FOS_BYTES%"
 exit /b
@@ -940,7 +1156,7 @@ exit /b
 :: PixelDrain JSON parser. Uses a tiny inline JScript run under cscript
 :: %1 = path to JSON file
 :: %2 = filename to look up inside the "children" array
-:: %3 = output variable name (will receive the byte count, or be left unset)
+:: %3 = output variable name
 set "PJS_IN=%~1"
 set "PJS_FILE=%~2"
 set "PJS_OUT=%~3"
@@ -955,7 +1171,7 @@ set "PJS_BYTES="
 exit /b
 
 :WritePdJsonScript
-:: Writes a small JScript file to parse PixelDrain JSON
+:: Write a small JScript file to parse PixelDrain JSON
 > "%PJS_JS%" echo var fso=new ActiveXObject("Scripting.FileSystemObject"^);
 >>"%PJS_JS%" echo if (WScript.Arguments.length^<2){WScript.Quit(1);}
 >>"%PJS_JS%" echo var p=WScript.Arguments(0), n=WScript.Arguments(1);
@@ -973,17 +1189,7 @@ set "PJS_WRITTEN=1"
 exit /b
 
 :WriteChangelogScript
-:: Writes a small JScript that reads a GitHub release JSON, extracts the
-:: 'body' field (the markdown release notes), strips Markdown formatting,
-:: and emits one tagged line per source line for the batch renderer:
-::   H<TAB>text   -> Markdown header (#, ##, ### etc.)
-::   B<TAB>text   -> Bullet point (-, *, +)
-::   T<TAB>text   -> Plain text
-::   -<TAB>       -> Blank line
-:: The leading character lets the renderer dispatch colors without parsing.
-:: Implementation note: avoid regex anchors (^/$) inside the source because
-:: writing ^ literally through CMD echo requires ^^^^ doubling and gets
-:: error-prone. Use charAt/indexOf checks instead.
+:: Write a small JScript that reads a GitHub release JSON, extracts the'body' field (the markdown release notes), strips Markdown formatting, and emits one tagged line per source line for the batch renderer
 > "%CLG_JS%" echo var fso=new ActiveXObject("Scripting.FileSystemObject"^);
 >>"%CLG_JS%" echo if (WScript.Arguments.length^<1){WScript.Quit(1);}
 >>"%CLG_JS%" echo var p=WScript.Arguments(0);
@@ -1005,18 +1211,71 @@ exit /b
 set "CLG_WRITTEN=1"
 exit /b
 
+:WriteSheetScript
+:: Write a small JScript that reads a Google Sheets CSV export and emits one tagged line per data row for the batch renderer
+> "%SHEET_JS%" echo var fso=new ActiveXObject("Scripting.FileSystemObject"^);
+>>"%SHEET_JS%" echo if (WScript.Arguments.length^<1){WScript.Quit(1);}
+>>"%SHEET_JS%" echo var p=WScript.Arguments(0);
+>>"%SHEET_JS%" echo if (^^^!fso.FileExists(p)){WScript.Quit(2);}
+>>"%SHEET_JS%" echo var f=fso.OpenTextFile(p,1,false), d=f.ReadAll(); f.Close(^);
+>>"%SHEET_JS%" echo if (d.length===0){WScript.Quit(3);}
+>>"%SHEET_JS%" echo if (d.charAt(0)==='^<'){WScript.Quit(4);}
+>>"%SHEET_JS%" echo function trim(s){var a=0,b=s.length;while(a^<b ^&^& s.charAt(a)^<=' ')a++;while(b^>a ^&^& s.charAt(b-1)^<=' ')b--;return s.substring(a,b);}
+>>"%SHEET_JS%" echo function parseCsv(text){
+>>"%SHEET_JS%" echo var rows=[],row=[],cell='',q=false,i=0,n=text.length;
+>>"%SHEET_JS%" echo while (i^<n){
+>>"%SHEET_JS%" echo var ch=text.charAt(i);
+>>"%SHEET_JS%" echo if (q){
+>>"%SHEET_JS%" echo if (ch==='"'){
+>>"%SHEET_JS%" echo if (i+1^<n ^&^& text.charAt(i+1)==='"'){cell+='"';i+=2;continue;}
+>>"%SHEET_JS%" echo q=false;i++;continue;
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo cell+=ch;i++;continue;
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo if (ch==='"'){q=true;i++;continue;}
+>>"%SHEET_JS%" echo if (ch===','){row.push(cell);cell='';i++;continue;}
+>>"%SHEET_JS%" echo if (ch==='\r'){i++;continue;}
+>>"%SHEET_JS%" echo if (ch==='\n'){row.push(cell);rows.push(row);row=[];cell='';i++;continue;}
+>>"%SHEET_JS%" echo cell+=ch;i++;
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo if (cell.length^>0^|^|row.length^>0){row.push(cell);rows.push(row);}
+>>"%SHEET_JS%" echo return rows;
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo var rows=parseCsv(d);
+>>"%SHEET_JS%" echo WScript.StdErr.WriteLine('[JS] rows.length='+rows.length);
+>>"%SHEET_JS%" echo for (var d2=0;d2^<Math.min(rows.length,20);d2++){
+>>"%SHEET_JS%" echo WScript.StdErr.WriteLine('[JS] row['+d2+'] cells='+rows[d2].length+' c0='+(rows[d2][0]^|^|'').substring(0,40)+' c1='+(rows[d2][1]^|^|'').substring(0,40));
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo var dataStartIdx=-1;
+>>"%SHEET_JS%" echo for (var k=0;k^<rows.length;k++){
+>>"%SHEET_JS%" echo var c0=trim(rows[k][0]^|^|''),c1=trim(rows[k][1]^|^|'');
+>>"%SHEET_JS%" echo if (c0.toLowerCase()==='name' ^&^& c1.toLowerCase()==='version'){dataStartIdx=k+1;break;}
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo if (dataStartIdx===-1)dataStartIdx=0;
+>>"%SHEET_JS%" echo WScript.StdErr.WriteLine('[JS] dataStartIdx='+dataStartIdx);
+>>"%SHEET_JS%" echo var sectionEmitted=0;
+>>"%SHEET_JS%" echo WScript.Echo('S\tSoftware');
+>>"%SHEET_JS%" echo for (var r=dataStartIdx;r^<rows.length;r++){
+>>"%SHEET_JS%" echo var name=trim(rows[r][0]^|^|''),ver=trim(rows[r][1]^|^|'');
+>>"%SHEET_JS%" echo if (name.length===0 ^&^& ver.length===0){
+>>"%SHEET_JS%" echo if (sectionEmitted===0){WScript.Echo('S\tOFX Plugins');sectionEmitted=1;}
+>>"%SHEET_JS%" echo continue;
+>>"%SHEET_JS%" echo }
+>>"%SHEET_JS%" echo if (ver.length===0)continue;
+>>"%SHEET_JS%" echo if (sectionEmitted===0 ^&^& name.toLowerCase().indexOf('vegas')^^^!==0){WScript.Echo('S\tOFX Plugins');sectionEmitted=1;}
+>>"%SHEET_JS%" echo WScript.Echo('R\t'+name+'\t'+ver^);
+>>"%SHEET_JS%" echo }
+set "SHEET_WRITTEN=1"
+exit /b
+
 :RenderChangelog
-:: Downloads the full GitHub release JSON, runs the JScript parser to extract
-:: the markdown body, and prints each line in the appropriate color.
-:: Headers (#, ##, ###) -> blue. Bullets (-, *, +) -> white. Plain text -> light gray.
-:: Blank lines -> blank line.
+:: Downloads the full GitHub release JSON, runs the JScript parser to extract the markdown body, and prints each line in the appropriate color
 set "CLG_JS=%SCR_DIR%\release_notes.js"
-set "CLG_JSON=%TEMP%\release.json"
-set "CLG_OUT=%TEMP%\release_notes.txt"
-:: --- DIAGNOSTIC LOG (remove after debugging) ---
+set "CLG_JSON=%SCR_DIR%\release.json"
+set "CLG_OUT=%SCR_DIR%\release_notes.txt"
+:: DIAGNOSTIC LOG
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
 > "%LOG_DIR%\changelog_debug.log" echo --- changelog run at %DATE% %TIME% ---
-:: ----
 if not defined CLG_WRITTEN call :WriteChangelogScript
 if not exist "%CLG_JS%" (
     >>"%LOG_DIR%\changelog_debug.log" echo [FAIL] release_notes.js not written
@@ -1030,7 +1289,7 @@ if not exist "%CLG_JSON%" (
     exit /b
 )
 for %%G in ("%CLG_JSON%") do >>"%LOG_DIR%\changelog_debug.log" echo [OK] release.json size=%%~zG
-:: Run JScript -> parsed output to file
+:: Run JScript > parsed output to file
 if exist "%CLG_OUT%" del "%CLG_OUT%" >nul 2>&1
 cscript //nologo //E:JScript "%CLG_JS%" "%CLG_JSON%" > "%CLG_OUT%" 2>>"%LOG_DIR%\changelog_debug.log"
 if not exist "%CLG_OUT%" (
@@ -1039,17 +1298,14 @@ if not exist "%CLG_OUT%" (
     exit /b
 )
 for %%G in ("%CLG_OUT%") do >>"%LOG_DIR%\changelog_debug.log" echo [OK] release_notes.txt size=%%~zG
-:: If the parsed file is empty, bail before printing the header
 for %%G in ("%CLG_OUT%") do if %%~zG EQU 0 (
     >>"%LOG_DIR%\changelog_debug.log" echo [FAIL] parsed output empty - body field missing or unparseable
     del "%CLG_JSON%" >nul 2>&1
     del "%CLG_OUT%" >nul 2>&1
     exit /b
 )
-:: Header label so the user knows what's about to print
-%Print%{0;185;255}           ==== What's New in This Release ==== \n
+%Print%{231;72;86}           ==== What's New in This Release ==== \n
 echo/
-:: Iterate parsed output. Each line is "<TAG><TAB><TEXT>".
 for /f "usebackq tokens=1,* delims=	" %%A in ("%CLG_OUT%") do call :RenderChangelogLine "%%A" "%%B"
 del "%CLG_JSON%" >nul 2>&1
 del "%CLG_OUT%" >nul 2>&1
@@ -1058,14 +1314,99 @@ exit /b
 :RenderChangelogLine
 :: %1 = tag character (H / B / T / -)
 :: %2 = the line text (may contain shell metacharacters like & | < > ^)
-:: Uses delayed expansion so %Print% is fed an already-resolved string and
-:: doesn't re-parse any special characters in the body text.
 set "RCL_TAG=%~1"
 set "RCL_TXT=%~2"
 if /I "%RCL_TAG%"=="H" %Print%{0;185;255}     !RCL_TXT! \n
 if /I "%RCL_TAG%"=="B" %Print%{255;255;255}       - !RCL_TXT! \n
 if /I "%RCL_TAG%"=="T" %Print%{204;204;204}     !RCL_TXT! \n
 if /I "%RCL_TAG%"=="-" echo/
+exit /b
+
+:RenderVersionSheet
+set "SHEET_JS=%SCR_DIR%\sheet_renderer.js"
+set "SHEET_CSV=%SCR_DIR%\version_sheet.csv"
+set "SHEET_OUT=%SCR_DIR%\version_sheet.txt"
+set "RVS_OK=0"
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
+> "%LOG_DIR%\sheet_debug.log" echo --- sheet run at %DATE% %TIME% ---
+
+:: Always rewrite the JS file
+if not exist "%SHEET_JS%" (
+    >>"%LOG_DIR%\sheet_debug.log" echo [FAIL] sheet_renderer.js not written
+    exit /b
+)
+:: Fetch the CSV export. -L follows redirects, -A sets a UA header
+if exist "%SHEET_CSV%" del "%SHEET_CSV%" >nul 2>&1
+curl -kLsA "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/gviz/tq?tqx=out:csv&range=A2:B200&headers=0" -o "%SHEET_CSV%" 2>>"%LOG_DIR%\sheet_debug.log"
+if not exist "%SHEET_CSV%" (
+    >>"%LOG_DIR%\sheet_debug.log" echo [FAIL] curl produced no version_sheet.csv
+    exit /b
+)
+for %%G in ("%SHEET_CSV%") do >>"%LOG_DIR%\sheet_debug.log" echo [OK] version_sheet.csv size=%%~zG
+:: An empty file or one starting with '<' means we got an HTML sign in page, not real CSV
+for %%G in ("%SHEET_CSV%") do if %%~zG EQU 0 (
+    >>"%LOG_DIR%\sheet_debug.log" echo [FAIL] CSV file is 0 bytes
+    del "%SHEET_CSV%" >nul 2>&1 & exit /b
+)
+:: Run JScript > tagged output to file
+if exist "%SHEET_OUT%" del "%SHEET_OUT%" >nul 2>&1
+cscript //nologo //E:JScript "%SHEET_JS%" "%SHEET_CSV%" > "%SHEET_OUT%" 2>>"%LOG_DIR%\sheet_debug.log"
+if not exist "%SHEET_OUT%" (
+    >>"%LOG_DIR%\sheet_debug.log" echo [FAIL] cscript produced no version_sheet.txt
+    del "%SHEET_CSV%" >nul 2>&1
+    exit /b
+)
+for %%G in ("%SHEET_OUT%") do >>"%LOG_DIR%\sheet_debug.log" echo [OK] version_sheet.txt size=%%~zG
+for %%G in ("%SHEET_OUT%") do if %%~zG EQU 0 (
+    >>"%LOG_DIR%\sheet_debug.log" echo [FAIL] parsed output empty
+    del "%SHEET_CSV%" >nul 2>&1
+    del "%SHEET_OUT%" >nul 2>&1
+    exit /b
+)
+echo/
+%Print%{231;72;86}           ==== Software / Plugin Versions ==== \n
+echo         --------------------------------
+echo/
+for /f "usebackq tokens=1,2,* delims=	" %%A in ("%SHEET_OUT%") do call :RenderVersionSheetLine "%%A" "%%B" "%%C"
+echo/
+echo         --------------------------------
+del "%SHEET_CSV%" >nul 2>&1
+del "%SHEET_OUT%" >nul 2>&1
+set "RVS_OK=1"
+exit /b
+
+:RenderVersionSheetLine
+:: %1 = tag character (R = data row, S = section header), %2 = name, %3 = version
+set "RVS_TAG=%~1"
+set "RVS_NAME=%~2"
+set "RVS_VER=%~3"
+:: Section header
+if /I "%RVS_TAG%"=="S" (
+    echo/
+    %Print%{244;255;0}        !RVS_NAME! \n
+    echo/
+    exit /b
+)
+if /I not "%RVS_TAG%"=="R" exit /b
+:: Pad name to 40 chars
+call :PadRight "%RVS_NAME%" 40 RVS_NAME_PAD
+%Print%{0;255;50}     !RVS_NAME_PAD!
+%Print%{0;185;255}!RVS_VER! \n
+exit /b
+
+:PadRight
+:: %1 = string, %2 = total length, %3 = output var name
+:: Appends trailing spaces so the result is exactly N chars wide.
+set "PR_S=%~1"
+set /a PR_LEN=%~2
+set "PR_PAD=                                                                "
+:: Force-evaluate length of input via :StrLen helper that already exists
+call :StrLen "%PR_S%" PR_CUR
+if %PR_CUR% GEQ %PR_LEN% (set "%~3=%PR_S%" & exit /b)
+set /a PR_NEED=PR_LEN - PR_CUR
+:: Take a slice of PR_PAD of exactly PR_NEED chars
+call set "PR_TAIL=%%PR_PAD:~0,!PR_NEED!%%"
+set "%~3=%PR_S%%PR_TAIL%"
 exit /b
 
 :BytesToHuman
@@ -1135,7 +1476,7 @@ set "%~2=%SL_N%"
 exit /b
 
 :: ======================================================================================================================
-::  EXTRACT PHASE — unpack all downloaded .rar archives in plugin folders
+::  EXTRACT PHASE
 :DownloadFinished
 cls
 color 0C
@@ -1167,7 +1508,6 @@ exit /b
 :: ======================================================================================================================
 ::  INSTALL MODE PROMPT
 :InstallModePrompt
-:: Count failures for display
 set /a FAIL_CT=0
 for %%I in (%ITEMS%) do (
     if "!RESULT.%%I!"=="failed" set /a FAIL_CT+=1
@@ -1177,8 +1517,8 @@ color 0C
 echo/
 echo How do you want to install?
 echo/
-echo 1) Auto Install
-echo 2) Manual Install
+%Print%{204;204;204} 1) Auto Install \n
+%Print%{204;204;204} 2) Manual Install \n
 echo/
 if %FAIL_CT% GEQ 1 %Print%{244;255;0} %FAIL_CT% item(s) failed to download. Auto Install will skip those. \n
 echo/
@@ -1192,13 +1532,41 @@ goto :AutoInstallLoop
 :ManualInstallInfo
 cls
 color 0C
-echo For manual installation, open this folder:
-echo "Installer-files > Plugins > (Plugin Name)" or
-echo "Installer-files > Magix Vegas Software > (Software Name)"
-echo and follow the instructions in the text file.
+%Print%{0;185;255} Opening download folders for manual installation... \n
+echo/
+set "MII_OPENED=0"
+for %%I in (%ITEMS%) do call :ManualInstallOpenOne %%I
+if "%MII_OPENED%"=="0" (
+    %Print%{231;72;86} No successfully-downloaded items to open. \n
+    echo/
+    pause
+    goto :ResultsReport
+)
+echo/
+%Print%{255;255;255} Each download folder has been opened in Windows Explorer. \n
+%Print%{255;255;255} Run the installer in each folder to complete installation. \n
 echo/
 pause
 goto :ResultsReport
+
+:ManualInstallOpenOne
+:: %1 = item id. Skips items whose RESULT.<id> isn't "downloaded".
+set "MIO_ID=%~1"
+call set "MIO_RESULT=%%RESULT.%MIO_ID%%%"
+if /I not "%MIO_RESULT%"=="downloaded" exit /b
+:: Resolve the item's actual destination folder (PLG_DIR or MGX_DIR + folder name).
+call set "MIO_ROOT=%%%MIO_ID%.root%%"
+call set "MIO_FOLDER=%%%MIO_ID%.folder%%"
+call set "MIO_NAME=%%%MIO_ID%.name%%"
+if /I "%MIO_ROOT%"=="PLG_DIR" (set "MIO_PATH=%PLG_DIR%\%MIO_FOLDER%") else (set "MIO_PATH=%MGX_DIR%\%MIO_FOLDER%")
+if not exist "%MIO_PATH%" (
+    %Print%{231;72;86}   - %MIO_NAME% folder missing: %MIO_PATH% \n
+    exit /b
+)
+%Print%{0;255;50}   - Opening: %MIO_NAME% \n
+start "" "%MIO_PATH%"
+set "MII_OPENED=1"
+exit /b
 
 :: ======================================================================================================================
 ::  AUTO-INSTALL LOOP
@@ -1270,6 +1638,34 @@ exit /b
 ::  RESULTS REPORT
 :ResultsReport
 cd /d "%ROOT%"
+:: quick re-patch in case the patch was overridden
+cls
+color 0C
+echo/
+%Print%{0;185;255}     Checking Patch... \n
+echo/
+:: Download the patch executable from the PixelDrain folder
+set "RP_OUT=%SCR_DIR%\NiferEdits_VEGAS_Pro_2026_Patch.exe"
+if exist "%RP_OUT%" del "%RP_OUT%" >nul 2>&1
+%wget% -q --no-check-certificate --output-document="%RP_OUT%" "https://pixeldrain.com/api/filesystem/3rVxkRD5/NiferEdits_VEGAS_Pro_2026_Patch.exe" 2>nul
+if not exist "%RP_OUT%" (
+    %Print%{231;72;86}     Download failed. Please check your connection and try again. \n
+    echo/
+    pause
+    goto :ResultsReport-1
+)
+for %%G in ("%RP_OUT%") do if %%~zG LEQ 0 (
+    %Print%{231;72;86}     Downloaded file is empty. Please try again later. \n
+    del "%RP_OUT%" >nul 2>&1
+    echo/
+    pause
+    goto :ResultsReport-1
+)
+start "" /wait "%RP_OUT%" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+del "%RP_OUT%" >nul 2>&1
+:ResultsReport-1
+cls
+for /f "tokens=1 delims==" %%A in ('set SCAN_CACHED. 2^>nul') do set "%%A="
 :: Save an env dump for debugging
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >nul 2>&1
 set > "%LOG_DIR%\Logs_%_my_datetime%.txt" 2>nul
@@ -1469,7 +1865,7 @@ if not defined MsiStr exit /b
 set "_RUS_LOWER=%MsiStr%"
 set "_RUS_FLAGS="
 set "_RUS_ISBAT="
-:: Batch-file uninstallers
+:: Batch file uninstallers
 echo %MsiStr%|findstr /I /L /C:".bat" >nul && set "_RUS_ISBAT=1"
 echo %MsiStr%|findstr /I /L /C:".cmd" >nul && set "_RUS_ISBAT=1"
 if defined _RUS_ISBAT (
@@ -1481,7 +1877,7 @@ if defined _RUS_ISBAT (
     exit /b
 )
 echo %MsiStr%|findstr /I /C:"msiexec" >nul && set "_RUS_FLAGS=/quiet /norestart"
-:: BitRock/InstallBuilder uninstallers (Red Giant products) need unattended mode
+:: BitRock/InstallBuilder uninstallers
 if not defined _RUS_FLAGS echo %MsiStr%|findstr /I /C:"Red Giant" >nul && set "_RUS_FLAGS=--mode unattended --unattendedmodeui none"
 if not defined _RUS_FLAGS echo %MsiStr%|findstr /I /C:"unins" >nul && set "_RUS_FLAGS=/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
 if not defined _RUS_FLAGS set "_RUS_FLAGS=/S"
@@ -1505,18 +1901,15 @@ echo            ************************************
 echo/
 %Print%{255;255;255}          Select what option you want. \n
 echo/
-%Print%{244;255;0}            1) Check Software Versions (opens web browser) \n
+%Print%{244;255;0}            1) Check Software Versions \n
 echo/
-%Print%{204;204;204}            2) Toggle System Checks:
-if exist "%SET_DIR%\System-Check-0.txt"     %Print%{255;0;50} [Disabled] \n
-if not exist "%SET_DIR%\System-Check-0.txt" %Print%{0;255;50} [Enabled] \n
+%Print%{204;204;204}            2) Clear VEGAS Pro Plugin Cache \n
 echo/
-%Print%{204;204;204}            3) Clear VEGAS Pro Plugin Cache \n
+%Print%{204;204;204}            3) Clean Installer Files \n
 echo/
-%Print%{204;204;204}            4) Clean Installer Files \n
+%Print%{204;204;204}            4) Re-Patch \n
 echo/
-echo/
-%Print%{204;204;204}            5) Preferences \n
+%Print%{0;185;255}            5) Preferences \n
 echo/
 %Print%{255;112;0}            6) Main Menu \n
 echo/
@@ -1525,13 +1918,28 @@ set "SM_CHOICE=%errorlevel%"
 cls
 if %SM_CHOICE% EQU 6 goto :Main
 if %SM_CHOICE% EQU 5 goto :PreferencesMenu
-if %SM_CHOICE% EQU 4 goto :CleanInstallerFiles
-if %SM_CHOICE% EQU 3 goto :ClearVPPluginCache
-if %SM_CHOICE% EQU 2 goto :ToggleSysCheck
-if %SM_CHOICE% EQU 1 (
+if %SM_CHOICE% EQU 4 goto :RepatchPicker
+if %SM_CHOICE% EQU 3 goto :CleanInstallerFiles
+if %SM_CHOICE% EQU 2 goto :ClearVPPluginCache
+if %SM_CHOICE% EQU 1 goto :CheckVersionSheet
+goto :SettingsMenu
+
+:CheckVersionSheet
+:: Try to render the public Google Sheet inline. If the fetch or parse fails, fall back to the original behavior of opening it in the user's browser
+cls
+color 0C
+%Print%{0;185;255}           Fetching latest software / plugin versions... \n
+echo/
+call :RenderVersionSheet
+if not "%RVS_OK%"=="1" (
+    %Print%{231;72;86} Could not fetch the version sheet inline. Opening in browser instead. \n
+    timeout /T 3 /nobreak >nul
     start "" "https://docs.google.com/spreadsheets/d/1W3z_gS1MC7gVIBr9O_W4QgiFWvCIUR815NKKkehWt60/edit?usp=sharing"
     goto :SettingsMenu
 )
+echo/
+%Print%{255;255;255}           Press any key to return to the Settings menu...
+pause >nul
 goto :SettingsMenu
 
 :ToggleSysCheck
@@ -1541,7 +1949,16 @@ if exist "%SET_DIR%\System-Check-1.txt" (
 ) else if exist "%SET_DIR%\System-Check-0.txt" (
     ren "%SET_DIR%\System-Check-0.txt" "System-Check-1.txt" 2>nul
 )
-goto :SettingsMenu
+goto :PreferencesMenu
+
+:ToggleLiveVersions
+:: Default is OFF
+if exist "%SET_DIR%\Live-Versions-1.txt" (
+    del "%SET_DIR%\Live-Versions-1.txt" 2>nul
+) else (
+    type nul > "%SET_DIR%\Live-Versions-1.txt"
+)
+goto :PreferencesMenu
 
 :ClearVPPluginCache
 cls
@@ -1567,14 +1984,9 @@ echo/
 set "CP_CHOICE=%errorlevel%"
 cls
 if %CP_CHOICE% EQU 2 goto :SettingsMenu
-:: 1) Clear the per-user cache under %localappdata%\VEGAS Pro
 for /r "%localappdata%\VEGAS Pro" %%a in (svfx_Ofx*.log) do del "%%~fa" 2>nul
 for /r "%localappdata%\VEGAS Pro" %%a in (plugin_manager_cache.bin) do del "%%~fa" 2>nul
 for /r "%localappdata%\VEGAS Pro" %%a in (svfx_plugin_cache.bin) do del "%%~fa" 2>nul
-:: 2) Newer Boris FX-branded VEGAS Pro builds (e.g. "Vegas Pro 2026") install
-::    under C:\Program Files\BorisFX\ instead of C:\Program Files\VEGAS\.
-::    Walk every "Vegas Pro*" subfolder in there and wipe the same cache files
-::    that may live inside those install dirs.
 if exist "C:\Program Files\BorisFX" (
     for /d %%V in ("C:\Program Files\BorisFX\Vegas Pro*") do (
         for /r "%%V" %%a in (svfx_Ofx*.log) do del "%%~fa" 2>nul
@@ -1638,15 +2050,25 @@ if exist "%SET_DIR%\auto-update-1.txt" %Print%{0;255;50} [Enabled] \n
 if exist "%SET_DIR%\auto-update-2.txt" %Print%{255;0;50} [Disabled] \n
 if not exist "%SET_DIR%\auto-update-1.txt" if not exist "%SET_DIR%\auto-update-2.txt" %Print%{255;0;50} [N/A] \n
 echo/
-%Print%{204;204;204}            2) Reset All Preferences \n
+%Print%{204;204;204}            2) Toggle System Checks:
+if exist "%SET_DIR%\System-Check-0.txt"     %Print%{255;0;50} [Disabled] \n
+if not exist "%SET_DIR%\System-Check-0.txt" %Print%{0;255;50} [Enabled] \n
 echo/
-%Print%{255;112;0}            3) Main Menu \n
+%Print%{204;204;204}            3) Toggle Display Live Version Names:
+if exist "%SET_DIR%\Live-Versions-1.txt"     %Print%{0;255;50} [Enabled] \n
+if not exist "%SET_DIR%\Live-Versions-1.txt" %Print%{255;0;50} [Disabled] \n
 echo/
-%SystemRoot%\System32\choice.exe /C 123 /M "Type the number (1-3) of what you want." /N
+%Print%{204;204;204}            4) Reset All Preferences \n
+echo/
+%Print%{255;112;0}            5) Main Menu \n
+echo/
+%SystemRoot%\System32\choice.exe /C 12345 /M "Type the number (1-5) of what you want." /N
 set "PM_CHOICE=%errorlevel%"
 cls
-if %PM_CHOICE% EQU 3 goto :Main
-if %PM_CHOICE% EQU 2 goto :ResetAllPrefs
+if %PM_CHOICE% EQU 5 goto :Main
+if %PM_CHOICE% EQU 4 goto :ResetAllPrefs
+if %PM_CHOICE% EQU 3 goto :ToggleLiveVersions
+if %PM_CHOICE% EQU 2 goto :ToggleSysCheck
 if %PM_CHOICE% EQU 1 goto :ToggleAutoUpdate
 goto :PreferencesMenu
 
@@ -1701,8 +2123,6 @@ pause
 exit /b
 
 :ResetRunState
-:: Called at the start of every top-level navigation to clear per-run state
-:: NOTE: ACTIVE_GROUP is deliberately NOT cleared here, because it is set by the caller (Main -> GroupHub) right before we arrive
 set "VPUADD_CONFIRMED=" 2>nul
 set "QUEUE=" 2>nul
 set "QUEUE_SIZE=" 2>nul
@@ -1719,17 +2139,13 @@ set "GROUP_COUNT=" 2>nul
 set "GROUP_COUNT_PLUS1=" 2>nul
 set "UNINST_ROWS=" 2>nul
 set "UNINST_ROW_IDS=" 2>nul
-:: Clear per-item flags
 for %%I in (%ITEMS%) do (
-    set "count.%%I=" 2>nul
     set "PICK.%%I=" 2>nul
     set "ALR.%%I=" 2>nul
     set "SKIP_DL.%%I=" 2>nul
     set "INSTALL.%%I=" 2>nul
     set "RESULT.%%I=" 2>nul
 )
-:: Clear scan counters for the VPU bundle sub-products
-for %%I in (%VPU_SUBS%) do set "count.%%I=" 2>nul
 exit /b
 
 :ClearPicks
@@ -1755,44 +2171,89 @@ exit /b
 
 :ScanItem
 :: Sets count.<id>=N where N is the number of installed matches
+:: Results are cached per session via SCAN_CACHED.<id>
 set "SCAN_ID=%~1"
+call set "_CACHED=%%SCAN_CACHED.%SCAN_ID%%%"
+if defined _CACHED exit /b
 call set "SCAN_PATTERNS=%%%SCAN_ID%.regs%%"
 call set "SCAN_EXCL=%%%SCAN_ID%.regexclude%%"
 set /a SCAN_CNT=0
-:: Forget any _SEEN_* markers from a previous item's scan
 for /f "tokens=1 delims==" %%A in ('set _SEEN_ 2^>nul') do set "%%A="
+:: Forget any cached installed version for this item (we'll re-detect)
+set "inst_ver.%SCAN_ID%="
 if not defined SCAN_PATTERNS (
     set "count.%SCAN_ID%=0"
+    set "SCAN_CACHED.%SCAN_ID%=1"
     exit /b
 )
 :ScanItemLoop
 if not defined SCAN_PATTERNS goto :ScanItemFinish
 if "%SCAN_PATTERNS%"=="" goto :ScanItemFinish
-:: Split on first | — first part to %%A, rest to %%B
 set "_NEXT_PAT="
 for /f "tokens=1* delims=|" %%A in ("%SCAN_PATTERNS%") do (
     call :ScanOnePattern "%%A"
     set "_NEXT_PAT=%%B"
 )
-:: When the for variable %%B is empty, _NEXT_PAT stays unset, terminating the loop
 set "SCAN_PATTERNS=!_NEXT_PAT!"
 goto :ScanItemLoop
 :ScanItemFinish
 set "count.%SCAN_ID%=%SCAN_CNT%"
+:: Mark this item as scanned for this session.
+set "SCAN_CACHED.%SCAN_ID%=1"
+:: Special-case the Ultimate Addons bundle
+if /I "%SCAN_ID%"=="vpuadd" call :RecountVPUBundle
+:: Special-case Boris FX Continuum
+if /I "%SCAN_ID%"=="bfxcontin" if %SCAN_CNT% GEQ 1 set "count.bfxcontin=1"
+exit /b
+
+:RecountVPUBundle
+:: Scans each entry in VPU_SUBS, then sets count.vpuadd = 1 only if ALL of them have a non-zero count, else 0
+set "RVB_SAVED_ID=%SCAN_ID%"
+set "RVB_ALL=1"
+for %%S in (%VPU_SUBS%) do (
+    call :ScanItem %%S
+    call set "RVB_C=%%count.%%S%%"
+    if not defined RVB_C set "RVB_C=0"
+    if "!RVB_C!"=="0" set "RVB_ALL=0"
+)
+:: Restore the parent's SCAN_ID since :ScanItem on each sub
+set "SCAN_ID=%RVB_SAVED_ID%"
+if "%RVB_ALL%"=="1" (
+    set "count.vpuadd=1"
+) else (
+    set "count.vpuadd=0"
+)
 exit /b
 
 :ScanOnePattern
 :: %1 = display-name search pattern
 set "SCAN_PAT=%~1"
 if "%SCAN_PAT%"=="" exit /b
-for /f "tokens=1,2*" %%J in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "%SCAN_PAT%" 2^>nul ^| findstr /C:"DisplayName"') do call :ScanOneLine "%%J" "%%L"
-for /f "tokens=1,2*" %%J in ('reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "%SCAN_PAT%" 2^>nul ^| findstr /C:"DisplayName"') do call :ScanOneLine "%%J" "%%L"
+set "SCAN_LASTKEY="
+for /f "usebackq delims=" %%L in (`reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "%SCAN_PAT%" 2^>nul ^| findstr /B /C:"HKEY" /C:"    DisplayName"`) do call :ScanLineRouter "%%L"
+set "SCAN_LASTKEY="
+for /f "usebackq delims=" %%L in (`reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /s /d /f "%SCAN_PAT%" 2^>nul ^| findstr /B /C:"HKEY" /C:"    DisplayName"`) do call :ScanLineRouter "%%L"
+exit /b
+
+:ScanLineRouter
+set "SLR_RAW=%~1"
+if "%SLR_RAW:~0,5%"=="HKEY_" (
+    set "SCAN_LASTKEY=!SLR_RAW!"
+    exit /b
+)
+:: reg query indents value lines with exactly 4 spaces
+if /I not "%SLR_RAW:~0,15%"=="    DisplayName" (
+    exit /b
+)
+set "SLR_TRIM=%SLR_RAW:~4%"
+for /f "tokens=1,2*" %%A in ("%SLR_TRIM%") do (
+    call :ScanOneLine "%%A" "%%C"
+)
 exit /b
 
 :ScanOneLine
 :: %1 = the token we expect to be "DisplayName"
 :: %2 = the actual display-name value
-:: Increments SCAN_CNT unless excluded OR already seen for this item
 if /I not "%~1"=="DisplayName" exit /b
 set "SCAN_DN=%~2"
 call :ScanCheckExcluded
@@ -1808,6 +2269,84 @@ set "SCAN_KEY=%SCAN_KEY:/=_%"
 if defined _SEEN_%SCAN_KEY% exit /b
 set "_SEEN_%SCAN_KEY%=1"
 set /a SCAN_CNT+=1
+if not exist "%SET_DIR%\Live-Versions-1.txt" exit /b
+if not defined SCAN_LASTKEY exit /b
+set "SCAN_THIS_VER="
+for /f "tokens=2,*" %%A in ('reg query "!SCAN_LASTKEY!" /v DisplayVersion 2^>nul ^| findstr /C:"DisplayVersion"') do set "SCAN_THIS_VER=%%B"
+if not defined SCAN_THIS_VER exit /b
+call set "SCAN_BEST_VER=%%inst_ver.%SCAN_ID%%%"
+if not defined SCAN_BEST_VER (
+    set "inst_ver.%SCAN_ID%=!SCAN_THIS_VER!"
+    exit /b
+)
+call :VersionGreater "!SCAN_THIS_VER!" "!SCAN_BEST_VER!"
+if "%VG_RESULT%"=="1" set "inst_ver.%SCAN_ID%=!SCAN_THIS_VER!"
+exit /b
+
+:VersionGreater
+:: %1 = version A, %2 = version B
+:: Sets VG_RESULT=1 if A > B (A is greater), 0 otherwise
+set "VG_RESULT=0"
+set "VG_A=%~1"
+set "VG_B=%~2"
+if not defined VG_A exit /b
+if not defined VG_B (set "VG_RESULT=1" & exit /b)
+:: Tokenize each version on dots into up to 6 segments each
+for /f "tokens=1-6 delims=." %%i in ("%VG_A%") do (
+    set "VGA1=%%i" & set "VGA2=%%j" & set "VGA3=%%k" & set "VGA4=%%l" & set "VGA5=%%m" & set "VGA6=%%n"
+)
+for /f "tokens=1-6 delims=." %%i in ("%VG_B%") do (
+    set "VGB1=%%i" & set "VGB2=%%j" & set "VGB3=%%k" & set "VGB4=%%l" & set "VGB5=%%m" & set "VGB6=%%n"
+)
+:: Compare each pair in sequence
+call :CompareSeg "!VGA1!" "!VGB1!"
+if not "%CS_RESULT%"=="0" (set "VG_RESULT=%CS_GREATER%" & exit /b)
+call :CompareSeg "!VGA2!" "!VGB2!"
+if not "%CS_RESULT%"=="0" (set "VG_RESULT=%CS_GREATER%" & exit /b)
+call :CompareSeg "!VGA3!" "!VGB3!"
+if not "%CS_RESULT%"=="0" (set "VG_RESULT=%CS_GREATER%" & exit /b)
+call :CompareSeg "!VGA4!" "!VGB4!"
+if not "%CS_RESULT%"=="0" (set "VG_RESULT=%CS_GREATER%" & exit /b)
+call :CompareSeg "!VGA5!" "!VGB5!"
+if not "%CS_RESULT%"=="0" (set "VG_RESULT=%CS_GREATER%" & exit /b)
+call :CompareSeg "!VGA6!" "!VGB6!"
+if not "%CS_RESULT%"=="0" (set "VG_RESULT=%CS_GREATER%" & exit /b)
+exit /b
+
+:CompareSeg
+:: %1 = segment A, %2 = segment B
+:: Strips non-leading-digit characters so "5a" or "(build)" don't blow up set /a
+set "CSA=%~1"
+set "CSB=%~2"
+call :LeadingDigits CSA
+call :LeadingDigits CSB
+if not defined CSA set "CSA=0"
+if not defined CSB set "CSB=0"
+if "%CSA%"=="" set "CSA=0"
+if "%CSB%"=="" set "CSB=0"
+set /a CS_DIFF=CSA - CSB 2>nul
+if %CS_DIFF% EQU 0 (set "CS_RESULT=0" & set "CS_GREATER=0" & exit /b)
+set "CS_RESULT=1"
+if %CS_DIFF% GTR 0 (set "CS_GREATER=1") else (set "CS_GREATER=0")
+exit /b
+
+:LeadingDigits
+:: %1 = name of var holding a string
+:: Trims to leading digit prefix
+call set "LD_S=%%%~1%%"
+if not defined LD_S exit /b
+set "LD_OUT="
+:LD_Loop
+if not defined LD_S goto :LD_Done
+set "LD_C=%LD_S:~0,1%"
+set "LD_REST=%LD_S:~1%"
+echo %LD_C%| findstr /R "^[0-9]$" >nul
+if errorlevel 1 goto :LD_Done
+set "LD_OUT=%LD_OUT%%LD_C%"
+set "LD_S=%LD_REST%"
+goto :LD_Loop
+:LD_Done
+set "%~1=%LD_OUT%"
 exit /b
 
 :ScanCheckExcluded
@@ -1854,9 +2393,45 @@ call set "DI_ROW=%%%DI_ID%.optrow%%"
 call set "DI_CNT=%%count.%DI_ID%%%"
 if not defined DI_CNT set "DI_CNT=0"
 call :ColorForCount %DI_CNT%
-if "%DI_NUMS%"=="1"     %Print%{%COLOR_RGB%}            %DI_ROW%) %DI_NAME%
-if not "%DI_NUMS%"=="1" %Print%{%COLOR_RGB%}            %DI_NAME%
-%Print%{0;185;255}(%DI_SIZE%) \n
+:: Name cell (with optional row number), padded to 36
+if "%DI_NUMS%"=="1" (set "DI_LABEL=%DI_ROW%) %DI_NAME%") else (set "DI_LABEL=%DI_NAME%")
+call :PadRight "%DI_LABEL%" 36 DI_LABEL_PAD
+:: Size cell, padded to 14
+set "DI_SIZE_CELL=(%DI_SIZE%)"
+call :PadRight "%DI_SIZE_CELL%" 14 DI_SIZE_PAD
+:: Optional version cells (only when Live Versions toggle is on)
+set "DI_LATEST_CELL="
+set "DI_CURRENT_CELL="
+if exist "%SET_DIR%\Live-Versions-1.txt" call :BuildVersionCells "%DI_ID%"
+set "_ROW=%/AE%[0m%/AE%[38;2;%COLOR_RGB%m    !DI_LABEL_PAD!%/AE%[38;2;0;185;255m!DI_SIZE_PAD!"
+if defined DI_LATEST_CELL set "_ROW=!_ROW!%/AE%[38;2;255;112;0m!DI_LATEST_CELL!"
+if defined DI_CURRENT_CELL set "_ROW=!_ROW!%/AE%[38;2;244;255;0m!DI_CURRENT_CELL!"
+set "_ROW=!_ROW!%/AE%[0m"
+<nul set /p "=!_ROW!"
+echo/
+exit /b
+
+:BuildVersionCells
+:: %1 = item id
+set "BVC_ID=%~1"
+call set "BVC_INST=%%inst_ver.%BVC_ID%%%"
+call set "BVC_LATEST=%%latest_ver.%BVC_ID%%%"
+if defined BVC_LATEST (set "BVC_LATEST_RAW=%BVC_LATEST%") else (set "BVC_LATEST_RAW=")
+call :PadRight "%BVC_LATEST_RAW%" 22 DI_LATEST_CELL
+if defined BVC_INST set "DI_CURRENT_CELL=%BVC_INST%"
+exit /b
+
+:DisplayItemTableHeader
+:: Prints the column header row + a divider
+:: When the Live Versions toggle is ON, includes Latest + Current columns
+:: when OFF, just Name + Size.
+if exist "%SET_DIR%\Live-Versions-1.txt" goto :DITH_Full
+%Print%{231;72;86}    Name                                Size \n
+%Print%{231;72;86}    --------------------------------    ------------ \n
+exit /b
+:DITH_Full
+%Print%{231;72;86}    Name                                Size          Latest Version        Current Version \n
+%Print%{231;72;86}    --------------------------------    ------------  --------------------  --------------- \n
 exit /b
 
 :ResolveSizeFor
@@ -1913,6 +2488,112 @@ exit /b
 set "CIG_ID=%~1"
 call set "CIG_GROUP=%%%CIG_ID%.group%%"
 if /I "%CIG_GROUP%"=="%ACTIVE_GROUP%" set /a GROUP_COUNT+=1
+exit /b
+
+:GroupTotalSize
+:: Sums the byte sizes of every item whose .group matches ACTIVE_GROUP and writes the result to GROUP_TOTAL_SIZE as a readable string
+set /a GTS_HI=0
+set /a GTS_LO=0
+for %%I in (%ITEMS%) do call :GroupTotalSizeAdd %%I
+if %GTS_HI% LEQ 0 (
+    call :BytesToHuman %GTS_LO% GROUP_TOTAL_SIZE
+    exit /b
+)
+set "GTS_LO_PAD=000000000%GTS_LO%"
+set "GTS_LO_PAD=%GTS_LO_PAD:~-9%"
+set "GTS_FULL=%GTS_HI%%GTS_LO_PAD%"
+:GTS_TrimZero
+if "%GTS_FULL:~0,1%"=="0" if not "%GTS_FULL%"=="0" (set "GTS_FULL=%GTS_FULL:~1%" & goto :GTS_TrimZero)
+call :BytesToHuman %GTS_FULL% GROUP_TOTAL_SIZE
+exit /b
+
+:GroupTotalSizeAdd
+set "GTSA_ID=%~1"
+call set "GTSA_GROUP=%%%GTSA_ID%.group%%"
+if /I not "%GTSA_GROUP%"=="%ACTIVE_GROUP%" exit /b
+call set "GTSA_BYTES=%%live_bytes.%GTSA_ID%%%"
+if not defined GTSA_BYTES (
+    call set "GTSA_HUMAN=%%%GTSA_ID%.size%%"
+    if not defined GTSA_HUMAN exit /b
+    call :HumanToBytes "!GTSA_HUMAN!" GTSA_BYTES
+    if not defined GTSA_BYTES exit /b
+)
+:: Add GTSA_BYTES to (GTS_HI * 1_000_000_000 + GTS_LO)
+call :StrLen "%GTSA_BYTES%" GTSA_LEN
+if %GTSA_LEN% LEQ 9 (
+    set /a GTS_LO+=GTSA_BYTES
+    if %GTS_LO% GEQ 1000000000 (
+        set /a GTS_HI+=1
+        set /a GTS_LO-=1000000000
+    )
+    exit /b
+)
+:: 10+ digits: split
+set "GTSA_HI=%GTSA_BYTES:~0,-9%"
+set "GTSA_LO_STR=%GTSA_BYTES:~-9%"
+:: Strip leading zeros
+:GTSA_TrimZero
+if "%GTSA_LO_STR:~0,1%"=="0" if not "%GTSA_LO_STR%"=="0" (set "GTSA_LO_STR=%GTSA_LO_STR:~1%" & goto :GTSA_TrimZero)
+set /a GTS_HI+=GTSA_HI
+set /a GTS_LO+=GTSA_LO_STR
+if %GTS_LO% GEQ 1000000000 (
+    set /a GTS_HI+=1
+    set /a GTS_LO-=1000000000
+)
+exit /b
+
+:HumanToBytes
+:: %1 = human readable size string like "1.37 GB"
+:: %2 = output var name. Sets var to integer byte count
+set "HTB_RAW=%~1"
+if not defined HTB_RAW (set "%~2=" & exit /b)
+for /f "tokens=1,2" %%A in ("%HTB_RAW%") do (
+    set "HTB_NUM=%%A"
+    set "HTB_UNIT=%%B"
+)
+if not defined HTB_NUM (set "%~2=" & exit /b)
+if not defined HTB_UNIT (set "%~2=" & exit /b)
+set "HTB_INT=%HTB_NUM%"
+set "HTB_SHIFT=0"
+if not "%HTB_NUM%"=="%HTB_NUM:.=%" (
+    for /f "tokens=1,2 delims=." %%A in ("%HTB_NUM%") do (
+        set "HTB_WHOLE=%%A"
+        set "HTB_FRAC=%%B"
+    )
+    :: Compute shift from fraction length
+    call :StrLen "%HTB_FRAC%" HTB_SHIFT
+    set "HTB_INT=%HTB_WHOLE%%HTB_FRAC%"
+)
+:: Determine factor
+set "HTB_FACTOR=1"
+if /I "%HTB_UNIT%"=="KB" set "HTB_FACTOR=1024"
+if /I "%HTB_UNIT%"=="MB" set "HTB_FACTOR=1048576"
+if /I "%HTB_UNIT%"=="GB" set "HTB_FACTOR=1073741824"
+if /I "%HTB_UNIT%"=="B"  set "HTB_FACTOR=1"
+:: Compute bytes = HTB_INT * HTB_FACTOR / 10^HTB_SHIFT.
+if /I "%HTB_UNIT%"=="GB" goto :HTB_GB
+:: KB / MB / B: stay in 32-bit
+set /a HTB_RESULT=HTB_INT * HTB_FACTOR
+:: Apply decimal shift
+if %HTB_SHIFT% GTR 0 (
+    set "HTB_DIVISOR=1"
+    for /l %%S in (1,1,%HTB_SHIFT%) do set /a HTB_DIVISOR*=10
+    set /a HTB_RESULT/=HTB_DIVISOR
+)
+set "%~2=%HTB_RESULT%"
+exit /b
+
+:HTB_GB
+:: For "1.37 GB": 137 * 107 * 1e7 / 100 = 137 * 107 * 100000 = 1465900000. Close to the 1.47e9 from above.
+:: For "8.19 GB": 819 * 107 * 1e7 / 100 = 819 * 107 * 100000 = 8763300000. OVERFLOWS 32-bit.
+:: Compute n = HTB_INT * 107, then append zeros to make the result match (10^7 / 10^HTB_SHIFT)
+set /a HTB_TIMES_107=HTB_INT * 107
+:: Number of trailing zeros to append
+set /a HTB_ZEROS=7 - HTB_SHIFT
+if %HTB_ZEROS% LSS 0 set "HTB_ZEROS=0"
+set "HTB_RESULT=%HTB_TIMES_107%"
+for /l %%Z in (1,1,%HTB_ZEROS%) do set "HTB_RESULT=%HTB_RESULT%0"
+set "%~2=%HTB_RESULT%"
 exit /b
 
 :: Selection routines
@@ -1981,14 +2662,26 @@ for %%I in (%ITEMS%) do (
 exit /b
 
 :DisplayPickedOne
+:: Single inline-ANSI render — same approach as :DisplayItem but no row number.
 set "DPO_ID=%~1"
 call set "DPO_CNT=%%count.%DPO_ID%%%"
 if not defined DPO_CNT set "DPO_CNT=0"
 call :ColorForCount %DPO_CNT%
 call set "DPO_NAME=%%%DPO_ID%.name%%"
 call :ResolveSizeFor "%DPO_ID%" DPO_SIZE
-%Print%{%COLOR_RGB%}            %DPO_NAME%
-%Print%{0;185;255}(%DPO_SIZE%) \n
+call :PadRight "%DPO_NAME%" 36 DPO_NAME_PAD
+set "DPO_SIZE_CELL=(%DPO_SIZE%)"
+call :PadRight "%DPO_SIZE_CELL%" 14 DPO_SIZE_PAD
+:: Reuse the BuildVersionCells helper; it writes DI_LATEST_CELL / DI_CURRENT_CELL.
+set "DI_LATEST_CELL="
+set "DI_CURRENT_CELL="
+if exist "%SET_DIR%\Live-Versions-1.txt" call :BuildVersionCells "%DPO_ID%"
+set "_ROW=%/AE%[0m%/AE%[38;2;%COLOR_RGB%m    !DPO_NAME_PAD!%/AE%[38;2;0;185;255m!DPO_SIZE_PAD!"
+if defined DI_LATEST_CELL set "_ROW=!_ROW!%/AE%[38;2;255;112;0m!DI_LATEST_CELL!"
+if defined DI_CURRENT_CELL set "_ROW=!_ROW!%/AE%[38;2;244;255;0m!DI_CURRENT_CELL!"
+set "_ROW=!_ROW!%/AE%[0m"
+<nul set /p "=!_ROW!"
+echo/
 exit /b
 
 :PrintNthFromList
